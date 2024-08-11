@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.king.im.msg.mapper.MsgMapper">
+    <resultMap id="BaseResultMap" type="com.king.im.msg.domain.entity.Msg">
+        <id column="id" property="id"/>
+        <result column="extra" property="extra"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+    <sql id="BaseField">
+        select id, room_id, from_uid, status, to_uid, type, content, extra, create_time from t_msg
+    </sql>
+
+    <select id="getRoomMsgCursorPage" resultMap="BaseResultMap">
+        <include refid="BaseField"/>
+        <where>
+            <if test="id != null">
+                id &lt; #{cursor}
+            </if>
+            and room_id = #{roomId}
+        </where>
+        order by id desc, create_time desc
+        limit
+        <choose>
+            <when test="size != null">
+                #{size}
+            </when>
+            <otherwise>20</otherwise>
+        </choose>
+    </select>
+
+    <select id="getPeerMsgCursorPage" resultMap="BaseResultMap">
+        <include refid="BaseField"/>
+        <where>
+            <if test="cursor != null">
+                and id &lt; #{cursor}
+            </if>
+            and ((from_uid = #{fromUid}
+            and to_uid = #{toUid})
+            or (from_uid = #{toUid}
+            and to_uid = #{fromUid}))
+        </where>
+        order by id desc, create_time desc limit
+        <choose>
+            <when test="size != null">
+                #{size}
+            </when>
+            <otherwise>20</otherwise>
+        </choose>
+    </select>
+
+    <select id="getUnreadMsg" resultMap="BaseResultMap">
+        <include refid="BaseField"/>
+        where status = 1 and and fromUid = #{chatId} toUid = #{userId} and type = #{type}
+    </select>
+
+    <select id="getOfflineMsgByUserId" resultMap="BaseResultMap">
+        select id,
+               room_id,
+               from_uid,
+               status,
+               to_uid,
+               type,
+               content,
+               extra,
+               create_time
+        from t_msg
+        where id > #{minMsgId}
+          and ((to_uid = #{userId} and from_uid is not null) or (from_uid = #{userId} and to_uid is not null))
+        order by create_time desc
+    </select>
+
+    <select id="getOfflineMsgByRoomId" resultMap="BaseResultMap">
+        select id,
+               room_id,
+               from_uid,
+               status,
+               to_uid,
+               type,
+               content,
+               extra,
+               create_time
+        from t_msg
+        where id > #{minMsgId}
+          and room_id = #{roomId}
+        order by create_time desc
+        limit 100
+    </select>
+
+    <select id="getHistoryMsg" resultMap="BaseResultMap">
+        <include refid="BaseField"/>
+        where id &lt; #{maxMsgId} and to_uid = #{userId}
+    </select>
+</mapper>

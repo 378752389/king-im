@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #333333;
+        }
+
+        .rank {
+            margin: auto;
+            padding: 10px 20px 0 20px;
+            background-color: #f2f3f5;
+            width: 200px;
+            height: 300px;
+        }
+
+        .title {
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            margin: 5px 0;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-decoration: none;
+            color: black;
+        }
+
+        .header:hover {
+            color: deepskyblue;
+        }
+
+        .append {
+            display: flex;
+        }
+
+        .append span {
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .append span::after {
+            content: "*";
+            margin: 0 5px;
+        }
+
+        .append span:last-child::after {
+            content: "";
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="rank">
+        <div class="title">相关推荐</div>
+
+        <div class="article">
+            <a href="#" class="header">面渣逆袭：MySQL六十六问，两万字+五十图详解！</a>
+            <div class="append">
+                <span>18k阅读</span>
+                <span>115点赞</span>
+            </div>
+        </div>
+
+        <div class="article">
+            <a href="#" class="header">面渣逆袭：MySQL六十六问，两万字+五十图详解！</a>
+            <div class="append">
+                <span>18k阅读</span>
+                <span>115点赞</span>
+            </div>
+        </div>
+
+        <div class="article">
+            <a href="#" class="header">面渣逆袭：MySQL六十六问，两万字+五十图详解！</a>
+            <div class="append">
+                <span>18k阅读</span>
+                <span>115点赞</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+
+</script>
+</html>

@@ -1,0 +1,61 @@
+@import "normalize.styl"
+
+$cursorDefault = url('/common/cursors/default.cur'), auto
+$cursorSelect = url('/common/cursors/select.cur'), auto
+$cursorText = url('/common/cursors/text.cur'), auto
+
+
+.pointer-default
+  cursor $cursorDefault !important
+
+.pointer-select
+  cursor $cursorSelect !important
+
+.pointer-text
+  cursor $cursorText !important
+
+body
+  cursor: $cursorDefault
+
+a, button, i, input, input[type=submit], input[type=button]
+  cursor: $cursorSelect !important
+
+input, input[type=text]:hover, input[type=search], input[type=password], textarea
+  cursor: $cursorText !important
+
+
+/****************************************************** 默认表单样式 *******************************************/
+
+$labelWidth = 100px
+$labelAlign = left
+$inputTextHeight = 40px
+
+label
+  width $labelWidth
+  text-align $labelAlign
+  line-height $inputTextHeight
+
+input[type=text]
+  width 500px
+  height $inputTextHeight
+  font-size 1.4rem
+
+  &:focus
+    outline none
+    border-color dodgerblue
+
+input[type=button]
+  height 40px
+  padding 0 30px
+  margin 0 30px
+
+.form-item
+  margin 10px 0
+  display flex
+  justify-content center
+
+
+/****************************************************** 其他 *******************************************/
+a, a:active, a:focus, a:hover
+  text-decoration none
+

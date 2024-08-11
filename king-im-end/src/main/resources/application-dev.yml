@@ -1,0 +1,39 @@
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${king-im.db.url}
+    username: ${king-im.db.username}
+    password: ${king-im.db.password}
+  redis:
+    password: ${king-im.redis.password}
+    host: ${king-im.redis.host}
+    port: 6379
+    database: 15
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+# 开发环境允许swagger,生产环境需要都设置未false关闭
+springfox:
+  documentation:
+    enabled: true
+    auto-startup: true
+    swagger-ui:
+      enabled: true
+
+mybatis-plus:
+  mapper-locations: mapper/**.xml
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+king-im:
+  server: localhost
+  file:
+    download: http://localhost/im-upload
+    upload: E:\Project\java\own\mini-project\im-upload
+
+
