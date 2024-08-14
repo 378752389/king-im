@@ -1,7 +1,7 @@
 package com.king.im.msg.service;
 
 import com.king.im.common.cursor.CursorResult;
-import com.king.im.sender.protocol.data.ChatData;
+import com.king.im.server.protocol.data.ChatData;
 
 public interface OfflineMessageCache {
 

@@ -1,4 +1,4 @@
-package com.king.im.sender.protocol.data;
+package com.king.im.server.protocol.data;
 
 import com.king.im.msg.domain.extra.Extra;
 import lombok.Data;

@@ -1,5 +1,7 @@
 package java.com.king.netty;
 
+import com.king.im.common.exceptions.GlobalException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,10 +19,10 @@ public class ReadScript {
         String newPath = "E:\\Project\\java\\own\\mini-project\\source";
         Path p = Paths.get(path);
         if (!Files.exists(p)) {
-            throw new RuntimeException("路径不存在");
+            throw new GlobalException("路径不存在");
         }
         if (!Files.isDirectory(p)) {
-            throw new RuntimeException("指定路径不是目录文件");
+            throw new GlobalException("指定路径不是目录文件");
         }
         List<Path> files = Files.walk(p)
                 .filter(Files::isRegularFile)

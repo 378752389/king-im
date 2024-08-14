@@ -26,7 +26,7 @@ public class FileController {
     @Resource
     private FileService fileService;
 
-    @ApiOperation(value = "文件上传接口")
+    @ApiOperation(value = "文件上传接口", notes = "用户选择文件上传")
     @PostMapping("upload")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "file", value = "上传文件")

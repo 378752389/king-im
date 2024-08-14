@@ -3,6 +3,7 @@ package com.king.im.common.interceptor;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.utils.JwtUtils;
 import com.king.im.user.constants.LoginConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -43,12 +44,12 @@ public class AuthInterceptor implements HandlerInterceptor {
         String token = request.getHeader("accessToken");
         if (StrUtil.isEmpty(token)) {
             log.error("未登陆，url:{}", request.getRequestURI());
-            throw new RuntimeException("accessToken无效或过期");
+            throw new GlobalException("accessToken无效或过期");
         }
         //验证 token
         if (!JwtUtils.checkSign(token, LoginConstants.accessSecret)) {
             log.error("token已失效，url:{}", request.getRequestURI());
-            throw new RuntimeException("accessToken无效或过期");
+            throw new GlobalException("accessToken无效或过期");
         }
 
 

@@ -4,9 +4,8 @@ import com.king.im.common.utils.JSONUtils;
 import com.king.im.msg.convert.MsgConvert;
 import com.king.im.sender.domain.SendMessage;
 import com.king.im.sender.domain.type.ReceiverInfo;
-import com.king.im.sender.protocol.IMCMD;
-import com.king.im.sender.protocol.data.ChatData;
-import com.king.im.ws.session.MessageSender;
+import com.king.im.server.protocol.CMD;
+import com.king.im.server.session.MessageSender;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +44,9 @@ public class IMSender implements ISender {
             // todo 接收不到,  离线消息
             return;
         }
-        IMCMD<ChatData> imcmd = MsgConvert.buildIMCMD(sendMessage);
+        CMD CMD = MsgConvert.buildIMCMD(sendMessage);
 
-        String imcmdStr = jsonUtils.stringify(imcmd);
+        String imcmdStr = jsonUtils.stringify(CMD);
         List<Integer> terminalTypes = sendMessage.getReceiverInfo().getReceiveTerminalTypes();
 
         int count = 0;

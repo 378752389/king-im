@@ -11,9 +11,9 @@ import com.king.im.sender.domain.enums.ChatTypeEnum;
 import com.king.im.sender.domain.enums.MessageTypeEnum;
 import com.king.im.sender.domain.message.BaseMessage;
 import com.king.im.sender.domain.type.SenderInfo;
-import com.king.im.sender.protocol.IMCMD;
-import com.king.im.sender.protocol.IMCMDType;
-import com.king.im.sender.protocol.data.ChatData;
+import com.king.im.server.protocol.CMD;
+import com.king.im.server.protocol.CMDType;
+import com.king.im.server.protocol.data.ChatData;
 
 import java.util.Date;
 import java.util.List;
@@ -94,8 +94,8 @@ public class MsgConvert {
         return chatData;
     }
 
-    public static IMCMD<ChatData> buildIMCMD(SendMessage sendMessage) {
-        IMCMD<ChatData> imcmd = new IMCMD<>();
+    public static CMD buildIMCMD(SendMessage sendMessage) {
+        CMD CMD = new CMD();
         ChatData chatData = new ChatData();
 
         BaseMessage message = sendMessage.getMessage();
@@ -123,9 +123,9 @@ public class MsgConvert {
             chatData.setRoomId(chatId);
         }
         // 命令封装
-        imcmd.setCmd(IMCMDType.CHAT);
-        imcmd.setData(chatData);
+        CMD.setCmd(CMDType.CHAT);
+        CMD.setData(chatData);
 
-        return imcmd;
+        return CMD;
     }
 }

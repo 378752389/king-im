@@ -2,6 +2,7 @@ package com.king.im.social.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.RequestInfoHolder;
 import com.king.im.common.interceptor.UserInfo;
 import com.king.im.social.domain.entity.UserFriendRelation;
@@ -28,7 +29,7 @@ public class FriendServiceImpl implements FriendService {
     public List<FriendDO> getFriendList(Long uid) {
         User user = userMapper.selectById(uid);
         if (user == null){
-            throw new RuntimeException("用户不存在");
+            throw new GlobalException("用户不存在");
         }
         return userMapper.getFriendList(uid);
     }
@@ -37,7 +38,7 @@ public class FriendServiceImpl implements FriendService {
     public int addFriend(Long id) {
         User user = userMapper.selectById(id);
         if (user == null){
-            throw new RuntimeException("用户不存在");
+            throw new GlobalException("用户不存在");
         }
         UserInfo userInfo = RequestInfoHolder.getUserInfo();
         LambdaQueryWrapper<UserFriendRelation> query = Wrappers.<UserFriendRelation>lambdaQuery()
@@ -70,7 +71,7 @@ public class FriendServiceImpl implements FriendService {
     public int deleteFriend(Long id) {
         User user = userMapper.selectById(id);
         if (user == null){
-            throw new RuntimeException("用户不存在");
+            throw new GlobalException("用户不存在");
         }
         Long uid = RequestInfoHolder.getUid();
         LambdaQueryWrapper<UserFriendRelation> query = Wrappers.<UserFriendRelation>lambdaQuery()
@@ -98,7 +99,7 @@ public class FriendServiceImpl implements FriendService {
         Long peerId = friendDO.getPeerId();
         User friend = userMapper.selectById(peerId);
         if (friend == null) {
-            throw new RuntimeException("用户不存在");
+            throw new GlobalException("用户不存在");
         }
         Long userId = RequestInfoHolder.getUid();
         LambdaQueryWrapper<UserFriendRelation> query = Wrappers.<UserFriendRelation>lambdaQuery()
@@ -107,7 +108,7 @@ public class FriendServiceImpl implements FriendService {
 
         UserFriendRelation relation = userFriendMapper.selectOne(query);
         if (relation == null) {
-            throw new RuntimeException("你和对方不是朋友关系");
+            throw new GlobalException("你和对方不是朋友关系");
         }
         relation.setMarkName(friendDO.getPeerMarkName());
         return userFriendMapper.updateById(relation);
@@ -117,7 +118,7 @@ public class FriendServiceImpl implements FriendService {
     public List<FriendDO> queryFriend(Long id) {
         User user = userMapper.selectById(id);
         if (user == null){
-            throw new RuntimeException("用户不存在");
+            throw new GlobalException("用户不存在");
         }
 
         return userMapper.getFriendList(id);

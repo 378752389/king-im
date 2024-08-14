@@ -1,4 +1,4 @@
-package com.king.im.ws.session;
+package com.king.im.server.session;
 
 import io.netty.channel.Channel;
 

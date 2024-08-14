@@ -3,6 +3,7 @@ package com.king.im.user.service.impl;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.UserInfo;
 import com.king.im.common.utils.JwtUtils;
 import com.king.im.user.constants.LoginConstants;
@@ -52,12 +53,12 @@ public class LoginServiceImpl implements LoginService {
         String username = loginDTO.getUsername();
         User user = userMapper.getUserByUsername(username);
         if (user == null) {
-            throw new RuntimeException("用户名或密码错误");
+            throw new GlobalException("用户名或密码错误");
         }
 
         String password = user.getPassword();
         if (!passwordEncoder.matches(loginDTO.getPassword(), password)) {
-            throw new RuntimeException("用户名或密码错误");
+            throw new GlobalException("用户名或密码错误");
         }
 
         Date date = new Date();
@@ -116,7 +117,7 @@ public class LoginServiceImpl implements LoginService {
     @SneakyThrows
     public LoginVO refresh(String refreshToken) {
         if (!JwtUtils.checkSign(refreshToken, LoginConstants.refreshSecret)) {
-            throw new RuntimeException("refresh token 校验失败, 请重新登录");
+            throw new GlobalException("refresh token 校验失败, 请重新登录");
         }
         String userInfoStr = JwtUtils.getUserInfo(refreshToken);
         Long uid = JwtUtils.getUserId(refreshToken);

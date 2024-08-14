@@ -1,5 +1,8 @@
-package com.king.im.ws;
+package com.king.im.server.ws;
 
+import com.king.im.server.IMServerHandler;
+import com.king.im.server.ws.codec.IMWebSocketDecoder;
+import com.king.im.server.ws.codec.IMWebSocketEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -20,10 +23,10 @@ import javax.annotation.Resource;
 
 @Component
 @Slf4j
-public class WebSocketServerStarter {
+public class WSServerStarter {
 
     @Resource
-    private WebSocketHandler webSocketHandler;
+    private IMServerHandler IMServerHandler;
 
     public void start() throws InterruptedException {
         NioEventLoopGroup boss = new NioEventLoopGroup(1);
@@ -41,11 +44,13 @@ public class WebSocketServerStarter {
                         ChannelPipeline pipeline = channel.pipeline();
                         pipeline.addLast(new IdleStateHandler(30, 0, 0))
                                 .addLast(new HttpServerCodec())
-                                .addLast(new ChunkedWriteHandler())
                                 .addLast(new HttpObjectAggregator(8192))
+                                .addLast(new ChunkedWriteHandler())
                                 .addLast(new HttpHeadHandler())
                                 .addLast(new WebSocketServerProtocolHandler("/"))
-                                .addLast(webSocketHandler);
+                                .addLast(new IMWebSocketEncoder())
+                                .addLast(new IMWebSocketDecoder())
+                                .addLast(IMServerHandler);
                     }
                 })
                 .bind(8849)

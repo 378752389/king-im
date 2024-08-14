@@ -2,11 +2,12 @@ package com.king.im.user.controller;
 
 import com.king.im.common.interceptor.RequestInfoHolder;
 import com.king.im.common.result.CommonResult;
+import com.king.im.server.session.GlobalSessionManager;
 import com.king.im.social.service.RoomService;
 import com.king.im.user.domain.UserVO;
 import com.king.im.user.domain.entity.User;
 import com.king.im.user.service.UserService;
-import com.king.im.ws.session.LocalSessionManager;
+import com.king.im.server.session.LocalSessionManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class UserController {
     @Resource
     private RoomService roomService;
     @Resource
-    private LocalSessionManager sessionManager;
+    private GlobalSessionManager globalSessionManager;
     @Resource
     private UserService userService;
 
@@ -66,7 +67,7 @@ public class UserController {
             vo.setAvatar(user.getAvatar());
             vo.setNickName(user.getNickName());
 
-            vo.setIsOnline(sessionManager.isOnline(vo.getId()));
+            vo.setIsOnline(globalSessionManager.isOnline(vo.getId()));
             vo.setCity(user.getCity());
             vo.setIp(user.getLastLoginIp());
             vo.setLoginTime(user.getLastLoginTime());

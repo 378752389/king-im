@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.RequestInfoHolder;
 import com.king.im.common.interceptor.UserInfo;
 import com.king.im.social.domain.RoomDo;
@@ -55,7 +56,7 @@ public class RoomServiceImpl implements RoomService {
     public int apply(Long roomId) {
         Room room = roomMapper.selectById(roomId);
         if (room == null) {
-            throw new RuntimeException("房间不存在");
+            throw new GlobalException("房间不存在");
         }
 
         int result = 0;
@@ -66,7 +67,7 @@ public class RoomServiceImpl implements RoomService {
         query.setUserId(uid);
         query.setRoomId(roomId);
         if (userRoomMapper.exists(Wrappers.query(query))) {
-            throw new RuntimeException("用户已经在房间内，不能重复申请");
+            throw new GlobalException("用户已经在房间内，不能重复申请");
         }
 
         UserRoomRelation urr = new UserRoomRelation();
@@ -86,7 +87,7 @@ public class RoomServiceImpl implements RoomService {
 
         Room room = roomMapper.selectById(roomId);
         if (room == null) {
-            throw new RuntimeException("房间不存在");
+            throw new GlobalException("房间不存在");
         }
         Long leaderId = room.getLeaderId();
         Long uid = RequestInfoHolder.getUid();
@@ -122,7 +123,7 @@ public class RoomServiceImpl implements RoomService {
         Room room = roomMapper.selectById(roomId);
         int result = 0;
         if (room == null) {
-            throw new RuntimeException("房间不存在");
+            throw new GlobalException("房间不存在");
         }
 
         if (CollUtil.isEmpty(friendIds)) {
@@ -190,11 +191,11 @@ public class RoomServiceImpl implements RoomService {
         Long uid = RequestInfoHolder.getUid();
         Room room = roomMapper.selectById(roomId);
         if (room == null) {
-            throw new RuntimeException("房间不存在");
+            throw new GlobalException("房间不存在");
         }
         Long leaderId = room.getLeaderId();
         if (leaderId.equals(uid)) {
-            throw new RuntimeException("群主不能退出房间");
+            throw new GlobalException("群主不能退出房间");
         }
 
         UserRoomRelation urr = new UserRoomRelation();
@@ -210,11 +211,11 @@ public class RoomServiceImpl implements RoomService {
         Long uid = RequestInfoHolder.getUid();
         Room room = roomMapper.selectById(roomId);
         if (room == null) {
-            throw new RuntimeException("房间不存在");
+            throw new GlobalException("房间不存在");
         }
         Long leaderId = room.getLeaderId();
         if (!leaderId.equals(uid)) {
-            throw new RuntimeException("不是群主，不能删除该聊天群");
+            throw new GlobalException("不是群主，不能删除该聊天群");
         }
 
         int result = 0;

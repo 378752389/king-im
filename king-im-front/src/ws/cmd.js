@@ -1,4 +1,5 @@
 import {useUserStore} from "@/stores/user.js";
+
 export const CMD = {
     PING: 1,
     PONG: 2,
@@ -15,10 +16,12 @@ export const getPing = () => {
 }
 
 export const getLogin = () => {
-    console.log(useUserStore().auth?.accessToken)
     return JSON.stringify({
         cmd: CMD.LOGIN,
-        data: {accessToken: useUserStore().auth?.accessToken}
+        data: {
+            accessToken: useUserStore().auth?.accessToken,
+            terminal: 1
+        }
     })
 }
 

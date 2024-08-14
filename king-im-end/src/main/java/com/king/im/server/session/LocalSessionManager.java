@@ -1,8 +1,17 @@
-package com.king.im.ws.session;
+package com.king.im.server.session;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 public interface LocalSessionManager {
+
+    /**
+     * 获取 context
+     * @param uid
+     * @param terminal
+     * @return
+     */
+    Channel getChannel(Long uid, Integer terminal);
 
     /**
      * 缓存channel
@@ -11,20 +20,18 @@ public interface LocalSessionManager {
     void connect(ChannelHandlerContext ctx);
 
     /**
-     * 移除 缓存 channel
+     * 移除 channel
      * @param ctx
      */
     void disconnect(ChannelHandlerContext ctx);
 
     /**
-     * 登录
+     * 上线
      * @param ctx
      * @param uid
      * @param terminalType
      */
     void online(ChannelHandlerContext ctx, Long uid, Integer terminalType);
-
-    boolean isOnline(Long uid);
 
     /**
      * 下线
@@ -34,4 +41,12 @@ public interface LocalSessionManager {
      * @return
      */
     boolean offline(ChannelHandlerContext ctx, Long uid, Integer terminalType);
+
+
+    /**
+     * 用户全局 session 进行续期
+     * @param userId
+     * @param terminal
+     */
+    void renewal(Long userId, Integer terminal);
 }

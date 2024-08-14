@@ -14,7 +14,7 @@ import com.king.im.sender.IMSender;
 import com.king.im.sender.domain.SendMessage;
 import com.king.im.sender.domain.enums.MessageStatusEnum;
 import com.king.im.sender.domain.type.ReceiverInfo;
-import com.king.im.sender.protocol.data.ChatData;
+import com.king.im.server.protocol.data.ChatData;
 import com.king.im.social.domain.RoomDo;
 import com.king.im.social.mapper.RoomMapper;
 import lombok.extern.slf4j.Slf4j;

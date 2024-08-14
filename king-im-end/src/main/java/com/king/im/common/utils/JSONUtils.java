@@ -3,6 +3,7 @@ package com.king.im.common.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.king.im.common.exceptions.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class JSONUtils {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             log.error("序列化异常: {}, object: {}", e.getMessage(), object);
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -35,6 +36,10 @@ public class JSONUtils {
             log.error("反序列化异常: {}, 数据: {}， 序列化目标对象：{}", e.getMessage(), s, type);
             throw new RuntimeException(e);
         }
+    }
+
+    public <T> T convert(Object o, TypeReference<T> reference) {
+        return objectMapper.convertValue(o, reference);
     }
 
 }

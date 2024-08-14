@@ -6,7 +6,7 @@ import com.king.im.msg.domain.MsgCursorReq;
 import com.king.im.msg.domain.MsgReq;
 import com.king.im.msg.service.HistoryMessageCache;
 import com.king.im.msg.service.MessageService;
-import com.king.im.sender.protocol.data.ChatData;
+import com.king.im.server.protocol.data.ChatData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;

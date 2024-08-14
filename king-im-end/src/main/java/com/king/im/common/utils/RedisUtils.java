@@ -21,9 +21,18 @@ public class RedisUtils {
         return redisTemplate.opsForValue().get(key);
     }
 
+    public Set<String> keys(String pattern) {
+        return redisTemplate.keys(pattern);
+    }
+
+    public void expire(String key, Long timeout, TimeUnit unit) {
+        redisTemplate.expire(key, timeout, unit);
+    }
+
     public Long ttl(String key) {
         return redisTemplate.getExpire(key);
     }
+
     public void set(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
     }
@@ -32,7 +41,7 @@ public class RedisUtils {
         redisTemplate.opsForValue().setIfAbsent(key, value);
     }
 
-    public void setex(String key, Object value, long timeout, TimeUnit unit){
+    public void setex(String key, Object value, long timeout, TimeUnit unit) {
         redisTemplate.opsForValue().set(key, value, timeout, unit);
     }
 
@@ -97,7 +106,7 @@ public class RedisUtils {
     // ============================== map =====================================
 
     public Object hget(String key, Object hashKey) {
-        return redisTemplate.opsForHash().get(key ,hashKey);
+        return redisTemplate.opsForHash().get(key, hashKey);
     }
 
     public void hset(String key, Object hashKey, Object val) {

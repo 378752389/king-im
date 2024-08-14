@@ -1,5 +1,6 @@
 package java.com.king.design;
 
+import com.king.im.common.exceptions.GlobalException;
 import com.king.im.msg.domain.entity.Msg;
 import com.king.im.sender.domain.enums.MessageTypeEnum;
 
@@ -18,7 +19,7 @@ public class MessageContext {
     public void process(Msg msg) {
         MessageTypeEnum messageTypeEnum = MessageTypeEnum.valueOf(msg.getType());
         if (messageTypeEnum == null) {
-            throw new RuntimeException("不支持该消息类型");
+            throw new GlobalException("不支持该消息类型");
         }
         MessageStrategy messageStrategy = strategyMap.get(messageTypeEnum);
         messageStrategy.process(msg);

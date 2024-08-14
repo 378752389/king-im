@@ -1,9 +1,10 @@
-package com.king.im.ws.session.impl;
+package com.king.im.server.session.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.king.im.server.ChannelInfoHolder;
+import com.king.im.server.session.LocalSessionManager;
 import com.king.im.user.domain.UserSessionDO;
-import com.king.im.ws.session.LocalSessionManager;
-import com.king.im.ws.session.MessageSender;
+import com.king.im.server.session.MessageSender;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,14 @@ public class LocalSessionManagerImpl implements LocalSessionManager, MessageSend
     @Override
     public void send(Consumer<Map<Long, ConcurrentHashMap<Integer, Channel>>> consumer) {
         consumer.accept(ONLINE_UID_MAP);
+    }
+
+    @Override
+    public Channel getChannel(Long uid, Integer terminal) {
+        return Optional
+                .ofNullable(ONLINE_UID_MAP.get(uid))
+                .map(terminalMap -> terminalMap.get(terminal))
+                .orElse(null);
     }
 
     @Override
@@ -68,22 +77,16 @@ public class LocalSessionManagerImpl implements LocalSessionManager, MessageSend
         ONLINE_UID_MAP.putIfAbsent(uid, new ConcurrentHashMap<>());
         ConcurrentHashMap<Integer, Channel> map = ONLINE_UID_MAP.get(uid);
 
-        map.compute(1, (k, v) -> {
+        map.compute(terminalType, (k, v) -> {
             // 用户重复上线不受影响
             if (v != null && v != ctx.channel()) {
-                log.error("旧设备被挤兑");
+                log.error("uid: {}, terminal: {}; 旧设备被挤兑", ChannelInfoHolder.getUid(v), ChannelInfoHolder.getTerminal(v));
                 v.close();
             }
             return ctx.channel();
         });
 
         log.info("uid: {}, channelId: {} 上线了", uid, ctx.channel().id());
-    }
-
-    @Override
-    public boolean isOnline(Long uid) {
-        ConcurrentHashMap<Integer, Channel> list = ONLINE_UID_MAP.get(uid);
-        return CollUtil.isNotEmpty(list);
     }
 
     /**
@@ -106,6 +109,11 @@ public class LocalSessionManagerImpl implements LocalSessionManager, MessageSend
         log.info("uid: {}, channelId: {} 下线了", uid, ctx.channel().id());
 
         return ONLINE_UID_MAP.get(uid).isEmpty();
+    }
+
+    @Override
+    public void renewal(Long userId, Integer terminal) {
+
     }
 
 }

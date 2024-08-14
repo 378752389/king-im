@@ -1,6 +1,6 @@
-package com.king.im.sender.protocol;
+package com.king.im.server.protocol;
 
-public class IMCMDType {
+public class CMDType {
     public static final int PING = 1;
     public static final int PONG = 2;
     public static final int LOGIN = 3;

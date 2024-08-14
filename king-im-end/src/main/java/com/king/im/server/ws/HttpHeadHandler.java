@@ -1,5 +1,6 @@
-package com.king.im.ws;
+package com.king.im.server.ws;
 
+import com.king.im.server.ChannelInfoHolder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -15,13 +16,9 @@ public class HttpHeadHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest request = (FullHttpRequest) msg;
-
-            String token = request.headers().get("token");
             InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
             String ip = socketAddress.getAddress().getHostAddress();
-
-            RequestInfoHolder.setIp(ctx.channel(), ip);
-            RequestInfoHolder.setToken(ctx.channel(), token);
+            ChannelInfoHolder.setIp(ctx.channel(), ip);
 
             ctx.pipeline().remove(this);
         }
