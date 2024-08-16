@@ -12,7 +12,6 @@ const searchText = ref('')
 const onContactClick = (chat) => {
   // todo 通知渲染content
   // 清空未读标志
-  console.log(chatsStore.chatsGetter)
   chatsStore.setChat(chat.chatId, chat.type)
 }
 
@@ -53,7 +52,7 @@ const onRemoveChatClick = (context, close) => {
       <div @click="onContactClick(chat)"
            @contextmenu="onContextmenuClick($event, chat)"
            :class="['contact-item', {'active': chatsStore.currentChatIdGetter === chat.chatId && chatsStore.currentChatTypeGetter === chat.type}]"
-           :key="chat.id"
+           :key="chat.chatId + ':' + chat.type"
            v-for="chat in chatsStore.chatsGetter">
         <div class="avatar-wrapper">
           <div class="unread-count" v-if="chat.unreadCount && chat.unreadCount > 0">{{ chat.unreadCount }}

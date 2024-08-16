@@ -1,12 +1,12 @@
 <script setup>
 
-import {getHistoryCursorPage, sendAPI} from "@/http/message.js";
-import {reactive, ref} from "vue";
+import {sendAPI} from "@/http/message.js";
+import {computed, reactive, ref} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
 import KingDialog from "@/components/common/KingDialog.vue";
-import ChatHistory from "@/views/chat/components/ChatHistory.vue";
 import AtSearch from "@/views/chat/components/AtSearch.vue";
-import {getCursorNode} from "@/utils/textCursorUtils.js";
+import ChatHistory from "@/views/chat/components/ChatHistory.vue";
+import {useGroupsStore} from "@/stores/groups.js";
 
 const chatStore = useChatsStore()
 const editAreaData = reactive({
@@ -67,37 +67,6 @@ const onSendBtnClick = async () => {
   emits('send-msg')
 }
 
-const onTextAreaKeyDown = (e) => {
-  console.log("keydown", e)
-  // 阻止回车默认行为
-  if (e.shiftKey && e.keyCode === 13) {
-    // todo 换行
-    e.preventDefault()
-    createNewLine()
-  } else if (e.keyCode === 13) {
-    // todo
-    onSendBtnClick()
-  }
-}
-
-const createNewLine = () => {
-  console.log("create new line")
-  let newLineNode = document.createTextNode('\n')
-  let sel = document.getSelection()
-  let range = sel.getRangeAt(0)
-  range.insertNode(newLineNode)
-  range.setStartAfter(newLineNode)
-  range.collapse()
-  sel.removeAllRanges()
-  sel.addRange(range)
-
-  console.log(editAreaRef.value.childNodes)
-}
-
-const onTextAreaKeyUp = (e) => {
-
-}
-
 const onShowEmojiClick = () => {
   alert("该功能还在开发中...")
 }
@@ -122,24 +91,17 @@ const onShowChatHistoryClick = async () => {
   chatHistoryDialogRef.value.open()
 }
 const chatHistoryDialogRef = ref()
-const chatHistory = reactive({
-  data: [],
-  cursor: null,
-  size: 20,
-  isLast: false,
-})
-
-
 const atSearchRef = ref()
 
-const onTextAreaInput = (e) => {
+const onEditAreaInput = (e) => {
   if (!editAreaData.inCompositionEdit) {
-    // todo
-    if (e.data === '@') {
+    // 群聊打开 at功能
+    if (e.data === '@' && chatStore.currentChatTypeGetter === 2) {
       let sel = document.getSelection()
       let range = sel.getRangeAt(0)
       editAreaData.focusNode = sel.focusNode
       editAreaData.focusOffset = sel.focusOffset
+      editAreaData.atSearchText = ''
       let rect = range.getBoundingClientRect();
       atSearchRef.value.open({x: rect.x + 'px', y: rect.y + 'px'})
     } else {
@@ -147,106 +109,13 @@ const onTextAreaInput = (e) => {
       editAreaData.focusNode = sel.focusNode
       editAreaData.focusOffset = sel.focusOffset
       let atIdx = editAreaData.focusNode.textContent.indexOf('@')
-      editAreaData.atSearchText = editAreaData.focusNode.textContent.substring(atIdx + 1)
-      console.log(editAreaData.atSearchText)
-    }
-  }
-}
-
-const deleteOneWord = () => {
-  let sel = document.getSelection()
-  let range = sel.getRangeAt(0)
-  let focusNode = sel.focusNode
-
-  console.log("del", focusNode)
-
-  if (focusNode.nodeType === Node.TEXT_NODE) {
-    let content = focusNode.textContent
-    let len = content.length
-    if (len > 0) {
-      range.setStart(focusNode, len - 1)
-      range.setEnd(focusNode, len)
-      range.extractContents()
-    } else {
-      let preNode = focusNode.previousSibling
-      if (preNode) {
-        sel.removeAllRanges()
-        let newRange = document.createRange()
-        if (preNode.nodeType === Node.TEXT_NODE) {
-          newRange.setEnd(preNode, preNode.textContent.length)
-        } else {
-          newRange.setEnd(preNode, 1)
-        }
-        newRange.collapse()
-        sel.addRange(newRange)
-        // text节点为空，获取并设置为前一个节点，然后再次进行删除操作
-        deleteOneWord()
+      if (atIdx !== -1) {
+        editAreaData.atSearchText = editAreaData.focusNode.textContent.substring(atIdx + 1)
+        console.log("搜索文本：", editAreaData.atSearchText)
       }
     }
-  } else if (focusNode.nodeType === Node.ELEMENT_NODE) {
-    let preNode = focusNode.previousSibling
-    if (focusNode.nodeName === 'SPAN') {
-      deleteNodeAndResetRange(preNode, range)
-    } else if (focusNode === editAreaRef.value) {
-      let node = editAreaRef.value.lastChild
-      if (node) {
-        range.setEnd(node, node.textContent.length)
-        range.collapse()
-        deleteOneWord()
-      }
-    } else if (focusNode.nodeName === 'DIV') {  // 处理换行
-      // 设置光标坐标
-      deleteNodeAndResetRange(preNode, range)
-    }
   }
 }
-
-const deleteNodeAndResetRange = (preNode, range) => {
-  // 设置光标坐标
-  console.log("preNode", preNode, preNode.childNodes.length)
-  if (preNode && preNode.nodeType === Node.TEXT_NODE) {
-    // 删除节点内容
-    range.setStart(preNode, preNode.textContent.length)
-    range.extractContents()
-    range.setEnd(preNode, preNode.textContent.length)
-    range.collapse()
-  } else {
-    let len = preNode.childNodes.length
-    if (len > 0) {
-      range.setStart(preNode, len)
-      range.extractContents()
-      range.setEnd(preNode, len)
-      range.collapse()
-    } else {
-      // todo 删除换行失效
-      range.setStart(preNode, 0)
-      range.extractContents()
-      range.collapse(true)
-    }
-  }
-}
-
-
-const onBeforeinput = (e) => {
-  const {inputType, data} = e
-  console.log(e)
-  if (inputType === 'deleteContentBackward') {
-    let node = getCursorNode(editAreaRef.value)
-    if (node === Node.ELEMENT_NODE) {
-      e.preventDefault()
-      deleteOneWord()
-    }
-  }
-  if (inputType === 'insertParagraph') {
-    // 发送消息
-    e.preventDefault()
-    // onSendBtnClick()
-  } else if (inputType === 'insertLineBreak') {
-    // e.preventDefault()
-    // 换行
-  }
-}
-
 
 const onCompositionstart = () => {
   editAreaData.inCompositionEdit = true
@@ -256,20 +125,21 @@ const onCompositionstart = () => {
  */
 const onCompositionend = (e) => {
   editAreaData.inCompositionEdit = false
-  onTextAreaInput(e)
+  onEditAreaInput(e)
 }
 
 const searchItemConfirm = (item) => {
   let sel = document.getSelection()
   let range = sel.getRangeAt(0)
-  // 删除 @ 内容
-  let atIdx = editAreaData.focusNode.textContent.lastIndexOf('@')
-  range.setStart(editAreaData.focusNode, atIdx)
+  range.setStart(editAreaData.focusNode, editAreaData.focusOffset - 1 - editAreaData.atSearchText.length)
   range.setEnd(editAreaData.focusNode, editAreaData.focusOffset)
   range.deleteContents()
+  range.collapse()
   // 插入 span标签，表示引用用户
   let span = document.createElement("span")
   span.dataset.atUid = item.id
+  span.classList.add('at')
+  span.contentEditable = 'false'
   span.innerText = `@${item.name}`
   range.insertNode(span)
   range.collapse()
@@ -277,21 +147,59 @@ const searchItemConfirm = (item) => {
   range.insertNode(document.createTextNode("\u00A0"))
   range.collapse()
   editAreaRef.value.focus()
+  atSearchRef.value.close()
+
+  editAreaData.atSearchText = ''
 }
 
-const scrollToBottom = () => {
-  // 下帧进行渲染
-  if (chatHistoryDialogRef.value) {
-    requestAnimationFrame(() => {
-      chatHistoryDialogRef.value.scrollTop = chatHistoryDialogRef.value.scrollHeight
-    })
-  } else {
-    console.log("目标元素不存在")
+const onEditAreaBlur = () => {
+  let selection = window.getSelection()
+  editAreaData.focusNode = selection.focusNode
+  editAreaData.focusOffset = selection.focusOffset
+}
+
+const groupStore = useGroupsStore()
+
+const searchList = computed(() => {
+  if (chatStore.currentChatTypeGetter === 2) {
+    let group = groupStore.getGroup(chatStore.currentChatIdGetter)
+    if (group == null || group.roomMemberList == null) {
+      return []
+    }
+    if (editAreaData.atSearchText === '' || editAreaData.atSearchText == null) {
+      return group.roomMemberList
+    } else {
+      return group.roomMemberList.filter(member => member.name.startsWith(editAreaData.atSearchText))
+    }
+  }
+})
+
+const onUpKeydown = () => {
+  if (atSearchRef.value.isOpen()) {
+    atSearchRef.value.moveUp()
+  }
+}
+const onDownKeydown = () => {
+  if (atSearchRef.value.isOpen()) {
+    atSearchRef.value.moveDown();
   }
 }
 
+const onEnterKeydown = (e) => {
+  e.preventDefault()
+  if (atSearchRef.value.isOpen()) {
+    let item = atSearchRef.value.atItemGetter()
+    searchItemConfirm(item)
+  } else {
+    // onSendBtnClick()
+  }
+}
 
-
+const onEscKeydown = () => {
+  if (atSearchRef.value.isOpen()) {
+    atSearchRef.value.close()
+  }
+}
 </script>
 
 <template>
@@ -303,16 +211,22 @@ const scrollToBottom = () => {
       <div class="tool-item pointer-select" @click="onScreenShotClick">截屏</div>
       <div class="tool-item pointer-select" @click="onShowChatHistoryClick">聊天历史</div>
     </div>
-    <div ref="editAreaRef" class="text-area" contenteditable="true" @compositionstart="onCompositionstart"
-         @compositionend="onCompositionend" @beforeinput="onBeforeinput" @input="onTextAreaInput"
-         @keydown="onTextAreaKeyDown"
-         @keyup="onTextAreaKeyUp"></div>
+    <div ref="editAreaRef" class="text-area" contenteditable="true"
+         @compositionstart="onCompositionstart"
+         @compositionend="onCompositionend"
+         @keydown.up.prevent="onUpKeydown"
+         @keydown.down.prevent="onDownKeydown"
+         @keydown.enter.prevent="onEnterKeydown"
+         @keydown.esc.prevent="onEscKeydown"
+         @input="onEditAreaInput"
+         @blur="onEditAreaBlur"
+    ></div>
     <div class="send">
       <button @click="onSendBtnClick" id="send-btn">发送</button>
     </div>
-    <AtSearch @item-confirm="searchItemConfirm" :search-text="editAreaData.atSearchText" ref="atSearchRef"/>
+    <AtSearch @confirm="searchItemConfirm" :text="editAreaData.atSearchText" :list="searchList" ref="atSearchRef"/>
     <KingDialog title="聊天历史" class="chat-history-dialog" ref="chatHistoryDialogRef">
-      <ChatHistory :chat-id="chatStore.currentChatIdGetter" :chat-type="chatStore.currentChatTypeGetter" />
+      <ChatHistory :chat-id="chatStore.currentChatIdGetter" :chat-type="chatStore.currentChatTypeGetter"/>
     </KingDialog>
   </div>
 </template>
@@ -343,6 +257,7 @@ const scrollToBottom = () => {
     padding 5px 10px
     resize none
     white-space pre
+    overflow scroll
 
     &:focus-within
       outline 2px solid rgba(0, 0, 0, 0.2)

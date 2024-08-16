@@ -1,27 +1,18 @@
 <script setup>
-
-import {computed, onMounted, reactive, ref} from "vue";
-import {useChatsStore} from "@/stores/chats.js";
-import {useGroupsStore} from "@/stores/groups.js";
+import {reactive, ref, watchEffect} from "vue";
 
 const props = defineProps({
-  searchText: ''
+  text: {
+    type: String,
+    default: '',
+  },
+  list: {
+    type: Array,
+    default: []
+  }
 })
 const searchItemRef = ref([])
 const atSearchRef = ref()
-onMounted(() => {
-  console.log("searchItemRef", searchItemRef.value)
-})
-
-const keyDownHandler = (e) => {
-  if (e.key === 'ArrowUp') {
-
-  } else if (e.key === 'ArrowDown') {
-
-  }
-}
-
-
 const atSearchData = reactive({
   x: 0,
   y: 0,
@@ -29,76 +20,62 @@ const atSearchData = reactive({
   activeIdx: 0,
 })
 
-const handleExternalClick = (e) => {
-  if (e.target !== atSearchRef.value) {
-    close()
+const emits = defineEmits(["confirm"])
+
+const moveUp = () => {
+  if (atSearchData.activeIdx > 0) {
+    atSearchData.activeIdx--;
   }
 }
-
-
+const moveDown = () => {
+  if (atSearchData.activeIdx < props.list.length - 1) {
+    atSearchData.activeIdx++;
+  }
+}
 const open = ({x, y}) => {
   console.log(x, y)
   atSearchData.x = x;
   atSearchData.y = y;
   atSearchData.show = true;
-  console.log("open")
-  document.addEventListener('click', handleExternalClick)
-
 }
-
 const close = () => {
   atSearchData.show = false;
-  document.removeEventListener('click', handleExternalClick)
+  atSearchData.activeIdx = 0;
+  atSearchData.x = '-9999px';
+  atSearchData.y = '-9999px';
 }
 
-const chatStore = useChatsStore()
-const groupStore = useGroupsStore()
-const searchList = computed(() => {
-  // if (chatStore.currentChatTypeGetter === 2) {
-  //   let group = groupStore.getGroup(chatStore.currentChatIdGetter)
-  //   if (group == null || group.roomMemberList == null) {
-  //     return []
-  //   }
-  //   if (props.searchText === '' || props.searchText == null) {
-  //     return group.roomMemberList
-  //   } else {
-  //     return group.roomMemberList.filter(member => member.name.startsWith(props.searchText))
-  //   }
-  // }
-  // return []
 
-  return [
-    {
-      id: 1,
-      name: 'king',
-    },
-    {
-      id: 2,
-      name: 'ayfl',
-    },
-    {
-      id: 1,
-      name: 'pepe',
-    },
-  ]
-})
-
-
-const emits = defineEmits(["item-confirm"])
-
-const onSearchItemClick = (item) => {
-  emits('item-confirm', item)
-  atSearchData.show = false
+const onClick = (item) => {
+  emits('confirm', item)
+  close()
 }
 
 const isOpen = () => {
   return atSearchData.show
 }
 
+const atItemGetter = () => {
+  return props.list[atSearchData.activeIdx]
+}
+
+// 重置激活索引
+watchEffect(() => {
+  if (props.text) {
+    console.log(props.text)
+    atSearchData.activeIdx = 0
+  }
+})
+
 defineExpose({
   open,
   close,
   isOpen,
+  atItemGetter,
+
+  moveUp,
+  moveDown,
+  confirm,
 })
 </script>
 
@@ -106,9 +83,9 @@ defineExpose({
   <div ref="atSearchRef" class="at-search">
     <ul>
       <li ref="searchItemRef" :class="['pointer-select', 'item', atSearchData.activeIdx === idx ? 'active': '']"
-          autofocus @click="onSearchItemClick(item)" :tabindex="item.id"
-          :key="item.id" v-for="(item, idx) in searchList">
-        {{ item.name }}
+          autofocus @click="onClick(item)" :tabindex="item.id"
+          :key="item.id" v-for="(item, idx) in list">
+        <img :src="item.avatar" class="avatar" alt="" /> {{ item.name }}
       </li>
     </ul>
   </div>
@@ -131,6 +108,12 @@ defineExpose({
 
   li
     padding 5px 10px
+    display flex
+
+    .avatar
+      margin-right 10px
+      height 20px
+      width 20px
 
     &.active, &:hover
       background-color rgba(0, 0, 0, 0.1)

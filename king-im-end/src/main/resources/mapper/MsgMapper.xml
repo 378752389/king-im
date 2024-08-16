@@ -15,7 +15,7 @@
     <select id="getRoomMsgCursorPage" resultMap="BaseResultMap">
         <include refid="BaseField"/>
         <where>
-            <if test="id != null">
+            <if test="cursor != null">
                 id &lt; #{cursor}
             </if>
             and room_id = #{roomId}
