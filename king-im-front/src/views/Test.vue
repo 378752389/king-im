@@ -4,6 +4,7 @@ import AtSearch from "@/views/chat/components/AtSearch.vue";
 import {deleteOne, getCursorNode} from "@/utils/textCursorUtils.js";
 import {ShowToast} from "@/components/common/func/toast.js";
 import KingToast from "@/components/common/KingToast.vue";
+import TestComponent from "@/views/TestComponent.vue";
 
 const atSearchRef = ref()
 const onInput = (e) => {
@@ -80,15 +81,9 @@ const select = () => {
 </script>
 
 <template>
-  <div ref="testRef" class="test">
-    <button @click="init">初始化</button>
-    <button @click="method2">初始化2</button>
-    <button @click="select">初始化2</button>
-    <div ref="editAreaRef" class="edit-area" @beforeinput="onBeforeinput" contenteditable="true" @input="onInput"/>
-    <AtSearch @item-confirm="onItemConfirm" ref="atSearchRef" :search-text="''"/>
-<!--    <king-toast :message="'ojbk'" />-->
-    <!--    <textarea ref="editAreaRef" class="edit-area" contenteditable="true" @focus="onFocus" @input="onSendMessageClick" />-->
-  </div>
+   <div>
+     <TestComponent />
+   </div>
 </template>
 
 <style scoped lang="stylus">
@@ -97,24 +92,5 @@ const select = () => {
   background-color #f6f6f6
   overflow hidden
 
-.select-area
-  width 80%
-  height 300px
-  margin auto
-  background-color #f6f6f6
-
-.box
-  width 60px
-  height 40px
-  background linear-gradient(135deg, #f5f5f5 0%, blue 100%)
-
-.edit-area
-  padding 10px 5px
-  margin 40px auto
-  margin-top 100px
-  width 80%
-  height 200px
-  outline 1px solid black
-  background #f6f6f6
 </style>
 

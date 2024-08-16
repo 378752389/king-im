@@ -1,10 +1,10 @@
 <script setup>
 
-import {sendAPI} from "@/http/message.js";
+import {getHistoryCursorPage, sendAPI} from "@/http/message.js";
 import {reactive, ref} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
 import KingDialog from "@/components/common/KingDialog.vue";
-import ChatBubble from "@/views/chat/components/ChatBubble.vue";
+import ChatHistory from "@/views/chat/components/ChatHistory.vue";
 import AtSearch from "@/views/chat/components/AtSearch.vue";
 import {getCursorNode} from "@/utils/textCursorUtils.js";
 
@@ -76,7 +76,7 @@ const onTextAreaKeyDown = (e) => {
     createNewLine()
   } else if (e.keyCode === 13) {
     // todo
-    // onSendBtnClick()
+    onSendBtnClick()
   }
 }
 
@@ -118,223 +118,15 @@ const onScreenShotClick = () => {
 
 
 // 聊天历史
-const onShowChatHistoryClick = () => {
+const onShowChatHistoryClick = async () => {
   chatHistoryDialogRef.value.open()
 }
 const chatHistoryDialogRef = ref()
 const chatHistory = reactive({
-  data: [
-    {
-      "id": 4,
-      "roomId": 4,
-      "fromUid": 1,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "很好，很棒",
-      "contentType": 1,
-      "sendTime": 1720664821000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 5,
-      "roomId": 4,
-      "fromUid": 1,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "nice",
-      "contentType": 1,
-      "sendTime": 1720664841000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 6,
-      "roomId": 4,
-      "fromUid": 1,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "不行，我得下了",
-      "contentType": 1,
-      "sendTime": 1720664860000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 50,
-      "roomId": 4,
-      "fromUid": 1,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": {
-        "videoExtra": null,
-        "audioExtra": null,
-        "pictureExtra": null,
-        "fileExtra": null
-      },
-      "content": "滚蛋",
-      "contentType": 1,
-      "sendTime": 1722245804000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 75,
-      "roomId": 4,
-      "fromUid": 3,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "ojbk",
-      "contentType": 1,
-      "sendTime": 1722400229000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 76,
-      "roomId": 4,
-      "fromUid": 3,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "a",
-      "contentType": 1,
-      "sendTime": 1722400237000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 77,
-      "roomId": 4,
-      "fromUid": 3,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "asdas",
-      "contentType": 1,
-      "sendTime": 1722400242000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 78,
-      "roomId": 4,
-      "fromUid": 1,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "行吧，先下了",
-      "contentType": 1,
-      "sendTime": 1722407305000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 82,
-      "roomId": 4,
-      "fromUid": 4,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": {
-        "videoExtra": {
-          "size": 14710639,
-          "url": "http://localhost/im-upload/20240731/wangwu/6874ccbfa922440ec193e7aa9dc10fb4.mp4",
-          "coverUrl": null
-        },
-        "audioExtra": null,
-        "pictureExtra": null,
-        "fileExtra": null
-      },
-      "content": "",
-      "contentType": 4,
-      "sendTime": 1722407654000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 83,
-      "roomId": 4,
-      "fromUid": 4,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "ok",
-      "contentType": 1,
-      "sendTime": 1722408219000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 85,
-      "roomId": 4,
-      "fromUid": 4,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "ok",
-      "contentType": 1,
-      "sendTime": 1722413217000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 86,
-      "roomId": 4,
-      "fromUid": 4,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "no",
-      "contentType": 1,
-      "sendTime": 1722413222000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 87,
-      "roomId": 4,
-      "fromUid": 4,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "请问",
-      "contentType": 1,
-      "sendTime": 1722413349000,
-      "type": 2,
-      "status": 1
-    },
-    {
-      "id": 88,
-      "roomId": 4,
-      "fromUid": 4,
-      "toUid": null,
-      "referMsgId": null,
-      "atUids": [],
-      "extra": null,
-      "content": "滚",
-      "contentType": 1,
-      "sendTime": 1722413421000,
-      "type": 2,
-      "status": 1
-    }
-  ],
+  data: [],
+  cursor: null,
+  size: 20,
+  isLast: false,
 })
 
 
@@ -487,6 +279,19 @@ const searchItemConfirm = (item) => {
   editAreaRef.value.focus()
 }
 
+const scrollToBottom = () => {
+  // 下帧进行渲染
+  if (chatHistoryDialogRef.value) {
+    requestAnimationFrame(() => {
+      chatHistoryDialogRef.value.scrollTop = chatHistoryDialogRef.value.scrollHeight
+    })
+  } else {
+    console.log("目标元素不存在")
+  }
+}
+
+
+
 </script>
 
 <template>
@@ -506,10 +311,8 @@ const searchItemConfirm = (item) => {
       <button @click="onSendBtnClick" id="send-btn">发送</button>
     </div>
     <AtSearch @item-confirm="searchItemConfirm" :search-text="editAreaData.atSearchText" ref="atSearchRef"/>
-    <KingDialog title="聊天历史" class="chat-history" ref="chatHistoryDialogRef">
-      <div class="chat-list">
-        <ChatBubble :key="msg.id" :msg="msg" v-for="msg in chatHistory.data"/>
-      </div>
+    <KingDialog title="聊天历史" class="chat-history-dialog" ref="chatHistoryDialogRef">
+      <ChatHistory :chat-id="chatStore.currentChatIdGetter" :chat-type="chatStore.currentChatTypeGetter" />
     </KingDialog>
   </div>
 </template>
@@ -552,6 +355,6 @@ const searchItemConfirm = (item) => {
     padding 5px
     margin-right 10px
 
-.chat-history
-  width 900px
+  .chat-history-dialog
+    width 900px
 </style>

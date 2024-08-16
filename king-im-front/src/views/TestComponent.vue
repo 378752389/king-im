@@ -1,21 +1,21 @@
 <script setup>
-import {useAttrs, onMounted} from "vue";
+import ChatHistory from "@/views/chat/components/ChatHistory.vue";
+import {onMounted, ref} from "vue";
+import {getHistoryCursorPage} from "@/http/message.js";
 
-// const emits = defineEmits(['on-confirm'])
-const attrs = useAttrs()
-const emits = defineEmits()
-onMounted(() => {
-  console.log(attrs)
-})
-
-const doClick = () => {
-  emits('on-confirm')
-}
+// const chatList = ref([])
+// onMounted(async () => {
+//   const result = await getHistoryCursorPage({chatId: 5, chatType: 1, cursor: 500, size: 10})
+//   console.log("分页请求结果", result)
+//   chatList.value = result.data
+//   console.log(chatList.value)
+// })
 </script>
 
 <template>
-  <div class="test">hello, world</div>
-  <button @click="doClick">点击</button>
+<div class="test">
+  <ChatHistory/>
+</div>
 </template>
 
 <style scoped lang="stylus">

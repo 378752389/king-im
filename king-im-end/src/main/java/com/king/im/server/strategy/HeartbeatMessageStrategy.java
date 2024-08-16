@@ -2,6 +2,7 @@ package com.king.im.server.strategy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.king.im.common.utils.JSONUtils;
 import com.king.im.server.ChannelInfoHolder;
 import com.king.im.server.protocol.CMD;
 import com.king.im.server.protocol.CMDType;
@@ -18,7 +19,7 @@ import javax.annotation.Resource;
 public class HeartbeatMessageStrategy implements MessageStrategy<HeartBeatCMD> {
 
     @Resource
-    private ObjectMapper objectMapper;
+    private JSONUtils jsonUtils;
 
     // 心条多少次对Redis续命一次
     private static final Integer expirePerTimes = 5;
@@ -34,13 +35,13 @@ public class HeartbeatMessageStrategy implements MessageStrategy<HeartBeatCMD> {
         if (uid == null) {
             log.error("channelId: {} 未登录认证，无法响应心跳请求", ctx.channel().id());
             sendData.setCmd(CMDType.NON_AUTH);
-            ctx.writeAndFlush(new TextWebSocketFrame(objectMapper.writeValueAsString(sendData)));
+            ctx.writeAndFlush(new TextWebSocketFrame(jsonUtils.stringify(sendData)));
             ctx.close();
         }
 
         // 发送心跳数据
         sendData.setCmd(CMDType.PONG);
-        ctx.writeAndFlush(new TextWebSocketFrame(objectMapper.writeValueAsString(sendData)));
+        ctx.writeAndFlush(new TextWebSocketFrame(jsonUtils.stringify(sendData)));
         log.debug("channelId: {} 发送心跳", ctx.channel().id());
 
         Integer heartbeatTime = ChannelInfoHolder.getHeartbeatTime(ctx.channel());

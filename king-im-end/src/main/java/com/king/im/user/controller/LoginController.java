@@ -28,20 +28,19 @@ public class LoginController {
 
     @PostMapping("register")
     @ApiOperation("注册")
-    public CommonResult<Void> register(@Validated LoginDTO loginDTO) {
+    public CommonResult register(@Validated LoginDTO loginDTO) {
         return CommonResult.ok(loginService.register(loginDTO));
     }
 
     @PostMapping("refreshToken")
     @ApiOperation("刷新token")
-    @ApiImplicitParam(name = "refreshToken", value = "刷新token")
     public CommonResult<LoginVO> refresh(String refreshToken) {
         return CommonResult.ok(loginService.refresh(refreshToken));
     }
 
     @PostMapping("logout")
     @ApiOperation("注销登录")
-    public CommonResult<Void> refresh() {
+    public CommonResult refresh() {
         return CommonResult.ok(null);
     }
 

@@ -9,9 +9,9 @@ import java.util.List;
 
 @Mapper
 public interface MsgMapper extends BaseMapper<Msg> {
-    List<Msg> getRoomMsgCursorPage(@Param("roomId") Long roomId, @Param("cursor") Long cursor, @Param("size") Integer size);
+    List<Msg> getRoomMsgCursorPage(@Param("roomId") Long roomId, @Param("cursor") Long cursor, @Param("size") Long size);
 
-    List<Msg> getPeerMsgCursorPage(@Param("fromUid") Long fromUid, @Param("toUid") Long toUid, @Param("cursor") Long cursor, @Param("size") Integer size);
+    List<Msg> getPeerMsgCursorPage(@Param("peer1Id") Long peer1Id, @Param("peer2Id") Long peer2Id, @Param("cursor") Long cursor, @Param("size") Long size);
 
 
     List<Msg> getUnreadMsg(@Param("chatId") Long chatId, @Param("userId") Long userId, @Param("type") Integer type);

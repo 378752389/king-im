@@ -10,9 +10,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @MapperScan("com.king.im.**.mapper")
 @EnableCaching
 @EnableAspectJAutoProxy
-public class NettyApplication {
+public class KingIMApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(NettyApplication.class, args);
+        SpringApplication.run(KingIMApplication.class, args);
     }
 }

@@ -15,7 +15,7 @@ public interface MessageService {
 
     Long readedMsg(Long chatId, Integer type);
 
-    List<ChatData> loadHistoryMessage(MsgReq req);
+    CursorResult<ChatData> getHistoryMessageCursorPage(Long chatId, Integer chatType, Long cursor, Long size);
 
     void loadOfflineMessage(Long minMsgId, Long userId);
 

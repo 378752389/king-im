@@ -19,6 +19,7 @@
                 id &lt; #{cursor}
             </if>
             and room_id = #{roomId}
+            and status != 4
         </where>
         order by id desc, create_time desc
         limit
@@ -26,7 +27,7 @@
             <when test="size != null">
                 #{size}
             </when>
-            <otherwise>20</otherwise>
+            <otherwise>30</otherwise>
         </choose>
     </select>
 
@@ -36,10 +37,10 @@
             <if test="cursor != null">
                 and id &lt; #{cursor}
             </if>
-            and ((from_uid = #{fromUid}
-            and to_uid = #{toUid})
-            or (from_uid = #{toUid}
-            and to_uid = #{fromUid}))
+            and (
+                (from_uid = #{peer1Id} and to_uid = #{peer2Id}) or (from_uid = #{peer2Id} and to_uid = #{peer1Id})
+            )
+            and status != 4
         </where>
         order by id desc, create_time desc limit
         <choose>

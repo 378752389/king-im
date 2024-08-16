@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @TableName("t_user_room")
 public class UserRoomRelation {
@@ -25,4 +27,9 @@ public class UserRoomRelation {
      * 我在群内昵称
      */
     private String myName;
+
+    /**
+     * 入群时间
+     */
+    private Date createTime;
 }

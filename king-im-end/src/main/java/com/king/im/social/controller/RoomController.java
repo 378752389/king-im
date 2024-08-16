@@ -62,7 +62,7 @@ public class RoomController {
 
     @PutMapping
     @ApiOperation("修改房间信息")
-    public CommonResult<Void> modifyRoom(@Validated({Update.class}) @RequestBody RoomDo roomDo) {
+    public CommonResult modifyRoom(@Validated({Update.class}) @RequestBody RoomDo roomDo) {
         roomService.modifyRoom(roomDo);
         return CommonResult.ok(null);
     }
@@ -75,7 +75,7 @@ public class RoomController {
 
     @DeleteMapping
     @ApiOperation("删除房间")
-    public CommonResult<Void> deleteRoom(Long roomId) {
+    public CommonResult deleteRoom(Long roomId) {
         roomService.deleteRoom(roomId);
         return CommonResult.ok(null);
     }

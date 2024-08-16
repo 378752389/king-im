@@ -135,3 +135,16 @@ export const sendFileMsgAPI = ({
     }
     return sendAPI({msgType, text, referMsgId, atUids, chatId, chatType, extra})
 }
+
+
+export const getHistoryCursorPage = ({chatId, chatType, cursor, size}) => {
+    return request({
+        url: '/msg/history',
+        params: {
+            chatId,
+            chatType,
+            cursor,
+            size
+        }
+    })
+}

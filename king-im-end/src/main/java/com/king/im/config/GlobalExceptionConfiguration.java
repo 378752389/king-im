@@ -11,13 +11,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionConfiguration {
 
     @ExceptionHandler(GlobalException.class)
-    public CommonResult<Void> runtimeExceptionHandler(GlobalException e) {
-        log.error("未知错误！", e);
+    public CommonResult<Void> globalExceptionHandler(GlobalException e) {
         if (e.getMessage().equals("刷新token失效") || e.getMessage().equals("用户名或密码错误") || e.getMessage().equals("accessToken无效或过期")) {
             return CommonResult.unauth(e.getMessage());
         }
 
         return CommonResult.err(e.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public void unknownExceptionHandler(RuntimeException e) {
+        log.error("未知错误！", e);
     }
 
 

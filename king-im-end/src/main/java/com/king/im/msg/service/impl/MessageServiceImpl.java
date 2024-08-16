@@ -1,7 +1,10 @@
 package com.king.im.msg.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.king.im.common.cursor.CursorResult;
+import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.RequestInfoHolder;
 import com.king.im.listener.event.MsgEvent;
 import com.king.im.msg.convert.MsgConvert;
@@ -12,10 +15,12 @@ import com.king.im.msg.mapper.MsgMapper;
 import com.king.im.msg.service.MessageService;
 import com.king.im.sender.IMSender;
 import com.king.im.sender.domain.SendMessage;
+import com.king.im.sender.domain.enums.ChatTypeEnum;
 import com.king.im.sender.domain.enums.MessageStatusEnum;
 import com.king.im.sender.domain.type.ReceiverInfo;
 import com.king.im.server.protocol.data.ChatData;
 import com.king.im.social.domain.RoomDo;
+import com.king.im.social.mapper.FriendMapper;
 import com.king.im.social.mapper.RoomMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +45,8 @@ public class MessageServiceImpl implements MessageService {
     private ApplicationEventPublisher publisher;
     @Resource
     private RoomMapper roomMapper;
+    @Resource
+    private FriendMapper friendMapper;
     @Resource
     private IMSender imSender;
 
@@ -79,10 +87,43 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<ChatData> loadHistoryMessage(MsgReq req) {
+    public CursorResult<ChatData> getHistoryMessageCursorPage(Long chatId, Integer chatType, Long cursor, Long size) {
+        List<Msg> msgList = new ArrayList<>();
+        Long uid = RequestInfoHolder.getUid();
 
-        return null;
+        if (ChatTypeEnum.GROUP.getType().equals(chatType)) {
+            if (!roomMapper.isUserExist(chatId, uid)) {
+                log.error("userId: {}, roomId: {}; 你未加入群聊", uid, chatId);
+                throw new GlobalException("用户未加入群聊");
+            }
+            msgList = msgMapper.getRoomMsgCursorPage(chatId, cursor, size);
+        }
+
+        if (ChatTypeEnum.SINGLE.getType().equals(chatType)) {
+            if (!friendMapper.isFriend(uid, chatId)) {
+                log.error("userId: {}, peerId: {}; 和对方非好友关系", uid, chatId);
+                throw new GlobalException("和对方非好友关系");
+            }
+            msgList = msgMapper.getPeerMsgCursorPage(uid, chatId, cursor, size);
+        }
+
+        List<ChatData> chatDataList = msgList.stream().map(MsgConvert::buildChatData).collect(Collectors.toList());
+
+        long newCur = 0L;
+        if (chatDataList.size() > 0) {
+            newCur = msgList.get(msgList.size() - 1).getId() - 1;
+        }
+
+        CursorResult<ChatData> result = CursorResult.<ChatData>builder()
+                .cursor(newCur)
+                .data(chatDataList)
+                .isLast(msgList.size() != size)
+                .size(msgList.size())
+                .build();
+
+        return result;
     }
+
 
     @Override
     public void loadOfflineMessage(Long minMsgId, Long userId) {

@@ -49,7 +49,7 @@ public class UserController {
 
     @PostMapping("password")
     @ApiOperation("修改用户密码")
-    public CommonResult<Void> changePassword(String oldPwd, String newPwd) {
+    public CommonResult changePassword(String oldPwd, String newPwd) {
         Long uid = RequestInfoHolder.getUid();
         userService.changePassword(uid, oldPwd, newPwd);
         return CommonResult.ok(null);

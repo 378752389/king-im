@@ -32,6 +32,10 @@
         where ur.room_id = #{roomId}
     </select>
 
+    <select id="isUserExist" resultType="boolean">
+        select coalesce((select if(id is not null, 1, 0) from t_user_room where user_id = #{userId} and room_id = #{roomId}), 0)
+    </select>
+
 
     <select id="getRoomPage" resultType="com.king.im.social.domain.entity.Room">
         select r.id, r.name, r.room_limit

@@ -19,6 +19,6 @@ public class MsgCursorReq {
 
     private Long cursor;
 
-    private Integer size;
+    private Long size;
 
 }

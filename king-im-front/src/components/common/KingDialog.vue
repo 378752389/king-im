@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, useAttrs, nextTick} from "vue";
+import {ref, onMounted, useAttrs} from "vue";
 
 const dialogRef = ref()
 const attrs = useAttrs()
@@ -8,7 +8,9 @@ const defaultConfirmAction = ref(true)
 const defaultCancelAction = ref(true)
 
 defineProps({
-  title: ''
+  title: {
+    type: String
+  }
 })
 
 onMounted(() => {
@@ -93,6 +95,7 @@ dialog
     form
       display flex
       justify-content space-around
+      border-top 1px solid rgba(0, 0, 0, 0.1)
 
     button[type=button]
       width 100px

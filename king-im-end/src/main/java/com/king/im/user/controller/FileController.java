@@ -28,10 +28,7 @@ public class FileController {
 
     @ApiOperation(value = "文件上传接口", notes = "用户选择文件上传")
     @PostMapping("upload")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "file", value = "上传文件")
-//    })
-    @ApiImplicitParam(name = "file", value = "上传文件")
+    @ApiImplicitParam(name = "file", dataTypeClass = MultipartFile.class, value = "上传文件")
     public CommonResult<FileVO> upload(MultipartFile file) throws IOException {
         return CommonResult.ok(fileService.upload(file));
     }
