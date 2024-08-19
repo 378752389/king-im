@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, watchEffect} from "vue";
+import {ref, onMounted, watchEffect, computed} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
 import {useUserStore} from "@/stores/user.js";
 import {sendAudioMsgAPI, sendFileMsgAPI, sendPictureMsgAPI, sendVideoMsgAPI} from "@/http/message.js";
@@ -185,6 +185,7 @@ const onSendAreaUploadFile = async (file) => {
   uploadFile.value = file
   sendFileConfirmDialogRef.value.showModal()
 }
+
 </script>
 
 <template>

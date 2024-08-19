@@ -247,19 +247,6 @@ export const useChatsStore = defineStore('chats', () => {
                         status: 1,
                         avatar: 'https://picsum.photos/512/512?id=2',
                     },
-                    {
-                        id: 5522,
-                        roomId: undefined,
-                        fromUid: 1,
-                        toUid: 2,
-                        type: 1,
-                        content: '猪脚饭',
-                        name: 'Amy',
-                        atUids: undefined,
-                        sendTime: 1713779458910,
-                        status: 1,
-                        avatar: 'https://picsum.photos/512/512?id=1',
-                    },
                 ]
             },
             {

@@ -191,7 +191,7 @@ const onEnterKeydown = (e) => {
     let item = atSearchRef.value.atItemGetter()
     searchItemConfirm(item)
   } else {
-    // onSendBtnClick()
+    onSendBtnClick()
   }
 }
 
