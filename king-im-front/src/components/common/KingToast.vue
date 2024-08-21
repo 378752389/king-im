@@ -18,11 +18,7 @@ defineProps({
 <style scoped lang="stylus">
 .king-toast
   border-radius 20px
-  position fixed
   padding 10px 50px
-  left 50%
-  transform translateX(-50%)
-  top 80%
 
 .info
   background-color grey
