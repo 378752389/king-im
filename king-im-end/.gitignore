@@ -30,4 +30,4 @@ coverage
 *.tsbuildinfo
 
 target/
-src/main/resources/*.properties
+#src/main/resources/*.properties

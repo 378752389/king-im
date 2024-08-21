@@ -10,8 +10,8 @@ spring:
   redis:
     password: ${king-im.redis.password}
     host: ${king-im.redis.host}
-    port: ${king-im.redis.port}
-    database: ${king-im.redis.db}
+    port: 6379
+    database: 15
   servlet:
     multipart:
       max-file-size: 100MB
@@ -24,6 +24,8 @@ springfox:
     auto-startup: true
     swagger-ui:
       enabled: true
+
+
 mybatis-plus:
   mapper-locations: mapper/**.xml
 #  configuration:
@@ -34,5 +36,4 @@ king-im:
   file:
     download: http://localhost/im-upload
     upload: E:\Project\java\own\mini-project\im-upload
-
 

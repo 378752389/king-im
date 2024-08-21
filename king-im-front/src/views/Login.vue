@@ -2,7 +2,7 @@
 import {useUserStore} from "@/stores/user.js";
 import {useRouter} from "vue-router";
 import request from '@/http/request.js'
-import {refresh} from "@/http/login.js";
+import {refreshAPI} from "@/http/login.js";
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -27,7 +27,7 @@ const getToken = async () => {
 }
 
 const refreshToken = async () => {
-  const res = await refresh()
+  const res = await refreshAPI()
   console.log(res)
 }
 

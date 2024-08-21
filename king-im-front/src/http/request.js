@@ -1,10 +1,10 @@
 import axios from "axios";
-import {refresh, isRefresh} from "@/http/login.js";
+import {refreshAPI, isRefresh} from "@/http/login.js";
 import {useUserStore} from "@/stores/user.js";
 import router from "@/router/index.js";
 
 const instance = axios.create({
-    baseURL: "http://localhost:8080",
+    baseURL: import.meta.env.VITE_BASE_URL,
     timeout: 5000,
 })
 
@@ -24,7 +24,7 @@ instance.interceptors.response.use(async response => {
     if (code === 401) {
         if (!isRefresh(response.config)) {
             // 刷新token
-            const refreshResp = await refresh()
+            const refreshResp = await refreshAPI()
             if (refreshResp == null) {
                 return refreshResp
             }

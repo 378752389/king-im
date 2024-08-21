@@ -10,26 +10,17 @@ export const useUserStore = defineStore('user', () => {
 
     const login = async (username, password, terminal = 1) => {
         const resp = await loginAPI(username, password, terminal)
-        if (resp.code === 200) {
+        try {
+            const resp = await loginAPI(username, password, terminal)
             auth.value = {
-                accessToken: resp.data.accessToken,
-                refreshToken: resp.data.refreshToken
+                accessToken: resp?.accessToken,
+                refreshToken: resp?.refreshToken
             }
             return true;
+        } catch (e) {
+            console.error(e);
+            return false;
         }
-
-        return false;
-    }
-
-    const logout = () => {
-
-    }
-
-    const loginAPI = async (username, password, terminal) => {
-        const resp = await fetch(`http://localhost:8080/login?username=${username}&password=${password}&terminal=${terminal}`, {
-            method: 'post',
-        })
-        return resp.json()
     }
 
     const setAuth = (data) => {
@@ -45,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
         info.value = userInfo
     }
 
-    return {info, auth, logout, login, setAuth, loadInfo}
+    return {info, auth, login, setAuth, loadInfo}
 }, {
     persist: true
 })

@@ -1,25 +1,20 @@
 import request from '@/http/request.js'
 import {useUserStore} from "@/stores/user.js";
 
-export const login = (username, password) => {
+export const loginAPI = (username, password, terminal) => {
     return request({
         url: '/login',
         method: 'post',
         data: {
             username,
-            password
+            password,
+            terminal,
         }
     })
 }
 
-export const logout = () => {
-
-}
-
-
-
 let refreshPromise = null
-export const refresh = (refreshToken) => {
+export const refreshAPI = (refreshToken) => {
     if (refreshPromise) {
         return refreshPromise
     }

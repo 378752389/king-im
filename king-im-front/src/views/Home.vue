@@ -37,7 +37,7 @@ onMounted(async () => {
   // 拉取离线消息
   console.log("home", "挂载")
   await useUserStore().loadInfo()
-  doConnect("ws://localhost:8849")
+  doConnect(import.meta.env.VITE_WS_URL)
   setLoginSuccessCallback(async () => {
     await Promise.all([
       useGroupsStore().loadGroupList(),
