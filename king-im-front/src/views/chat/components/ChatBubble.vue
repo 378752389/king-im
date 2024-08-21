@@ -108,7 +108,7 @@ const onFileMsgClick = async () => {
 </script>
 
 <template>
-  <div class="chat-bubble">
+  <div :class="['chat-bubble', isSelfMsg ? 'self': 'other']">
     <div @click="onAvatarClick" class="avatar">
       <img width="40" height="40" :src="chatAvatar" alt=""/>
     </div>
@@ -149,7 +149,6 @@ const onFileMsgClick = async () => {
 .chat-bubble
   margin 25px 0
   display flex
-  flex-direction v-bind("isSelfMsg ? 'row-reverse' : 'row'")
   align-items flex-start
 
   .avatar
@@ -201,4 +200,10 @@ const onFileMsgClick = async () => {
     .other-msg
       color red
       margin-top 10px
+
+.self
+  flex-direction row-reverse
+
+.other
+  flex-direction row
 </style>

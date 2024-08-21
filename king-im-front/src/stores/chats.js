@@ -221,75 +221,6 @@ export const useChatsStore = defineStore('chats', () => {
         return chat.message.filter(x => x.status === messageStatus.NORMAL)
     }
 
-
-    const mockInit = () => {
-        chats.value = [
-            {
-                chatId: 2,
-                type: 1,
-                chatName: 'Amy',
-                lastContent: '晚上吃啥？',
-                lastNickname: 'Amy',
-                chatAvatar: "https://picsum.photos/512/512?id=1",
-                lastSendTime: 1713779458910,
-                unreadCount: 1,
-                messages: [
-                    {
-                        id: 5521,
-                        roomId: undefined,
-                        fromUid: 2,
-                        toUid: 1,
-                        type: 1,
-                        content: '晚上吃啥？',
-                        name: 'Amy',
-                        atUids: undefined,
-                        sendTime: 1713779458910,
-                        status: 1,
-                        avatar: 'https://picsum.photos/512/512?id=2',
-                    },
-                ]
-            },
-            {
-                chatId: 20,
-                type: 2,
-                chatName: 'King的群聊',
-                lastContent: '有点无聊',
-                lastNickname: 'Allen',
-                chatAvatar: "https://picsum.photos/512/512?id=999",
-                lastSendTime: 1713772458910,
-                unreadCount: 2,
-                messages: [
-                    {
-                        id: 15521,
-                        roomId: 20,
-                        fromUid: 20,
-                        toUid: undefined,
-                        type: 2,
-                        content: '有点无聊',
-                        name: 'Bob',
-                        atUids: undefined,
-                        sendTime: 1713772458910,
-                        status: 1,
-                        avatar: 'https://picsum.photos/512/512?id=20',
-                    },
-                    {
-                        id: 15512,
-                        roomId: 20,
-                        fromUid: 5,
-                        toUid: undefined,
-                        type: 2,
-                        content: '你好',
-                        name: 'Allen',
-                        atUids: undefined,
-                        sendTime: 1713779058910,
-                        status: 1,
-                        avatar: 'https://picsum.photos/512/512?id=5',
-                    },
-                ]
-            }
-        ]
-    }
-
     return {
         chats,
         minMsgId,
@@ -301,8 +232,6 @@ export const useChatsStore = defineStore('chats', () => {
         currentChatIdGetter,
         minMsgIdGetter,
         currentChatTypeGetter,
-
-        mockInit,
 
         insertMessage,
         pullOfflineMsg,

@@ -1,22 +1,14 @@
 <script setup>
-import {ref, onMounted, watchEffect, computed} from "vue";
+import {ref, onMounted, watchEffect} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
-import {useUserStore} from "@/stores/user.js";
 import {sendAudioMsgAPI, sendFileMsgAPI, sendPictureMsgAPI, sendVideoMsgAPI} from "@/http/message.js";
 import {uploadAPI} from "@/http/user.js";
-import ChatBubble from "@/views/chat/components/ChatBubble.vue";
 import SendArea from "@/views/chat/components/SendArea.vue";
+import MessageList from "@/views/chat/components/MessageList.vue";
 
 const chatStore = useChatsStore()
-const userStore = useUserStore()
+
 const contentRef = ref()
-const pos = ref({
-  x: 0,
-  y: 0,
-})
-const showMsgBubbleContextMenuFlag = ref(false)
-const msgBubbleContextmenuRef = ref()
-const selectedMessage = ref()
 const msgListRef = ref()
 const uploadFile = ref()
 
@@ -43,11 +35,7 @@ onMounted(() => {
     console.log(e.dataTransfer.files[0])
   })
 
-  document.addEventListener('click', (e) => {
-    if (e.target !== msgBubbleContextmenuRef.value) {
-      showMsgBubbleContextMenuFlag.value = false
-    }
-  })
+
 
   // 监控chat 滚动到底部
   watchEffect(() => {
@@ -68,33 +56,6 @@ const scrollToBottom = () => {
   }
 }
 
-
-// 消息 contextmenu 事件
-const onCopyBtnClick = async () => {
-  let msg = selectedMessage.value
-  console.log(msg.content)
-  await navigator.clipboard.writeText(msg.content)
-}
-
-const onRevokeBtnClick = () => {
-  let msg = selectedMessage.value
-  let type = msg.type
-  let chatId = undefined
-  if (type === 1) {
-    // 单聊消息中， chatId 为对方的Uid，只需排除 fromUid 或 toUid 中非自身 id
-    chatId = msg.fromUid === useUserStore().info?.id ? msg.toUid : msg.fromUid
-  } else if (msg.type === 2) {
-    chatId = msg.roomId
-  }
-
-  msg.status = 2
-  msg.sendTime = new Date().getTime()
-  console.log("msg", msg, selectedMessage.value)
-  useChatsStore().revokeMessage(chatId, type, msg)
-
-  selectedMessage.value = undefined
-  showMsgBubbleContextMenuFlag.value = false
-}
 
 const sendFileConfirmDialogRef = ref()
 
@@ -157,20 +118,6 @@ const onSendFileCancel = () => {
   sendFileConfirmDialogRef.value.close()
 }
 
-const onAvatarClick = (id) => {
-  console.log(id)
-}
-
-const onMessageClick = (e, msg) => {
-  e.preventDefault()
-  pos.value = {
-    x: e.x,
-    y: e.y,
-  }
-  showMsgBubbleContextMenuFlag.value = true
-  selectedMessage.value = msg
-}
-
 // 消息发送事件监听
 const onSendMsg = () => {
   // 当有消息发送时滚动消息列表
@@ -198,28 +145,11 @@ const onSendAreaUploadFile = async (file) => {
         </div>
         <div class="other">...</div>
       </div>
-      <div ref="msgListRef" class="msg-list">
-        <ChatBubble @avatar="onAvatarClick" @msg="onMessageClick" :msg="message" :key="message.id"
-                    v-for="message in chatStore.currentChatGetter.messages"/>
-      </div>
+      <message-list />
       <SendArea @send-msg="onSendMsg" @upload-file="onSendAreaUploadFile"/>
     </template>
 
-    <div ref="msgBubbleContextmenuRef" v-if="showMsgBubbleContextMenuFlag"
-         :style="{width: '100px', backgroundColor: '#f6f6f6', position: 'fixed', left: pos.x + 'px', top: pos.y + 'px'}">
-      <div class="menu-item"
-           :style="{padding: '10px 0', textAlign: 'center', borderBottom: '1px solid rgba(0, 0, 0, 0.1)'}"
-           @click="onCopyBtnClick"
-      >复制
-      </div>
-      <div class="menu-item"
-           :style="{padding: '10px 0', textAlign: 'center', borderBottom: '1px solid rgba(0, 0, 0, 0.1)'}"
-           @click="onRevokeBtnClick" v-if="selectedMessage.fromUid === userStore.info.id">撤回
-      </div>
-      <div class="menu-item"
-           :style="{padding: '10px 0', textAlign: 'center', borderBottom: '1px solid rgba(0, 0, 0, 0.1)'}">删除
-      </div>
-    </div>
+
     <dialog ref="sendFileConfirmDialogRef"
             style="position: fixed; margin: 200px auto auto; height: 100px; padding: 10px;">
       <form method="dialog"
@@ -252,59 +182,6 @@ const onSendAreaUploadFile = async (file) => {
 
     .other
       font-size 1.2em
-
-  .msg-list
-    flex 1
-    border 1px solid rgba(0, 0, 0, 0.1)
-    overflow auto
-    background-color #f0f0f0
-
-    .msg-bubble
-      display flex
-      padding 20px 0 10px 30px
-      align-items top
-
-      .msg-avatar
-        width 50px
-
-      .msg-body
-        .msg-nickname
-          font-size 0.9em
-          color rgba(0, 0, 0, 0.6)
-
-        .msg-content
-          white-space pre-wrap
-          margin-top 10px
-          width fit-content
-          max-width 600px
-          padding 10px
-          font-size 1.2em
-          background-color #3eaf7c
-
-    .msg-control
-      display flex
-      justify-content center
-      margin 10px 0
-
-    .msg-bubble-self
-      display flex
-      padding 20px 30px 10px 0
-      align-items top
-      justify-content end
-
-      .msg-body
-        .msg-content
-          white-space pre-wrap
-          width fit-content
-          max-width 600px
-          padding 10px
-          font-size 1.2em
-          background-color #3eaf7c
-
-      .msg-avatar
-        text-align right
-        width 50px
-
   .send-area
     position relative
 
