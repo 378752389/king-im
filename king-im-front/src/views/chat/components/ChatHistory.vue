@@ -1,8 +1,10 @@
 <script setup>
 
 import ChatBubble from "@/views/chat/components/ChatBubble.vue";
-import {onMounted, reactive, ref} from "vue";
+import {reactive, ref, watchEffect} from "vue";
 import {getHistoryCursorPage} from "@/http/message.js";
+import KingDialog from "@/components/common/KingDialog.vue";
+import {useChatsStore} from "@/stores/chats.js";
 
 const props = defineProps({
   chatId: {
@@ -14,6 +16,7 @@ const props = defineProps({
 })
 
 const chatHistoryRef = ref()
+const chatHistoryDialogRef = ref()
 const chatHistoryData = reactive({
   showLoading: false,
   loadingText: 'loading...',
@@ -26,14 +29,6 @@ const chatHistoryData = reactive({
 
   chatHistoryList: [],
   isLast: false,
-})
-
-
-onMounted(async () => {
-  await requestChatHistory()
-  requestAnimationFrame(() => {
-    chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight
-  })
 })
 
 const onScroll = async (e) => {
@@ -78,16 +73,60 @@ const requestChatHistory = async () => {
   }
 }
 
+
+const open = async ()=> {
+  try {
+    await requestChatHistory()
+    requestAnimationFrame(() => {
+      chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight
+    })
+  } catch (e) {
+    console.error(e)
+  } finally {
+    chatHistoryDialogRef.value.open()
+  }
+}
+
+const close = () => {
+  chatHistoryDialogRef.value.close()
+}
+
+const chatStore = useChatsStore()
+
+watchEffect(() => {
+  props.chatId && props.chatType
+
+  // 监听到历史消息变化时，清空历史聊天
+  if (props.chatId === chatStore.currentChatIdGetter.value && props.chatType === chatStore.currentChatTypeGetter.value) {
+    return
+  }
+  chatHistoryData.chatHistoryList = []
+  console.log("清空历史聊天", props.chatId, props.chatType)
+})
+
+defineExpose({
+  open,
+  close,
+})
+
 </script>
 
 <template>
-  <div @scroll="onScroll" class="chat-history" ref="chatHistoryRef">
-    <div v-if="chatHistoryData.showLoading" style="text-align: center; padding: 20px;">{{ chatHistoryData.loadingText }}</div>
-    <ChatBubble :key="msg.id" :msg="msg" v-for="msg in chatHistoryData.chatHistoryList"/>
+  <div>
+    <KingDialog title="聊天历史" class="chat-history-dialog" ref="chatHistoryDialogRef">
+      <div @scroll="onScroll" class="chat-history" ref="chatHistoryRef">
+        <div v-if="chatHistoryData.showLoading" style="text-align: center; padding: 20px;">
+          {{ chatHistoryData.loadingText }}
+        </div>
+        <ChatBubble :key="msg.id" :msg="msg" v-for="msg in chatHistoryData.chatHistoryList"/>
+      </div>
+    </KingDialog>
   </div>
 </template>
 
 <style scoped lang="stylus">
+.chat-history-dialog
+  width 900px
 .chat-history
   padding 0 10px
   height 400px

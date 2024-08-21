@@ -20,10 +20,10 @@ spring:
 # 开发环境允许swagger,生产环境需要都设置未false关闭
 springfox:
   documentation:
-    enabled: true
-    auto-startup: true
+    enabled: false
+    auto-startup: false
     swagger-ui:
-      enabled: true
+      enabled: false
 
 
 mybatis-plus:

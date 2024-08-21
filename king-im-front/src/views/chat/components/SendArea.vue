@@ -7,6 +7,7 @@ import KingDialog from "@/components/common/KingDialog.vue";
 import AtSearch from "@/views/chat/components/AtSearch.vue";
 import ChatHistory from "@/views/chat/components/ChatHistory.vue";
 import {useGroupsStore} from "@/stores/groups.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const chatStore = useChatsStore()
 const editAreaData = reactive({
@@ -68,7 +69,10 @@ const onSendBtnClick = async () => {
 }
 
 const onShowEmojiClick = () => {
-  alert("该功能还在开发中...")
+  ShowToast({
+    message: "该功能还在开发中...",
+    timeout: 3000,
+  })
 }
 
 const uploadRef = ref()
@@ -88,9 +92,10 @@ const onScreenShotClick = () => {
 
 // 聊天历史
 const onShowChatHistoryClick = async () => {
-  chatHistoryDialogRef.value.open()
+  chatHistoryRef.value.open()
 }
-const chatHistoryDialogRef = ref()
+
+const chatHistoryRef = ref()
 const atSearchRef = ref()
 
 const onEditAreaInput = (e) => {
@@ -225,9 +230,7 @@ const onEscKeydown = () => {
       <button @click="onSendBtnClick" id="send-btn">发送</button>
     </div>
     <AtSearch @confirm="searchItemConfirm" :text="editAreaData.atSearchText" :list="searchList" ref="atSearchRef"/>
-    <KingDialog title="聊天历史" class="chat-history-dialog" ref="chatHistoryDialogRef">
-      <ChatHistory :chat-id="chatStore.currentChatIdGetter" :chat-type="chatStore.currentChatTypeGetter"/>
-    </KingDialog>
+    <ChatHistory ref="chatHistoryRef" :chat-id="chatStore.currentChatIdGetter" :chat-type="chatStore.currentChatTypeGetter"/>
   </div>
 </template>
 
@@ -269,7 +272,4 @@ const onEscKeydown = () => {
     width 100px
     padding 5px
     margin-right 10px
-
-  .chat-history-dialog
-    width 900px
 </style>

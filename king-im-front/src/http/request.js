@@ -2,6 +2,7 @@ import axios from "axios";
 import {refreshAPI, isRefresh} from "@/http/login.js";
 import {useUserStore} from "@/stores/user.js";
 import router from "@/router/index.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const instance = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,
@@ -53,7 +54,10 @@ instance.interceptors.response.use(async response => {
         return data;
     }
 
-    alert(msg)
+    ShowToast({
+        message: msg,
+        timeout: 3000,
+    })
     throw Error(msg)
 }, error => {
     return Promise.reject(error)
