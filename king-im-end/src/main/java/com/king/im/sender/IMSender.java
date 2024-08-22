@@ -59,7 +59,7 @@ public class IMSender implements ISender {
             try {
                 channel.writeAndFlush(new TextWebSocketFrame(imcmdStr));
                 count += 1;
-                log.info("发送消息: [terminalType: {}, {}]", terminalType, imcmdStr);
+                log.debug("发送消息: [terminalType: {}, {}]", terminalType, imcmdStr);
             } catch (Exception e) {
                 log.error("消息发送异常", e);
             }

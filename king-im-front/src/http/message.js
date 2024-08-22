@@ -48,10 +48,17 @@ export const sendAPI = ({
     })
 }
 
-export const pullOfflineMsgAPI = (minMsgId) => {
+export const pullOfflineMsgAPI = () => {
     return request({
-        url: `/msg/pullOfflineMessage?minMsgId=${minMsgId}`,
+        url: `/msg/pullOfflineMessage`,
         method: "get",
+    })
+}
+
+export const pullMsgAPI = (minMsgId) => {
+    return request({
+        url: `/msg/pullMessage?minMsgId=${minMsgId}`,
+        method: 'get'
     })
 }
 

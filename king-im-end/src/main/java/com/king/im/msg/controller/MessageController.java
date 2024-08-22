@@ -5,28 +5,27 @@ import com.king.im.common.interceptor.RequestInfoHolder;
 import com.king.im.common.result.CommonResult;
 import com.king.im.msg.domain.MsgCursorReq;
 import com.king.im.msg.domain.MsgReq;
-import com.king.im.msg.service.HistoryMessageCache;
 import com.king.im.msg.service.MessageService;
 import com.king.im.server.protocol.data.ChatData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.index.qual.SameLen;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @RestController
 @RequestMapping("/msg")
 @Api(tags = "消息管理")
+@Slf4j
 public class MessageController {
 
     @Resource
     private MessageService messageService;
-    @Resource
-    private HistoryMessageCache historyMessageCache;
 
     @PostMapping("/send")
     @ApiOperation("发送消息")
@@ -55,11 +54,19 @@ public class MessageController {
         return CommonResult.ok(null);
     }
 
+    @GetMapping("/pullMessage")
+    @ApiOperation("拉群消息")
+    public CommonResult<Void> pullMessage(Long minMsgId) {
+        Long uid = RequestInfoHolder.getUid();
+        messageService.pullMessage(minMsgId, uid);
+        return CommonResult.ok(null);
+    }
+
     @GetMapping("/pullOfflineMessage")
     @ApiOperation("拉取离线消息")
-    public CommonResult pullOfflineMessage(Long minMsgId) {
+    public CommonResult pullOfflineMessage() {
         Long uid = RequestInfoHolder.getUid();
-        messageService.loadOfflineMessage(minMsgId, uid);
+        messageService.loadOfflineMessage(uid);
         return CommonResult.ok(null);
     }
 

@@ -38,7 +38,7 @@
                 and id &lt; #{cursor}
             </if>
             and (
-                (from_uid = #{peer1Id} and to_uid = #{peer2Id}) or (from_uid = #{peer2Id} and to_uid = #{peer1Id})
+            (from_uid = #{peer1Id} and to_uid = #{peer2Id}) or (from_uid = #{peer2Id} and to_uid = #{peer1Id})
             )
             and status != 4
         </where>
@@ -56,35 +56,69 @@
         where status = 1 and and fromUid = #{chatId} toUid = #{userId} and type = #{type}
     </select>
 
-    <select id="getOfflineMsgByUserId" resultMap="BaseResultMap">
+    <select id="getSingleMsgList" resultMap="BaseResultMap">
         select id,
-               room_id,
-               from_uid,
-               status,
-               to_uid,
-               type,
-               content,
-               extra,
-               create_time
+        room_id,
+        from_uid,
+        status,
+        to_uid,
+        type,
+        content,
+        extra,
+        create_time
         from t_msg
         where id > #{minMsgId}
-          and ((to_uid = #{userId} and from_uid is not null) or (from_uid = #{userId} and to_uid is not null))
+        and status = 2
+        and ((to_uid = #{userId} and from_uid is not null) or (from_uid = #{userId} and to_uid is not null))
+        order by create_time desc limit 1000
+    </select>
+
+    <select id="getRoomMsgList" resultMap="BaseResultMap">
+        select id,
+        room_id,
+        from_uid,
+        status,
+        to_uid,
+        type,
+        content,
+        extra,
+        create_time
+        from t_msg
+        where id > #{minMsgId}
+        and room_id = #{roomId}
+        order by create_time desc
+        limit 100
+    </select>
+
+    <select id="getOfflineSingleMsgList" resultMap="BaseResultMap">
+        select id,
+        room_id,
+        from_uid,
+        status,
+        to_uid,
+        type,
+        content,
+        extra,
+        create_time
+        from t_msg
+        where status = 1
+        and ((to_uid = #{userId} and from_uid is not null) or (from_uid = #{userId} and to_uid is not null))
         order by create_time desc
     </select>
 
-    <select id="getOfflineMsgByRoomId" resultMap="BaseResultMap">
+    <select id="getOfflineRoomMsgList" resultMap="BaseResultMap">
         select id,
-               room_id,
-               from_uid,
-               status,
-               to_uid,
-               type,
-               content,
-               extra,
-               create_time
+        room_id,
+        from_uid,
+        status,
+        to_uid,
+        type,
+        content,
+        extra,
+        create_time
         from t_msg
-        where id > #{minMsgId}
-          and room_id = #{roomId}
+        where room_id = #{roomId}
+        and status = 1
         order by create_time desc
         limit 100
     </select>

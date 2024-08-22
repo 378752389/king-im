@@ -5,8 +5,6 @@ import com.king.im.msg.domain.MsgCursorReq;
 import com.king.im.msg.domain.MsgReq;
 import com.king.im.server.protocol.data.ChatData;
 
-import java.util.List;
-
 public interface MessageService {
 
     Long sendMsg(MsgReq req);
@@ -17,7 +15,9 @@ public interface MessageService {
 
     CursorResult<ChatData> getHistoryMessageCursorPage(Long chatId, Integer chatType, Long cursor, Long size);
 
-    void loadOfflineMessage(Long minMsgId, Long userId);
+    void pullMessage(Long minMsgId, Long userId);
+
+    void loadOfflineMessage(Long userId);
 
     CursorResult<ChatData> getMsgCursorPage(MsgCursorReq req);
 

@@ -42,6 +42,7 @@ onMounted(async () => {
     await Promise.all([
       useGroupsStore().loadGroupList(),
       useContactsStore().loadContactList(),
+      useChatsStore().pullMsg(),
       useChatsStore().pullOfflineMsg(),
     ])
   })

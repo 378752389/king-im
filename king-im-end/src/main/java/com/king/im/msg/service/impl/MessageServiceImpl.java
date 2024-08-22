@@ -1,11 +1,10 @@
 package com.king.im.msg.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import cn.hutool.core.collection.CollUtil;
 import com.king.im.common.cursor.CursorResult;
 import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.RequestInfoHolder;
+import com.king.im.common.redisson.DistributedLock;
 import com.king.im.listener.event.MsgEvent;
 import com.king.im.msg.convert.MsgConvert;
 import com.king.im.msg.domain.MsgCursorReq;
@@ -24,6 +23,7 @@ import com.king.im.social.mapper.FriendMapper;
 import com.king.im.social.mapper.RoomMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +36,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class MessageServiceImpl implements MessageService {
-
-    @Resource
-    private ObjectMapper objectMapper;
     @Resource
     private MsgMapper msgMapper;
     @Resource
@@ -124,39 +121,77 @@ public class MessageServiceImpl implements MessageService {
         return result;
     }
 
-
     @Override
-    public void loadOfflineMessage(Long minMsgId, Long userId) {
+    @Async
+    @DistributedLock(lockKey = "'loadMessage:'+#userId", waitTime = 0)
+    public void pullMessage(Long minMsgId, Long userId) {
+        List<Msg> result = new ArrayList<>();
 
-        List<Msg> offlineMsg = new LinkedList<>();
-        List<Msg> offlineUserMsg = getSingleChatOfflineMessage(minMsgId, userId);
-        offlineMsg.addAll(offlineUserMsg);
-        log.info("userId: {}, 消息偏移量：{}， 拉取朋友离线消息数量：{}", userId, minMsgId, offlineMsg.size());
+        // 拉取1000条私聊消息
+        List<Msg> singleMsgList = msgMapper.getSingleMsgList(minMsgId, userId);
+        if (CollUtil.isNotEmpty(singleMsgList)) {
+            result.addAll(singleMsgList);
+        }
 
+        int singleSize = result.size();
+
+        // 拉群各个群聊最近100条群聊消息
         List<RoomDo> roomList = roomMapper.getRoomList(userId);
-        List<Long> roomIds = roomList.stream().map(RoomDo::getRoomId).collect(Collectors.toList());
-        List<Msg> offlineGroupMsg = getGroupChatOfflineMessage(minMsgId, roomIds);
-        offlineMsg.addAll(offlineGroupMsg);
+        roomList.forEach(roomDo -> {
+            List<Msg> roomMsgList = msgMapper.getRoomMsgList(minMsgId, roomDo.getRoomId());
+            if (CollUtil.isNotEmpty(roomMsgList)) {
+                result.addAll(roomMsgList);
+            }
+        });
 
-        log.info("userId: {}, 消息偏移量：{}， 拉取总离线消息数量：{}", userId, minMsgId, offlineMsg.size());
-        for (Msg msg : offlineMsg) {
+        int roomSize = result.size() - singleSize;
+
+        log.info("拉取最近聊天消息；userId: {}, 消息偏移: {}, 私聊消息数量：{}, 群聊消息数量：{}", userId, minMsgId, singleSize, roomSize);
+
+        for (Msg msg : result) {
             SendMessage sendMessage = MsgConvert.buildSendMessage(msg);
             sendMessage.setReceiverInfo(new ReceiverInfo(userId));
             imSender.send(sendMessage);
         }
     }
 
-    public List<Msg> getSingleChatOfflineMessage(Long minMsgId, Long userId) {
-        return msgMapper.getOfflineMsgByUserId(minMsgId, userId);
-    }
 
-    public List<Msg> getGroupChatOfflineMessage(Long minMsgId, List<Long> roomIds) {
-        List<Msg> offlineMessageList = new LinkedList<>();
-        for (Long roomId : roomIds) {
-            List<Msg> msgList = msgMapper.getOfflineMsgByRoomId(minMsgId, roomId);
-            offlineMessageList.addAll(msgList);
+    @Override
+    @Transactional
+    @Async
+    @DistributedLock(lockKey = "'loadOfflineMessage:'+#userId", waitTime = 0)
+    public void loadOfflineMessage(Long userId) {
+
+        List<Msg> offlineMsg = new LinkedList<>();
+        List<Msg> offlineSingleMsgList = msgMapper.getOfflineSingleMsgList(userId);
+        if (CollUtil.isNotEmpty(offlineSingleMsgList)) {
+            offlineMsg.addAll(offlineSingleMsgList);
         }
-        return offlineMessageList;
+        int singleSize = offlineMsg.size();
+
+        // 批量更新离线消息状态为已读
+        for (Msg msg : offlineSingleMsgList) {
+            Msg update = new Msg();
+            update.setId(msg.getId());
+            update.setStatus(2);
+            msgMapper.updateById(update);
+        }
+
+        List<RoomDo> roomList = roomMapper.getRoomList(userId);
+        roomList.forEach(roomDo -> {
+            List<Msg> offlineRoomMsgList = msgMapper.getOfflineRoomMsgList(roomDo.getRoomId());
+            if (CollUtil.isNotEmpty(offlineRoomMsgList)) {
+                offlineMsg.addAll(offlineRoomMsgList);
+            }
+        });
+        int roomSize = offlineMsg.size() - singleSize;
+        log.info("拉取总离线聊天消息；userId: {}, 私聊离线消息数量：{}, 群聊离线消息数量: {};", userId, singleSize, roomSize);
+
+        for (Msg msg : offlineMsg) {
+            SendMessage sendMessage = MsgConvert.buildSendMessage(msg);
+            sendMessage.setReceiverInfo(new ReceiverInfo(userId));
+            imSender.send(sendMessage);
+        }
     }
 
     @Override
@@ -215,5 +250,4 @@ public class MessageServiceImpl implements MessageService {
         msg.setType(MessageStatusEnum.HAS_READ.getType());
         return msgMapper.updateById(msg);
     }
-
 }

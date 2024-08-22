@@ -3,7 +3,6 @@
 import {sendAPI} from "@/http/message.js";
 import {computed, reactive, ref} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
-import KingDialog from "@/components/common/KingDialog.vue";
 import AtSearch from "@/views/chat/components/AtSearch.vue";
 import ChatHistory from "@/views/chat/components/ChatHistory.vue";
 import {useGroupsStore} from "@/stores/groups.js";

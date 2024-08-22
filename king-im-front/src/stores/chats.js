@@ -1,6 +1,6 @@
 import {ref, computed} from 'vue'
 import {defineStore} from 'pinia'
-import {pullOfflineMsgAPI} from "@/http/message.js";
+import {pullMsgAPI, pullOfflineMsgAPI} from "@/http/message.js";
 import {useContactsStore} from "@/stores/contacts.js";
 import {useGroupsStore} from "@/stores/groups.js";
 import {useUserStore} from "@/stores/user.js";
@@ -123,10 +123,10 @@ export const useChatsStore = defineStore('chats', () => {
         }
 
         // 撤回消息处理
-        if (message.status === messageStatus.REVOKE) {
-            revokeMessage(chatId, type, message)
-            return
-        }
+        // if (message.status === messageStatus.REVOKE) {
+        //     revokeMessage(chatId, type, message)
+        //     return
+        // }
 
         doInsertMessage(chat, message)
     }
@@ -188,29 +188,36 @@ export const useChatsStore = defineStore('chats', () => {
 
     // 执行插入消息操作
     const doInsertMessage = (chat, message) => {
-        // 非当前会话消息处理
-        // 对于computed 需要 通过value 才能拿到原始值
-        if ((!currentChatIdGetter.value && !currentChatTypeGetter.value) || currentChatIdGetter.value !== chat.chatId || currentChatTypeGetter.value !== chat.type) {
-            chat.unreadCount += 1
-        }
-
-        // 修改会话信息
-        chat.lastContent = message.content
-        chat.lastSendTime = chat.lastSendTime > message.sendTime ? chat.lastSendTime : message.sendTime
-
         let insertPos = chat.messages.length
         for (let idx in chat.messages) {
+            // 重复消息，直接跳过，不做处理
+            if (chat.messages[idx].id === message.id) {
+                return
+            }
             if (chat.messages[idx].sendTime > message.sendTime) {
                 insertPos = idx
                 break
             }
         }
+        // 非当前会话消息处理
+        // 对于computed 需要 通过value 才能拿到原始值
+        if ((!currentChatIdGetter.value && !currentChatTypeGetter.value) || currentChatIdGetter.value !== chat.chatId || currentChatTypeGetter.value !== chat.type) {
+            chat.unreadCount += 1
+        }
+        // 修改会话信息
+        chat.lastContent = message.content
+        chat.lastSendTime = chat.lastSendTime > message.sendTime ? chat.lastSendTime : message.sendTime
         minMsgId.value = minMsgId.value == null ? message.id : (minMsgId.value < message.id ? message.id : minMsgId.value)
+
         chat.messages.splice(insertPos, 0, message)
     }
 
     const pullOfflineMsg = async () => {
-        await pullOfflineMsgAPI((minMsgId.value == null || minMsgId.value === 0) ? 0 : minMsgId.value)
+        await pullOfflineMsgAPI()
+    }
+
+    const pullMsg = async () => {
+        await pullMsgAPI((minMsgId.value == null || minMsgId.value === 0) ? 0 : minMsgId.value)
     }
 
     const getChatMessage = (chatId, type) => {
@@ -235,6 +242,7 @@ export const useChatsStore = defineStore('chats', () => {
 
         insertMessage,
         pullOfflineMsg,
+        pullMsg,
         getChatMessage,
         revokeMessage,
 

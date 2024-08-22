@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
-    @Cacheable(cacheNames = "user", key = "#uid")
+//    @Cacheable(cacheNames = "user", key = "#uid")
     public UserVO info(Long uid) {
         User user = userMapper.selectById(uid);
 
