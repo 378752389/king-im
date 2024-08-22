@@ -3,6 +3,7 @@ import ChatBubble from "@/views/chat/components/ChatBubble.vue";
 import {onMounted, ref} from "vue";
 import {useUserStore} from "@/stores/user.js";
 import {useChatsStore} from "@/stores/chats.js";
+import {getSendTimeNormalize} from "@/utils/dateUtils.js";
 
 const userStore = useUserStore()
 const chatStore = useChatsStore()
@@ -61,12 +62,30 @@ const onRevokeBtnClick = () => {
   // selectedMessage.value = undefined
   // showMsgBubbleContextMenuFlag.value = false
 }
+
+const isInsertTimeMessage = (currentMsg, lastMsg) => {
+  if (lastMsg == null) {
+    return true
+  }
+  // 两条消息时间间隔超过5分钟，插入一条时间消息
+  if (currentMsg.sendTime - lastMsg.sendTime >= 1000 * 60 * 5) {
+    return true
+  }
+  return false
+}
 </script>
 
 <template>
   <div ref="msgListRef" class="msg-list">
-    <ChatBubble @avatar="onAvatarClick" @msg="onMessageClick" :msg="message"
-                v-for="message in chatStore.currentChatGetter.messages"/>
+    <template v-for="(message, index) in chatStore.currentChatGetter.messages">
+      <template v-if="isInsertTimeMessage(message, chatStore.currentChatGetter.messages[index - 1])">
+        <div class="control-msg timeline">
+          {{getSendTimeNormalize(message.sendTime)}}
+        </div>
+      </template>
+      <ChatBubble @avatar="onAvatarClick" @msg="onMessageClick" :msg="message"/>
+    </template>
+
 
     <div ref="msgBubbleContextmenuRef" v-if="showMsgBubbleContextMenuFlag"
          :style="{width: '100px', backgroundColor: '#f6f6f6', position: 'fixed', left: pos.x + 'px', top: pos.y + 'px'}">
@@ -93,50 +112,8 @@ const onRevokeBtnClick = () => {
   overflow auto
   background-color #f0f0f0
 
-  .msg-bubble
-    display flex
-    padding 20px 0 10px 30px
-    align-items top
-
-    .msg-avatar
-      width 50px
-
-    .msg-body
-      .msg-nickname
-        font-size 0.9em
-        color rgba(0, 0, 0, 0.6)
-
-      .msg-content
-        white-space pre-wrap
-        margin-top 10px
-        width fit-content
-        max-width 600px
-        padding 10px
-        font-size 1.2em
-        background-color #3eaf7c
-
-  .msg-control
-    display flex
-    justify-content center
-    margin 10px 0
-
-  .msg-bubble-self
-    display flex
-    padding 20px 30px 10px 0
-    align-items top
-    justify-content end
-
-    .msg-body
-      .msg-content
-        white-space pre-wrap
-        width fit-content
-        max-width 600px
-        padding 10px
-        font-size 1.2em
-        background-color #3eaf7c
-
-    .msg-avatar
-      text-align right
-      width 50px
-
+  .timeline
+    text-align center
+    margin 50px 0
+    color rgba(128, 128, 128, 0.8)
 </style>

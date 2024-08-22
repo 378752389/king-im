@@ -1,3 +1,19 @@
+export function getSendTimeNormalize(sendTimeStamp) {
+    let compareTime = new Date(sendTimeStamp)
+    let compareHour = compareTime.getHours()
+    let compareMinute = compareTime.getMinutes()
+
+    let timeStr = `${compareTime.getHours()}:${compareTime.getMinutes()}`
+
+    if (isYesterday(compareTime)) {
+        return `昨天 ${zeroize(compareHour)}:${zeroize(compareMinute)}`
+    } else if (isLastYesterday(compareTime)) {
+        return `前天 ${zeroize(compareHour)}:${zeroize(compareMinute)}`
+    } else {
+        return `${compareTime.getFullYear()}-${zeroize(compareTime.getMonth() + 1)}-${zeroize(compareTime.getDate())} ${timeStr}`
+    }
+}
+
 export function getDateDiff(dateTimeStamp) {
     // 要比较的时间变量
     let compareTime = new Date(dateTimeStamp)
