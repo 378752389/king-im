@@ -2,6 +2,7 @@ import {defineStore} from "pinia";
 import {ref} from "vue";
 import {infoAPI} from "@/http/user.js";
 import {useChatsStore} from "@/stores/chats.js";
+import {loginAPI} from "@/http/login.js";
 
 export const useUserStore = defineStore('user', () => {
     const info = ref()
@@ -9,7 +10,6 @@ export const useUserStore = defineStore('user', () => {
     const auth = ref()
 
     const login = async (username, password, terminal = 1) => {
-        const resp = await loginAPI(username, password, terminal)
         try {
             const resp = await loginAPI(username, password, terminal)
             auth.value = {

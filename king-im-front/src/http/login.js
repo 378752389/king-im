@@ -5,7 +5,7 @@ export const loginAPI = (username, password, terminal) => {
     return request({
         url: '/login',
         method: 'post',
-        data: {
+        params: {
             username,
             password,
             terminal,
