@@ -15,6 +15,8 @@ public interface UserMapper extends BaseMapper<User> {
 
     User getUserByUsername(@Param("username") String username);
 
+    User getUserByEmail(@Param("email") String email);
+
     List<FriendDO> getFriendList(@Param("userId") Long userId);
 
     List<SocialVO> getSocialList(SocialDTO socialDTO);

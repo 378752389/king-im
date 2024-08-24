@@ -42,6 +42,8 @@ const onLogin = async (e) => {
         <input id="password" v-model="loginData.password" name="password" class="king-input-text" type="password"/>
       </div>
       <button type="button" class="login-btn" @click.prevent="onLogin">登录</button>
+
+      <router-link class="register-link" to="/register">用户注册</router-link>
     </form>
 
     <div class="banner">
@@ -84,8 +86,11 @@ const onLogin = async (e) => {
 
     .login-btn
       padding 10px
-      margin 20px 0 0
+      margin 20px 0
       width 83%
+      align-self flex-end
+
+    .register-link
       align-self flex-end
 
   .banner

@@ -2,10 +2,11 @@ package com.king.im.user.service;
 
 import com.king.im.user.domain.LoginDTO;
 import com.king.im.user.domain.LoginVO;
+import com.king.im.user.domain.RegisterDTO;
 
 public interface LoginService {
 
-    Void register(LoginDTO loginDTO);
+    void register(RegisterDTO registerDTO);
 
     LoginVO login(LoginDTO loginDTO);
 

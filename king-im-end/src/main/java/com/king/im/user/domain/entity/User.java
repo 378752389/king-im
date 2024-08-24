@@ -27,6 +27,8 @@ public class User implements Serializable {
 
     private String sign;
 
+    private String email;
+
     private Integer registerType;
 
     private String province;

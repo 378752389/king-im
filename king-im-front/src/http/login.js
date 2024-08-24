@@ -13,6 +13,18 @@ export const loginAPI = (username, password, terminal) => {
     })
 }
 
+export const registerAPI = ({email, username, password}) => {
+    return request({
+        url: '/register',
+        method: 'post',
+        data: {
+            email,
+            username,
+            password
+        }
+    })
+}
+
 let refreshPromise = null
 export const refreshAPI = (refreshToken) => {
     if (refreshPromise) {

@@ -54,12 +54,19 @@ instance.interceptors.response.use(async response => {
         return data;
     }
 
+    // 如果为400，则返回报错信息
+    if (code === 400) {
+        return msg;
+    }
+
     ShowToast({
         message: msg,
         timeout: 3000,
     })
     throw Error(msg)
 }, error => {
+    // 非 2xx 3xx 响应状态码处理结果
+    console.log(`异常请求，路径：${error.config.url} 参数：${error.config.params}, 请求数据：${error.config.data}, 返回结果：${JSON.stringify(error.response.data)}`)
     return Promise.reject(error)
 })
 

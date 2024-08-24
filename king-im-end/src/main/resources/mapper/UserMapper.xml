@@ -7,6 +7,10 @@
         select * from t_user where username = #{username}
     </select>
 
+    <select id="getUserByEmail" resultType="com.king.im.user.domain.entity.User">
+        select * from t_user where email = #{email}
+    </select>
+
     <select id="getFriendList" resultType="com.king.im.user.domain.FriendDO">
         select uf.id,
                uf.user_id,

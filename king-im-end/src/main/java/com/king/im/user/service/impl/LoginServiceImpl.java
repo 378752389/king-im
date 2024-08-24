@@ -6,10 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.UserInfo;
 import com.king.im.common.utils.JwtUtils;
+import com.king.im.common.utils.RedisUtils;
 import com.king.im.user.constants.LoginConstants;
 import com.king.im.user.domain.LoginDTO;
 import com.king.im.user.domain.LoginVO;
+import com.king.im.user.domain.RegisterDTO;
 import com.king.im.user.domain.entity.User;
+import com.king.im.user.domain.enums.RegisterTypeEnum;
 import com.king.im.user.mapper.UserMapper;
 import com.king.im.user.service.LoginCache;
 import com.king.im.user.service.LoginService;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.UUID;
 
 
 @Service
@@ -38,13 +42,43 @@ public class LoginServiceImpl implements LoginService {
     private HttpServletRequest request;
     @Resource
     private ObjectMapper objectMapper;
+    @Resource
+    private RedisUtils redisUtils;
 
 
 
 
     @Override
-    public Void register(LoginDTO loginDTO) {
-        return null;
+    public void register(RegisterDTO registerDTO) {
+        User usernameExisted = userMapper.getUserByUsername(registerDTO.getUsername());
+        if (usernameExisted != null) {
+            throw new GlobalException("用户名已存在");
+        }
+        User emailRegistered = userMapper.getUserByEmail(registerDTO.getEmail());
+        if (emailRegistered != null) {
+            throw new GlobalException("邮箱已经被注册");
+        }
+
+        User user = new User();
+
+        user.setNickName("用户-" + registerDTO.getUsername());
+        user.setAvatar("");
+        user.setUsername(registerDTO.getUsername());
+        user.setEmail(registerDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        user.setRegisterType(RegisterTypeEnum.EMAIL.getType());
+        user.setCreateTime(new Date());
+
+        // todo
+        registerBySimple(user);
+    }
+
+    public void registerByEmail(User add) {
+
+    }
+
+    public void registerBySimple(User add) {
+        userMapper.insert(add);
     }
 
     @Override
