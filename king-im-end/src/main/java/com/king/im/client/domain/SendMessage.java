@@ -1,9 +1,9 @@
-package com.king.im.sender.domain;
+package com.king.im.client.domain;
 
-import com.king.im.sender.domain.enums.MessageTypeEnum;
-import com.king.im.sender.domain.message.BaseMessage;
-import com.king.im.sender.domain.type.ReceiverInfo;
-import com.king.im.sender.domain.type.SenderInfo;
+import com.king.im.common.enums.MessageTypeEnum;
+import com.king.im.client.domain.message.BaseMessage;
+import com.king.im.client.domain.type.ReceiverInfo;
+import com.king.im.client.domain.type.SenderInfo;
 import lombok.Data;
 
 /**

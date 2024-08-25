@@ -1,4 +1,4 @@
-package com.king.im.sender.domain.enums;
+package com.king.im.common.enums;
 
 import lombok.Getter;
 

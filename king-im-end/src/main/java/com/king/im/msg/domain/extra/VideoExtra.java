@@ -9,5 +9,5 @@ public class VideoExtra {
 
     private String url;
 
-    private Integer coverUrl;
+    private String coverUrl;
 }

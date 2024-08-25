@@ -95,6 +95,10 @@ public class RedisUtils {
         return redisTemplate.opsForList().rightPop(key);
     }
 
+    public Object brpop(String key, long timeout, TimeUnit unit) {
+        return redisTemplate.opsForList().rightPop(key, timeout, unit);
+    }
+
     public Long llen(String key) {
         return redisTemplate.opsForList().size(key);
     }

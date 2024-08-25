@@ -1,4 +1,4 @@
-package java.com.king.netty;
+package com.king.im;
 
 import com.king.im.common.exceptions.GlobalException;
 

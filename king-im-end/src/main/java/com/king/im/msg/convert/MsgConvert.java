@@ -1,4 +1,7 @@
 package com.king.im.msg.convert;
+import com.king.im.client.domain.type.ReceiverInfo;
+import com.king.im.server.domain.type.IMUserInfo;
+import com.google.common.collect.Lists;
 
 import cn.hutool.core.util.StrUtil;
 import com.king.im.common.interceptor.RequestInfoHolder;
@@ -6,15 +9,17 @@ import com.king.im.common.interceptor.UserInfo;
 import com.king.im.msg.domain.MsgReq;
 import com.king.im.msg.domain.entity.Msg;
 import com.king.im.msg.domain.extra.Extra;
-import com.king.im.sender.domain.SendMessage;
-import com.king.im.sender.domain.enums.ChatTypeEnum;
-import com.king.im.sender.domain.enums.MessageTypeEnum;
-import com.king.im.sender.domain.message.BaseMessage;
-import com.king.im.sender.domain.type.SenderInfo;
+import com.king.im.client.domain.SendMessage;
+import com.king.im.common.enums.ChatTypeEnum;
+import com.king.im.common.enums.MessageTypeEnum;
+import com.king.im.client.domain.message.BaseMessage;
+import com.king.im.client.domain.type.SenderInfo;
+import com.king.im.server.domain.ReceiveMessage;
 import com.king.im.server.protocol.CMD;
 import com.king.im.server.protocol.CMDType;
 import com.king.im.server.protocol.data.ChatData;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,32 +99,102 @@ public class MsgConvert {
         return chatData;
     }
 
-    public static CMD buildIMCMD(SendMessage sendMessage) {
+//    public static CMD buildIMCMD(SendMessage sendMessage) {
+//        CMD CMD = new CMD();
+//        ChatData chatData = new ChatData();
+//
+//        BaseMessage message = sendMessage.getMessage();
+//
+//        // 单聊：接收方uid； 群聊：房间号
+//        chatData.setId(message.getId());
+//        chatData.setFromUid(sendMessage.getSenderInfo().getUid());
+//        /**
+//         * 文件消息为消息内容，其他媒体消息为媒体名称
+//         */
+//        chatData.setContent(message.getText());
+//        chatData.setExtra(message.getExtra());
+//        chatData.setAtUids(message.getAtUids());
+//        chatData.setReferMsgId(message.getReferMsgId());
+//        chatData.setContentType(sendMessage.getMessageType().getType());
+//        chatData.setSendTime(message.getSendTime().getTime());
+//        chatData.setType(sendMessage.getSendType());
+//        chatData.setStatus(sendMessage.getStatus());
+//
+//        // 消息接收方id
+//        Long chatId = message.getChatId();
+//        if (ChatTypeEnum.SINGLE.getType().equals(sendMessage.getSendType())) {
+//            chatData.setToUid(chatId);
+//        } else if (ChatTypeEnum.GROUP.getType().equals(sendMessage.getSendType())) {
+//            chatData.setRoomId(chatId);
+//        }
+//        // 命令封装
+//        CMD.setCmd(CMDType.CHAT);
+//        CMD.setData(chatData);
+//
+//        return CMD;
+//    }
+
+    public static ReceiveMessage buildReceiveMessage(SendMessage sendMessage) {
+        ReceiveMessage receiveMessage = new ReceiveMessage();
+
+        SenderInfo senderInfo = sendMessage.getSenderInfo();
+        IMUserInfo sender = new IMUserInfo(senderInfo.getUid(), senderInfo.getTerminal());
+        receiveMessage.setSender(sender);
+
+        ReceiverInfo receiverInfo = sendMessage.getReceiverInfo();
+        List<Long> receiverIds = receiverInfo.getReceiverIds();
+        List<Integer> receiveTerminalTypes = receiverInfo.getReceiveTerminalTypes();
+
+        List<IMUserInfo> receivers = new ArrayList<>();
+
+        for (Long receiverId : receiverIds) {
+            for (Integer receiveTerminalType : receiveTerminalTypes) {
+                IMUserInfo receiver = new IMUserInfo(receiverId, receiveTerminalType);
+                receivers.add(receiver);
+            }
+        }
+
+        receiveMessage.setReceivers(receivers);
+        BaseMessage baseMessage = sendMessage.getMessage();
+
+        receiveMessage.setTargetId(baseMessage.getChatId());
+        receiveMessage.setChatType(sendMessage.getSendType());
+        receiveMessage.setMsgId(sendMessage.getMsgId());
+        receiveMessage.setStatus(sendMessage.getStatus());
+        receiveMessage.setSendTime(baseMessage.getSendTime());
+        receiveMessage.setReferMsgId(baseMessage.getReferMsgId());
+        receiveMessage.setAtUids(baseMessage.getAtUids());
+        receiveMessage.setContent(baseMessage.getText());
+        receiveMessage.setExtra(baseMessage.getExtra());
+        receiveMessage.setType(sendMessage.getMessageType().getType());
+
+        return receiveMessage;
+    }
+
+    public static CMD buildIMCMD(ReceiveMessage receiveMessage) {
         CMD CMD = new CMD();
         ChatData chatData = new ChatData();
 
-        BaseMessage message = sendMessage.getMessage();
-
+        chatData.setId(receiveMessage.getMsgId());
         // 单聊：接收方uid； 群聊：房间号
-        chatData.setId(message.getId());
-        chatData.setFromUid(sendMessage.getSenderInfo().getUid());
+        chatData.setFromUid(receiveMessage.getSender().getId());
         /**
          * 文件消息为消息内容，其他媒体消息为媒体名称
          */
-        chatData.setContent(message.getText());
-        chatData.setExtra(message.getExtra());
-        chatData.setAtUids(message.getAtUids());
-        chatData.setReferMsgId(message.getReferMsgId());
-        chatData.setContentType(sendMessage.getMessageType().getType());
-        chatData.setSendTime(message.getSendTime().getTime());
-        chatData.setType(sendMessage.getSendType());
-        chatData.setStatus(sendMessage.getStatus());
+        chatData.setContent(receiveMessage.getContent());
+        chatData.setExtra(receiveMessage.getExtra());
+        chatData.setAtUids(receiveMessage.getAtUids());
+        chatData.setReferMsgId(receiveMessage.getReferMsgId());
+        chatData.setContentType(receiveMessage.getType());
+        chatData.setSendTime(receiveMessage.getSendTime().getTime());
+        chatData.setType(receiveMessage.getChatType());
+        chatData.setStatus(receiveMessage.getStatus());
 
         // 消息接收方id
-        Long chatId = message.getChatId();
-        if (ChatTypeEnum.SINGLE.getType().equals(sendMessage.getSendType())) {
+        Long chatId = receiveMessage.getTargetId();
+        if (ChatTypeEnum.SINGLE.getType().equals(receiveMessage.getChatType())) {
             chatData.setToUid(chatId);
-        } else if (ChatTypeEnum.GROUP.getType().equals(sendMessage.getSendType())) {
+        } else if (ChatTypeEnum.GROUP.getType().equals(receiveMessage.getChatType())) {
             chatData.setRoomId(chatId);
         }
         // 命令封装

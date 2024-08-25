@@ -1,6 +1,6 @@
-package com.king.im.sender.domain.type;
+package com.king.im.client.domain.type;
 
-import com.king.im.sender.domain.enums.TerminalTypeEnum;
+import com.king.im.common.enums.TerminalTypeEnum;
 import lombok.Getter;
 
 import java.util.Collections;

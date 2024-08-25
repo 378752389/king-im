@@ -1,4 +1,4 @@
-package com.king.im.sender.domain.type;
+package com.king.im.client.domain.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

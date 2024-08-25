@@ -1,4 +1,4 @@
-package com.king.im.sender.domain.message;
+package com.king.im.client.domain.message;
 
 import com.king.im.msg.domain.extra.Extra;
 import lombok.Data;
