@@ -7,5 +7,7 @@ public class CMDType {
     public static final int LOGOUT = 4;
     public static final int CHAT = 5;
 
+    public static final int LOADING = 6;
+
     public static final int NON_AUTH = -1;
 }

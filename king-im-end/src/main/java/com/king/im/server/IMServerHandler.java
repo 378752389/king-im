@@ -6,6 +6,7 @@ import com.king.im.server.strategy.MessageStrategyContext;
 import com.king.im.user.service.LoginService;
 import com.king.im.server.session.GlobalSessionManager;
 import com.king.im.server.session.LocalSessionManager;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -25,10 +26,6 @@ public class IMServerHandler extends SimpleChannelInboundHandler<CMD> {
     private LocalSessionManager localSessionManager;
     @Resource
     private GlobalSessionManager globalSessionManager;
-    @Resource
-    private ObjectMapper objectMapper;
-    @Resource
-    private LoginService loginService;
     @Resource
     private MessageStrategyContext messageStrategyContext;
 
@@ -61,12 +58,25 @@ public class IMServerHandler extends SimpleChannelInboundHandler<CMD> {
         ctx.fireExceptionCaught(cause);
     }
 
+    /**
+     * 连接超时请求处理（断开连接）
+     * @param ctx
+     * @param evt
+     * @throws Exception
+     */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
             if (e.state().equals(IdleState.READER_IDLE)) {
-                log.info("读超时");
+                Channel channel = ctx.channel();
+                Long uid = ChannelInfoHolder.getUid(channel);
+                Integer terminal = ChannelInfoHolder.getTerminal(channel);
+                Integer heartbeatTime = ChannelInfoHolder.getHeartbeatTime(channel);
+                localSessionManager.offline(ctx, uid, terminal);
+                globalSessionManager.unregister(uid, terminal);
+                log.info("channelId: {}, 读超时, uid: {}, terminal: {}, heartbeat_times: {} 断开连接", channel.id(), uid, terminal, heartbeatTime);
+                channel.close();
             }
         }
 

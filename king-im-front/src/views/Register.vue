@@ -38,7 +38,7 @@ const onRegister = async () => {
       username: registerData.username,
       password: registerData.password,
     })
-    
+
     ShowToast({
       message: `注册成功，跳转到登录页`,
       timeout: 3000,

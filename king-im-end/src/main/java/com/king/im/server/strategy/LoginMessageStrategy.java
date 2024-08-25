@@ -3,10 +3,12 @@ package com.king.im.server.strategy;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.king.im.common.utils.JSONUtils;
 import com.king.im.server.ChannelInfoHolder;
+import com.king.im.server.ServerBootstrap;
 import com.king.im.server.protocol.CMD;
 import com.king.im.server.protocol.CMDType;
 import com.king.im.server.protocol.cmd.LoginCMD;
 import com.king.im.server.protocol.data.LoginData;
+import com.king.im.server.session.GlobalSessionManager;
 import com.king.im.server.session.LocalSessionManager;
 import com.king.im.user.service.LoginService;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,11 +28,14 @@ public class LoginMessageStrategy implements MessageStrategy<LoginCMD>{
     private LoginService loginService;
     @Resource
     private LocalSessionManager localSessionManager;
+    @Resource
+    private GlobalSessionManager globalSessionManager;
 
     @Override
     public void process(CMD cmd, ChannelHandlerContext ctx) {
         LoginCMD loginCMD = getRequest(cmd);
         String token = loginCMD.getAccessToken();
+        Integer terminal = loginCMD.getTerminal();
 
         if (loginService.validate(token)) {
             Long uid = loginService.parseToken(token);
@@ -43,9 +48,11 @@ public class LoginMessageStrategy implements MessageStrategy<LoginCMD>{
             sendData.setData(loginData);
 
             localSessionManager.online(ctx, uid, 1);
+            // 注册全局session 信息
+            globalSessionManager.register(uid, terminal, ServerBootstrap.getServerId());
 
             ChannelInfoHolder.setUid(ctx.channel(), uid);
-            ChannelInfoHolder.setHeartbeatTime(ctx.channel(), loginCMD.getTerminal());
+            ChannelInfoHolder.setHeartbeatTime(ctx.channel(), 0);
             ctx.writeAndFlush(new TextWebSocketFrame(jsonUtils.stringify(sendData)));
             log.info("执行登录命令： uid: {}", uid);
         }

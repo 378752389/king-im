@@ -93,7 +93,7 @@ const doReconnect = (url) => {
 }
 
 let heartBeatBehavior = {
-    timeout: 10000,
+    timeout: import.meta.env.VITE_WS_HEARTBEAT_TIME_INTERVAL_SECOND * 1000,
     timer: null,
     ping() {
         this.timer && clearTimeout(this.timer)

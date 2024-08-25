@@ -1,12 +1,11 @@
 package com.king.im.server.strategy;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.king.im.common.utils.JSONUtils;
 import com.king.im.server.ChannelInfoHolder;
 import com.king.im.server.protocol.CMD;
 import com.king.im.server.protocol.CMDType;
 import com.king.im.server.protocol.cmd.HeartBeatCMD;
+import com.king.im.server.session.GlobalSessionManager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +19,8 @@ public class HeartbeatMessageStrategy implements MessageStrategy<HeartBeatCMD> {
 
     @Resource
     private JSONUtils jsonUtils;
+    @Resource
+    private GlobalSessionManager globalSessionManager;
 
     // 心条多少次对Redis续命一次
     private static final Integer expirePerTimes = 5;
@@ -27,16 +28,16 @@ public class HeartbeatMessageStrategy implements MessageStrategy<HeartBeatCMD> {
     @Override
     public void process(CMD cmd, ChannelHandlerContext ctx) {
         // 只有登录用户才能进行心跳
-
         CMD sendData = new CMD();
 
-
         Long uid = ChannelInfoHolder.getUid(ctx.channel());
+        Integer terminal = ChannelInfoHolder.getTerminal(ctx.channel());
         if (uid == null) {
             log.error("channelId: {} 未登录认证，无法响应心跳请求", ctx.channel().id());
             sendData.setCmd(CMDType.NON_AUTH);
             ctx.writeAndFlush(new TextWebSocketFrame(jsonUtils.stringify(sendData)));
             ctx.close();
+            return;
         }
 
         // 发送心跳数据
@@ -49,7 +50,7 @@ public class HeartbeatMessageStrategy implements MessageStrategy<HeartBeatCMD> {
 
         // 进行续期
         if (heartbeatTime % expirePerTimes == 0) {
-
+            globalSessionManager.renewal(uid, terminal);
         }
     }
 

@@ -42,7 +42,7 @@ public class WSServerStarter {
                     @Override
                     protected void initChannel(SocketChannel channel) throws Exception {
                         ChannelPipeline pipeline = channel.pipeline();
-                        pipeline.addLast(new IdleStateHandler(30, 0, 0))
+                        pipeline.addLast(new IdleStateHandler(12, 0, 0))
                                 .addLast(new HttpServerCodec())
                                 .addLast(new HttpObjectAggregator(8192))
                                 .addLast(new ChunkedWriteHandler())
