@@ -38,7 +38,7 @@ public class ChatData {
     private Long sendTime;
 
     /**
-     * 消息类型， 单聊，群聊
+     * 消息类型， 1 - 单聊，2 - 群聊  3 - 加载
      */
     private Integer type;
 

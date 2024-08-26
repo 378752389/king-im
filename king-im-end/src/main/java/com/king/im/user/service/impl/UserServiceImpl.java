@@ -51,6 +51,7 @@ public class UserServiceImpl implements UserService {
         add.setNickName(userVO.getNickName());
         add.setAvatar(userVO.getAvatar());
         add.setCity(userVO.getCity());
+        add.setSign(userVO.getSign());
         add.setId(uid);
 
         userMapper.updateById(add);

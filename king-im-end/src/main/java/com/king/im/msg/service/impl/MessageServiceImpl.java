@@ -238,7 +238,7 @@ public class MessageServiceImpl implements MessageService {
             return 0;
         }
         if (MessageStatusEnum.WAITING_SEND.getType().equals(msg.getStatus())) {
-            msg.setType(MessageStatusEnum.SEND.getType());
+            msg.setStatus(MessageStatusEnum.SEND.getType());
             return msgMapper.updateById(msg);
         }
         return 0;

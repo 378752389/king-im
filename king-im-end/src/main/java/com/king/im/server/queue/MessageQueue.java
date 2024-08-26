@@ -23,7 +23,8 @@ public class MessageQueue {
     private JSONUtils jsonUtils;
 
     public ReceiveMessage take() {
-        Object o = redisUtils.brpop(getKey(ServerBootstrap.getServerId()), 10, TimeUnit.SECONDS);
+//        Object o = redisUtils.brpop(getKey(ServerBootstrap.getServerId()), 10, TimeUnit.SECONDS);
+        Object o = redisUtils.rpop(getKey(ServerBootstrap.getServerId()));
         return jsonUtils.convert(o, new TypeReference<ReceiveMessage>() {
         });
     }

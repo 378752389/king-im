@@ -20,5 +20,7 @@ public class UserVO implements Serializable {
 
     private String ip;
 
+    private String sign;
+
     private Date loginTime;
 }
