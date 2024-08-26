@@ -116,7 +116,7 @@ onMounted(() => {
   flex-direction column
   align-items center
   width 5%
-  min-width 80px
+  min-width 90px
   border-right 1px solid black
   background-color #3a3838
 
@@ -131,7 +131,7 @@ onMounted(() => {
     background-color white
 
   .avatar
-    margin 20px 0
+    margin 20px 5px
 
   .list
     flex 1

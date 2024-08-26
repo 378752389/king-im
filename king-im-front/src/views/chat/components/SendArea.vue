@@ -209,11 +209,11 @@ const onEscKeydown = () => {
 <template>
   <div class="send-area">
     <div class="tools">
-      <div class="tool-item pointer-select" @click="onShowEmojiClick">emoji</div>
-      <div class="tool-item pointer-select" @click="onUploadFileClick">文件<input type="file" @input="uploadConfirm"
+      <div class="tool-item pointer-select" @click="onShowEmojiClick"><i class="iconfont icon-smile"></i></div>
+      <div class="tool-item pointer-select" @click="onUploadFileClick"><i class="iconfont icon-folder"></i> <input type="file" @input="uploadConfirm"
                                                                                   ref="uploadRef" v-show="false"/></div>
-      <div class="tool-item pointer-select" @click="onScreenShotClick">截屏</div>
-      <div class="tool-item pointer-select" @click="onShowChatHistoryClick">聊天历史</div>
+      <div class="tool-item pointer-select" @click="onScreenShotClick"><i class="iconfont icon-association"></i> </div>
+      <div class="tool-item pointer-select" @click="onShowChatHistoryClick"><i class="iconfont icon-category"></i> </div>
     </div>
     <div ref="editAreaRef" class="text-area" contenteditable="true"
          @compositionstart="onCompositionstart"
@@ -243,7 +243,8 @@ const onEscKeydown = () => {
 
     .tool-item
       padding 5px 10px
-
+      i
+        font-size 28px
       &:hover
         background-color rgba(0, 0, 0, 0.2)
 
