@@ -119,8 +119,9 @@ const onFileMsgClick = async () => {
           <span v-if="msg.content">{{ msg.content }}</span>
         </div>
         <div class="msg picture-msg" v-else-if="msg.contentType === 2">
-          <img v-if="msg.extra?.pictureExtra?.url" :src="msg.extra?.pictureExtra?.url" alt=""/>
-          <i v-else class="iconfont icon-picture"></i>
+          <img v-if="msg.extra?.pictureExtra?.url" :src="msg.extra?.pictureExtra?.url"
+               onerror="this.onerror=null; this.src='/default.png'; this.width=100;" alt="图片无法显示"/>
+          <img v-else width='100' src="/default.png" alt=""/>
         </div>
         <div class="msg audio-msg" v-else-if="msg.contentType === 3">
           <audio v-if='msg.extra?.audioExtra?.url' :src="msg.extra?.audioExtra?.url" controls/>
@@ -173,8 +174,10 @@ const onFileMsgClick = async () => {
       display flex
       border 1px solid rgba(0, 0, 0, 0.2)
       width fit-content
+      padding 5px
 
       img
+        min-width 80px
         max-height 300px
 
     .video-msg

@@ -29,10 +29,3 @@ mybatis-plus:
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-king-im:
-  server: localhost
-  file:
-    download: http://localhost/im-upload
-    upload: E:\Project\java\own\mini-project\im-upload
-
-

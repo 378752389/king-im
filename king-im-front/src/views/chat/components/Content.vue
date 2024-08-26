@@ -121,7 +121,7 @@ const onSendAreaUploadFile = async (file) => {
         </div>
         <div class="other">...</div>
       </div>
-      <message-list ref="msgListRef" />
+      <message-list ref="msgListRef" :message-list="chatStore.currentChatGetter.messages" />
       <SendArea @send-msg="onSendMsg" @upload-file="onSendAreaUploadFile"/>
     </template>
 

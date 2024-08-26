@@ -5,6 +5,13 @@ import {useUserStore} from "@/stores/user.js";
 import {useChatsStore} from "@/stores/chats.js";
 import {getSendTimeNormalize} from "@/utils/dateUtils.js";
 
+const props = defineProps({
+  messageList: {
+    type: Array,
+    default: []
+  }
+})
+
 const userStore = useUserStore()
 const chatStore = useChatsStore()
 const showMsgBubbleContextMenuFlag = ref(false)
@@ -86,8 +93,8 @@ defineExpose({
 
 <template>
   <div ref="messageListRef" class="msg-list">
-    <template v-for="(message, index) in chatStore.currentChatGetter.messages">
-      <template v-if="isInsertTimeMessage(message, chatStore.currentChatGetter.messages[index - 1])">
+    <template v-for="(message, index) in messageList">
+      <template v-if="isInsertTimeMessage(message, messageList[index - 1])">
         <div class="control-msg timeline">
           {{ getSendTimeNormalize(message.sendTime) }}
         </div>

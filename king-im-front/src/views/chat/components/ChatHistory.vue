@@ -1,10 +1,10 @@
 <script setup>
 
-import ChatBubble from "@/views/chat/components/ChatBubble.vue";
 import {reactive, ref, watchEffect} from "vue";
 import {getHistoryCursorPage} from "@/http/message.js";
 import KingDialog from "@/components/common/KingDialog.vue";
 import {useChatsStore} from "@/stores/chats.js";
+import MessageList from "@/views/chat/components/MessageList.vue";
 
 const props = defineProps({
   chatId: {
@@ -62,7 +62,7 @@ const requestChatHistory = async () => {
 
     if (result && result.size > 0) {
       console.log(result)
-      chatHistoryData.chatHistoryList.unshift(...result.data)
+      chatHistoryData.chatHistoryList.unshift(...result.data.sort((a, b) => a.sendTime - b.sendTime))
       chatHistoryData.cursor = result.cursor
       chatHistoryData.isLast = result.isLast
     }
@@ -101,6 +101,10 @@ watchEffect(() => {
     return
   }
   chatHistoryData.chatHistoryList = []
+  chatHistoryData.isLast = false
+  chatHistoryData.chatId = props.chatId
+  chatHistoryData.chatType = props.chatType
+  chatHistoryData.cursor = undefined
   console.log("清空历史聊天", props.chatId, props.chatType)
 })
 
@@ -118,7 +122,8 @@ defineExpose({
         <div v-if="chatHistoryData.showLoading" style="text-align: center; padding: 20px;">
           {{ chatHistoryData.loadingText }}
         </div>
-        <ChatBubble :key="msg.id" :msg="msg" v-for="msg in chatHistoryData.chatHistoryList"/>
+        <MessageList :message-list="chatHistoryData.chatHistoryList" />
+<!--        <ChatBubble :key="msg.id" :msg="msg" v-for="msg in chatHistoryData.chatHistoryList"/>-->
       </div>
     </KingDialog>
   </div>

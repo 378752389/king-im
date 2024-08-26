@@ -204,12 +204,22 @@ export const useChatsStore = defineStore('chats', () => {
 
         // 第一次拉去在线消息，消息状态为未发送
         if ((!currentChatIdGetter.value && !currentChatTypeGetter.value) || currentChatIdGetter.value !== chat.chatId || currentChatTypeGetter.value !== chat.type) {
-            if (message.status === 1 && message.type === 1 || message.type === 2) {
+            if (message.status === 1) {
                 chat.unreadCount += 1
             }
         }
         // 修改会话信息
-        chat.lastContent = message.content
+        if (message.contentType === 1) {
+            chat.lastContent = message.content
+        } else if (message.contentType === 2) {
+            chat.lastContent = '[图片]'
+        } else if (message.contentType === 3) {
+            chat.lastContent = '[音频]'
+        } else if (message.contentType === 4) {
+            chat.lastContent = '[视频]'
+        } else if (message.contentType === 5) {
+            chat.lastContent = '[文件]'
+        }
         chat.lastSendTime = chat.lastSendTime > message.sendTime ? chat.lastSendTime : message.sendTime
         minMsgId.value = minMsgId.value == null ? message.id : (minMsgId.value < message.id ? message.id : minMsgId.value)
 
