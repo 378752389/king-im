@@ -1,6 +1,6 @@
 <script setup>
 import ChatBubble from "@/views/chat/components/ChatBubble.vue";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watchEffect} from "vue";
 import {useUserStore} from "@/stores/user.js";
 import {useChatsStore} from "@/stores/chats.js";
 import {getSendTimeNormalize} from "@/utils/dateUtils.js";
@@ -14,6 +14,16 @@ const pos = ref({
   x: 0,
   y: 0,
 })
+const messageListRef = ref()
+
+onMounted(() => {
+  // 监控chat 滚动到底部
+  // watchEffect(() => {
+  //   chatStore.currentChatIdGetter || chatStore.currentChatTypeGetter
+  //   scrollToBottom()
+  // })
+})
+
 
 onMounted(() => {
   document.addEventListener('click', (e) => {
@@ -44,23 +54,7 @@ const onCopyBtnClick = async () => {
 
 
 const onRevokeBtnClick = () => {
-  // let msg = selectedMessage.value
-  // let type = msg.type
-  // let chatId = undefined
-  // if (type === 1) {
-  //   // 单聊消息中， chatId 为对方的Uid，只需排除 fromUid 或 toUid 中非自身 id
-  //   chatId = msg.fromUid === userStore.info?.id ? msg.toUid : msg.fromUid
-  // } else if (msg.type === 2) {
-  //   chatId = msg.roomId
-  // }
-  //
-  // msg.status = 2
-  // msg.sendTime = new Date().getTime()
-  // console.log("msg", msg, selectedMessage.value)
-  // useChatsStore().revokeMessage(chatId, type, msg)
-  //
-  // selectedMessage.value = undefined
-  // showMsgBubbleContextMenuFlag.value = false
+
 }
 
 const isInsertTimeMessage = (currentMsg, lastMsg) => {
@@ -73,14 +67,29 @@ const isInsertTimeMessage = (currentMsg, lastMsg) => {
   }
   return false
 }
+
+const scrollToBottom = () => {
+  // 下帧进行渲染
+  if (messageListRef.value) {
+    requestAnimationFrame(() => {
+      messageListRef.value.scrollTop = messageListRef.value.scrollHeight
+    })
+  } else {
+    console.log("目标元素不存在")
+  }
+}
+
+defineExpose({
+  scrollToBottom
+})
 </script>
 
 <template>
-  <div ref="msgListRef" class="msg-list">
+  <div ref="messageListRef" class="msg-list">
     <template v-for="(message, index) in chatStore.currentChatGetter.messages">
       <template v-if="isInsertTimeMessage(message, chatStore.currentChatGetter.messages[index - 1])">
         <div class="control-msg timeline">
-          {{getSendTimeNormalize(message.sendTime)}}
+          {{ getSendTimeNormalize(message.sendTime) }}
         </div>
       </template>
       <ChatBubble @avatar="onAvatarClick" @msg="onMessageClick" :msg="message"/>

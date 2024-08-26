@@ -119,21 +119,21 @@ const onFileMsgClick = async () => {
           <span v-if="msg.content">{{ msg.content }}</span>
         </div>
         <div class="msg picture-msg" v-else-if="msg.contentType === 2">
-          <img v-if="msg.extra.pictureExtra?.url" :src="msg.extra.pictureExtra?.url" alt=""/>
+          <img v-if="msg.extra?.pictureExtra?.url" :src="msg.extra?.pictureExtra?.url" alt=""/>
           <i v-else class="iconfont icon-picture"></i>
         </div>
         <div class="msg audio-msg" v-else-if="msg.contentType === 3">
-          <audio v-if='msg.extra.audioExtra?.url' :src="msg.extra.audioExtra?.url" controls/>
+          <audio v-if='msg.extra?.audioExtra?.url' :src="msg.extra?.audioExtra?.url" controls/>
           <i v-else class="iconfont icon-picture"/>
         </div>
         <div class="msg video-msg" v-else-if="msg.contentType === 4">
-          <video v-if='msg.extra.videoExtra?.url' :src="msg.extra.videoExtra?.url" controls/>
+          <video v-if='msg.extra?.videoExtra?.url' :src="msg.extra?.videoExtra?.url" controls/>
           <i v-else class="iconfont icon-picture"/>
           <!--        <video :src="msg.extra.videoExtra.url" controls :poster="msg.extra.pictureExtra.url" />-->
         </div>
         <div class="msg file-msg" v-else-if="msg.contentType === 5">
           <div class="unknown-file pointer-select" @click="onFileMsgClick">
-            <div>{{ msg.extra.fileExtra?.name }}</div>
+            <div>{{ msg.extra?.fileExtra?.name }}</div>
             <i class="iconfont icon-folder"></i>
           </div>
         </div>

@@ -34,27 +34,7 @@ onMounted(() => {
     }
     console.log(e.dataTransfer.files[0])
   })
-
-
-
-  // 监控chat 滚动到底部
-  watchEffect(() => {
-    chatStore.currentChatIdGetter || chatStore.currentChatTypeGetter
-    scrollToBottom()
-  })
-
 })
-
-const scrollToBottom = () => {
-  // 下帧进行渲染
-  if (msgListRef.value) {
-    requestAnimationFrame(() => {
-      msgListRef.value.scrollTop = msgListRef.value.scrollHeight
-    })
-  } else {
-    console.log("目标元素不存在")
-  }
-}
 
 
 const sendFileConfirmDialogRef = ref()
@@ -110,7 +90,7 @@ const onSendFileConfirm = async () => {
   }
 
   chatStore.insertMessage(chatId, chatType, msg)
-  scrollToBottom()
+  msgListRef.value.scrollToBottom()
   sendFileConfirmDialogRef.value.close()
 }
 
@@ -121,12 +101,8 @@ const onSendFileCancel = () => {
 // 消息发送事件监听
 const onSendMsg = () => {
   // 当有消息发送时滚动消息列表
-  scrollToBottom()
+  msgListRef.value.scrollToBottom()
 }
-
-defineExpose({
-  scrollToBottom
-})
 
 const onSendAreaUploadFile = async (file) => {
   uploadFile.value = file
@@ -145,7 +121,7 @@ const onSendAreaUploadFile = async (file) => {
         </div>
         <div class="other">...</div>
       </div>
-      <message-list />
+      <message-list ref="msgListRef" />
       <SendArea @send-msg="onSendMsg" @upload-file="onSendAreaUploadFile"/>
     </template>
 
