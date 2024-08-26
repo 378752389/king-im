@@ -7,6 +7,20 @@ export const infoAPI = () => {
     })
 }
 
+export const modifyUserInfoAPI = ({username, nickName, avatar, gender, sign}) => {
+    return request({
+        url: '/user/modify',
+        method: 'post',
+        data: {
+            username,
+            nickName,
+            avatar,
+            gender,
+            sign
+        }
+    })
+}
+
 export const uploadAPI = (file) => {
     if (!file) {
         console.error('未指定上传文件')

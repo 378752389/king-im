@@ -18,7 +18,7 @@ $cursorText = url('/common/cursors/text.cur'), auto
 body
   cursor: $cursorDefault
 
-a, button, i, input, input[type=submit], input[type=button]
+a, button, i, input, input[type=submit], input[type=button],label
   cursor: $cursorSelect !important
 
 input, input[type=text]:hover, input[type=search], input[type=password], textarea
@@ -35,9 +35,10 @@ label
   width $labelWidth
   text-align $labelAlign
   line-height $inputTextHeight
+  font-weight bold
 
-input[type=text], .king-input-text
-  width 500px
+.king-input-text
+  flex 1
   height $inputTextHeight
   font-size 1.4rem
   padding 5px 10px
@@ -51,8 +52,14 @@ input[type=button]
   padding 0 30px
   margin 0 30px
 
+.king-input-radio
+  cursor $cursorSelect !important
+  width 25px
+  height 25px
+  margin 0 30px
+
 .form-item
-  margin 10px 0
+  margin 15px 0
   display flex
   justify-content center
 

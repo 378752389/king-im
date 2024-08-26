@@ -31,6 +31,9 @@ public class UserServiceImpl implements UserService {
         userVO.setAvatar(user.getAvatar());
         userVO.setNickName(user.getNickName());
         userVO.setIsOnline(true);
+        userVO.setGender(user.getGender());
+        userVO.setUsername(user.getUsername());
+        userVO.setSign(user.getSign());
         userVO.setCity(user.getCity());
         userVO.setIp(user.getLastLoginIp());
         userVO.setLoginTime(user.getLastLoginTime());
@@ -50,6 +53,7 @@ public class UserServiceImpl implements UserService {
         User add = new User();
         add.setNickName(userVO.getNickName());
         add.setAvatar(userVO.getAvatar());
+        add.setGender(userVO.getGender());
         add.setCity(userVO.getCity());
         add.setSign(userVO.getSign());
         add.setId(uid);

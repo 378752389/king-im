@@ -18,6 +18,10 @@ public class UserVO implements Serializable {
 
     private String city;
 
+    private String username;
+
+    private Integer gender;
+
     private String ip;
 
     private String sign;

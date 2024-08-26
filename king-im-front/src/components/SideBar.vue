@@ -94,6 +94,9 @@ onMounted(() => {
         <i class="iconfont icon-add" @click="addContactOrJoinGroup"></i>
       </div>
       <div class="item">
+        <router-link to="/profile"><i class="iconfont icon-edit"></i></router-link>
+      </div>
+      <div class="item">
         <router-link to="/file"><i class="iconfont icon-folder"></i></router-link>
       </div>
       <!--      <div class="item">-->

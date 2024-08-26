@@ -25,6 +25,11 @@ const router = createRouter({
                     component: () => import("@/views/group/Group.vue")
                 },
                 {
+                    path: '/profile',
+                    name: 'profile',
+                    component: () => import("@/views/Profile.vue")
+                },
+                {
                     path: '/file',
                     name: 'file',
                     component: () => import("@/views/chat/Chat.vue")
