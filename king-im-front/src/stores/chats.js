@@ -103,11 +103,11 @@ export const useChatsStore = defineStore('chats', () => {
                     }
                 }
             }
-            console.log("查询到联系人信息：", session, chatId, type)
+            // console.log("查询到联系人信息：", session, chatId, type)
         } else if (type === 2) {
             const groupStore = useGroupsStore()
             session = groupStore.getGroup(chatId)
-            console.log("查询到群信息：", session, chatId, type)
+            // console.log("查询到群信息：", session, chatId, type)
         } else {
             throw Error("type must be 1 or 2")
         }
@@ -201,8 +201,12 @@ export const useChatsStore = defineStore('chats', () => {
         }
         // 非当前会话消息处理
         // 对于computed 需要 通过value 才能拿到原始值
+
+        // 第一次拉去在线消息，消息状态为未发送
         if ((!currentChatIdGetter.value && !currentChatTypeGetter.value) || currentChatIdGetter.value !== chat.chatId || currentChatTypeGetter.value !== chat.type) {
-            chat.unreadCount += 1
+            if (message.status === 1 && message.type === 1 || message.type === 2) {
+                chat.unreadCount += 1
+            }
         }
         // 修改会话信息
         chat.lastContent = message.content

@@ -39,13 +39,6 @@ public interface MsgMapper extends BaseMapper<Msg> {
     List<Msg> getOfflineSingleMsgList(@Param("userId") Long userId);
 
     /**
-     * 获取离线群聊消息
-     * @param roomId
-     * @return
-     */
-    List<Msg> getOfflineRoomMsgList(@Param("roomId") Long roomId);
-
-    /**
      * 获取消息状态为已发送的消息，拉取至多1000条私聊消息
      * @param minMsgId
      * @param userId

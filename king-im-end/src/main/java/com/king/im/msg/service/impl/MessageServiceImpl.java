@@ -11,6 +11,7 @@ import com.king.im.msg.domain.MsgCursorReq;
 import com.king.im.msg.domain.MsgReq;
 import com.king.im.msg.domain.entity.Msg;
 import com.king.im.msg.mapper.MsgMapper;
+import com.king.im.msg.service.MessageCache;
 import com.king.im.msg.service.MessageService;
 import com.king.im.client.IMSender;
 import com.king.im.client.domain.SendMessage;
@@ -46,6 +47,8 @@ public class MessageServiceImpl implements MessageService {
     private FriendMapper friendMapper;
     @Resource
     private IMSender imSender;
+    @Resource
+    private MessageCache messageCache;
 
     @Override
     public Long sendMsg(MsgReq req) {
@@ -121,9 +124,11 @@ public class MessageServiceImpl implements MessageService {
         return result;
     }
 
+    // todo 事务或分布式锁优先级
     @Override
     @Async
     @DistributedLock(lockKey = "'loadMessage:'+#userId", waitTime = 0)
+    @Transactional
     public void pullMessage(Long minMsgId, Long userId) {
         List<Msg> result = new ArrayList<>();
 
@@ -139,6 +144,12 @@ public class MessageServiceImpl implements MessageService {
         List<RoomDo> roomList = roomMapper.getRoomList(userId);
         roomList.forEach(roomDo -> {
             List<Msg> roomMsgList = msgMapper.getRoomMsgList(minMsgId, roomDo.getRoomId());
+
+            // 修改群聊消息为状态2 （群聊消息没有己发送状态）
+            for (Msg msg : roomMsgList) {
+                msg.setStatus(MessageStatusEnum.SEND.getType());
+            }
+
             if (CollUtil.isNotEmpty(roomMsgList)) {
                 result.addAll(roomMsgList);
             }
@@ -179,10 +190,18 @@ public class MessageServiceImpl implements MessageService {
 
         List<RoomDo> roomList = roomMapper.getRoomList(userId);
         roomList.forEach(roomDo -> {
-            List<Msg> offlineRoomMsgList = msgMapper.getOfflineRoomMsgList(roomDo.getRoomId());
+            Long position = messageCache.getRoomMessagePosition(roomDo.getRoomId(), userId);
+            if (position == null) {
+                position = 0L;
+            }
+            List<Msg> offlineRoomMsgList = msgMapper.getRoomMsgList(position, roomDo.getRoomId());
             if (CollUtil.isNotEmpty(offlineRoomMsgList)) {
                 offlineMsg.addAll(offlineRoomMsgList);
+
+                Long newPosition = offlineRoomMsgList.get(0).getId();
+                messageCache.setRoomMessagePosition(roomDo.getRoomId(), userId, newPosition);
             }
+
         });
         int roomSize = offlineMsg.size() - singleSize;
         log.info("拉取总离线聊天消息；userId: {}, 私聊离线消息数量：{}, 群聊离线消息数量: {};", userId, singleSize, roomSize);

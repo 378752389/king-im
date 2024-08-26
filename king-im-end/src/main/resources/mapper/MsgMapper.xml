@@ -106,22 +106,6 @@
         order by create_time desc
     </select>
 
-    <select id="getOfflineRoomMsgList" resultMap="BaseResultMap">
-        select id,
-        room_id,
-        from_uid,
-        status,
-        to_uid,
-        type,
-        content,
-        extra,
-        create_time
-        from t_msg
-        where room_id = #{roomId}
-        and status = 1
-        order by create_time desc
-        limit 100
-    </select>
 
     <select id="getHistoryMsg" resultMap="BaseResultMap">
         <include refid="BaseField"/>

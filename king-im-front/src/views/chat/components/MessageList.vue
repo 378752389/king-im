@@ -18,10 +18,10 @@ const messageListRef = ref()
 
 onMounted(() => {
   // 监控chat 滚动到底部
-  // watchEffect(() => {
-  //   chatStore.currentChatIdGetter || chatStore.currentChatTypeGetter
-  //   scrollToBottom()
-  // })
+  watchEffect(() => {
+    chatStore.currentChatIdGetter || chatStore.currentChatTypeGetter
+    scrollToBottom()
+  })
 })
 
 
