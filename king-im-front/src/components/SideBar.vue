@@ -96,9 +96,9 @@ onMounted(() => {
       <div class="item">
         <router-link to="/profile"><i class="iconfont icon-edit"></i></router-link>
       </div>
-      <div class="item">
-        <router-link to="/file"><i class="iconfont icon-folder"></i></router-link>
-      </div>
+<!--      <div class="item">-->
+<!--        <router-link to="/file"><i class="iconfont icon-folder"></i></router-link>-->
+<!--      </div>-->
       <!--      <div class="item">-->
       <!--        <router-link to="/qwe" @click="onLiftClick"><i class="iconfont icon-link"></i></router-link>-->
       <!--      </div>-->

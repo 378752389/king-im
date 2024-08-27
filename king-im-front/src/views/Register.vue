@@ -58,6 +58,10 @@ const onRegister = async () => {
   }
 
 }
+
+const onReturn = () => {
+  router.back()
+}
 </script>
 
 <template>
@@ -69,7 +73,7 @@ const onRegister = async () => {
       </div>
       <div class="form-item">
         <label for="username">用户名</label>
-        <input id="username" v-model="registerData.username" type="text" name="username"/>
+        <input id="username" v-model="registerData.username" type="text" class="king-input-text" name="username"/>
       </div>
       <div class="form-item">
         <label for="password">密码</label>
@@ -84,6 +88,10 @@ const onRegister = async () => {
         <label for="register"></label>
         <button name="register" type="button" class="register-btn" @click="onRegister">注册</button>
       </div>
+      <div class="form-item">
+        <label for="return"></label>
+        <button name="return" type="button" class="return-btn" @click="onReturn">返回</button>
+      </div>
     </form>
   </div>
 </template>
@@ -96,13 +104,14 @@ const onRegister = async () => {
   overflow hidden;
 
   .register-form
+    width 600px
     margin 100px auto
     display flex
     flex-direction column
 
-    .register-btn
+    .register-btn, .return-btn
       padding 10px
-      margin 20px 0
+      margin-top 10px
       width 500px
       align-self flex-end
 </style>

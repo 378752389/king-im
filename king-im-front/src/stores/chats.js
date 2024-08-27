@@ -208,21 +208,32 @@ export const useChatsStore = defineStore('chats', () => {
                 chat.unreadCount += 1
             }
         }
-        // 修改会话信息
-        if (message.contentType === 1) {
-            chat.lastContent = message.content
-        } else if (message.contentType === 2) {
-            chat.lastContent = '[图片]'
-        } else if (message.contentType === 3) {
-            chat.lastContent = '[音频]'
-        } else if (message.contentType === 4) {
-            chat.lastContent = '[视频]'
-        } else if (message.contentType === 5) {
-            chat.lastContent = '[文件]'
-        }
-        chat.lastSendTime = chat.lastSendTime > message.sendTime ? chat.lastSendTime : message.sendTime
-        minMsgId.value = minMsgId.value == null ? message.id : (minMsgId.value < message.id ? message.id : minMsgId.value)
 
+        if (chat.lastSendTime < message.sendTime) {
+            chat.lastSendTime = message.sendTime
+            // 修改会话信息
+            if (message.contentType === 1) {
+                debugger
+                chat.lastContent = message.content
+            } else if (message.contentType === 2) {
+                chat.lastContent = '[图片]'
+            } else if (message.contentType === 3) {
+                chat.lastContent = '[音频]'
+            } else if (message.contentType === 4) {
+                chat.lastContent = '[视频]'
+            } else if (message.contentType === 5) {
+                chat.lastContent = '[文件]'
+            }
+        }
+
+        if (minMsgId.value == null) {
+            minMsgId.value = message.id
+        } else {
+            if (minMsgId.value < message.id) {
+                minMsgId.value = message.id
+            }
+        }
+        // minMsgId.value = minMsgId.value == null ? message.id : (minMsgId.value < message.id ? message.id : minMsgId.value)
         chat.messages.splice(insertPos, 0, message)
     }
 

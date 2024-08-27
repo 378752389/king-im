@@ -39,6 +39,10 @@ export function getDateDiff(dateTimeStamp) {
     let result;
 
     if (diffValue < 0) {
+        // 误差不超过三秒
+        if (Math.ceil(diffValue / 3000) === 0) {
+            return '刚刚';
+        }
         throw new Error("不能选未来的时间")
     }
     let yearC = diffValue / year;
