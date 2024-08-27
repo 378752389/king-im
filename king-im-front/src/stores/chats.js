@@ -213,7 +213,6 @@ export const useChatsStore = defineStore('chats', () => {
             chat.lastSendTime = message.sendTime
             // 修改会话信息
             if (message.contentType === 1) {
-                debugger
                 chat.lastContent = message.content
             } else if (message.contentType === 2) {
                 chat.lastContent = '[图片]'

@@ -56,6 +56,12 @@ instance.interceptors.response.use(async response => {
 
     // 如果为400，则返回报错信息
     if (code === 400) {
+        ShowToast({
+            message: msg,
+            timeout: 3000,
+            type: 'danger'
+        })
+        // throw new Error(msg);
         return msg;
     }
 

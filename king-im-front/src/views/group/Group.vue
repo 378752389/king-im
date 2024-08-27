@@ -24,7 +24,7 @@ const onItemChange = (item) => {
         <KingContextMenuItem name="退出群聊"/>
       </template>
     </CommonList>
-    <GroupDetail v-if="selectedGroupGetter != null"/>
+    <GroupDetail v-if="selectedGroupGetter"/>
   </div>
 </template>
 

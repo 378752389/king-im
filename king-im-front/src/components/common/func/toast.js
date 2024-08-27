@@ -27,5 +27,5 @@ export const ShowToast = ({message, timeout, type}) => {
         if (toastContainerElement.childElementCount === 0) {
             toastContainerElement.remove();
         }
-    }, timeout || 1000)
+    }, timeout || 3000)
 }

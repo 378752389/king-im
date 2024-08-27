@@ -6,7 +6,7 @@ import {useChatsStore} from "@/stores/chats.js";
 
 export const useGroupsStore = defineStore('groups', () => {
     const groupList = ref([])
-    // 群聊页面中选中的群
+    // 群列表页面中选中的群
     const selectedGroup = ref()
 
     const groupListGetter = computed(() => {

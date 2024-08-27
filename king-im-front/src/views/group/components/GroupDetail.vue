@@ -6,10 +6,13 @@ import {useGroupsStore} from "@/stores/groups.js";
 import {useChatsStore} from "@/stores/chats.js";
 import {storeToRefs} from "pinia";
 import {useRouter} from "vue-router";
+import {ShowToast} from "@/components/common/func/toast.js";
+import {ShowMessageBox} from "@/components/common/func/messageBox.js";
 
 const chatStore = useChatsStore()
 const router = useRouter()
-const {selectedGroupGetter} = storeToRefs(useGroupsStore())
+const groupsStore = useGroupsStore()
+const {selectedGroupGetter} = storeToRefs(groupsStore)
 
 const onSaveClick = async () => {
   console.log(selectedGroupGetter)
@@ -25,17 +28,31 @@ const onSaveClick = async () => {
 }
 
 const onQuitClick = async () => {
-  const resp = await quitGroupAPI({
+  await quitGroupAPI({
     roomId: selectedGroupGetter.id
   })
+
   alert('退出成功')
 }
 
 const onDeleteClick = async () => {
-  const resp = await deleteGroupAPI({
-    roomId: selectedGroupGetter.id
+  ShowMessageBox({
+    message: `请确认是否删除 <span style="color: red;">${selectedGroupGetter.value.name}</span> 群聊 ？`,
+    confirm: async () => {
+      await deleteGroupAPI({
+        roomId: selectedGroupGetter.value.id
+      })
+      // todo 弹窗提示
+      ShowToast({
+        message: "删除群聊成功",
+        timeout: 3000,
+        type: "success"
+      })
+      await groupsStore.loadGroupList()
+
+    },
   })
-  alert('删除群成功')
+
 }
 
 const onSendClick = (groupData) => {
