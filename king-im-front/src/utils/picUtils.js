@@ -14,7 +14,12 @@ export const genPicture = (text, width, height) => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    ctx.fillStyle = getRandomLightColor();
+    // todo 是否需要随机彩色填充
+    // ctx.fillStyle = getRandomLightColor();
+
+    ctx.fillStyle = 'rgba(255, 215, 0, 1)'
+    // 离线颜色
+    // ctx.fillStyle = 'rgba(128, 128, 128, 0.7)'
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 

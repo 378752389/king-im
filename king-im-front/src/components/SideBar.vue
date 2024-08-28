@@ -132,6 +132,9 @@ onMounted(() => {
     left 80px
     top 20px
     background-color white
+    li
+      margin 3px
+      list-style none
 
   .avatar
     margin 20px 5px

@@ -4,6 +4,7 @@ import {addContactAPI, addGroupAPI, applyGroupAPI, socialSearchAPI} from "@/http
 import defaultIcon from '@/assets/logo.svg'
 import {useContactsStore} from "@/stores/contacts.js";
 import {useGroupsStore} from "@/stores/groups.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const searchForm = reactive({
   type: 1,    // 搜索方式
@@ -74,7 +75,11 @@ const onAddFriendClick = async (searchItem) => {
   const resp = await addContactAPI({
     friendId: searchItem.id
   })
-  alert("添加好友成功")
+  ShowToast({
+    message: "添加好友成功",
+    type: "success",
+  })
+
   await useContactsStore().loadContactList()
 }
 
@@ -82,7 +87,10 @@ const onApplyGroupClick = async (searchItem) => {
   await applyGroupAPI({
     roomId: searchItem.id
   })
-  alert("申请成功")
+  ShowToast({
+    message: "申请成功",
+    type: "success"
+  })
   await useGroupsStore().loadGroupList()
 }
 </script>

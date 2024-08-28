@@ -4,6 +4,7 @@ import {useContactsStore} from "@/stores/contacts.js";
 import {useChatsStore} from "@/stores/chats.js";
 import {useRouter} from "vue-router";
 import {updateContactAPI} from "@/http/social.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const contactStore = useContactsStore()
 
@@ -31,7 +32,10 @@ const onRemarkEditConfirm = async (e) => {
     peerMarkName: markName.value
   })
   await useContactsStore().loadContactList()
-  alert("修改好友备注成功")
+  ShowToast({
+    message: "修改好友备注成功",
+    type: "success",
+  })
 }
 
 watchEffect(() => {

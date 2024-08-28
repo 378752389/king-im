@@ -1,13 +1,18 @@
 <script setup>
-import {ref} from 'vue';
+import {computed, ref} from 'vue';
 import {useChatsStore} from "@/stores/chats.js";
 import {getDateDiff} from "@/utils/dateUtils.js";
 import KingContextMenu from "@/components/common/KingContextMenu.vue";
 import KingContextMenuItem from "@/components/common/KingContextMenuItem.vue";
+import {ShowToast} from "@/components/common/func/toast.js";
+import {ShowMessageBox} from "@/components/common/func/messageBox.js";
 
 const chatsStore = useChatsStore()
 const searchText = ref('')
 
+const filterableChatStore = computed(() => {
+  return chatsStore.chatsGetter.filter(chat => chat?.chatName.includes(searchText.value))
+})
 
 const onContactClick = (chat) => {
   // todo 通知渲染content
@@ -33,8 +38,25 @@ const onSharkClick = (context, close) => {
 }
 
 const onRemoveChatClick = (context, close) => {
-  chatsStore.removeChat(context.chatId, context.type)
-  close()
+  ShowMessageBox({
+    message: "请确认是否要删除聊天? 删除聊天会 <span style='color: red;'>清理本地聊天记录</span>!",
+    confirm: () => {
+      chatsStore.removeChat(context.chatId, context.type)
+      close()
+
+      ShowToast({
+        message: "删除聊天成功！",
+        type: 'success'
+      })
+    }
+  })
+
+}
+
+const onCreateGroupClick = () => {
+  ShowToast({
+    message: "创建群聊功能还在开发中。。。"
+  })
 }
 </script>
 
@@ -45,7 +67,8 @@ const onRemoveChatClick = (context, close) => {
         <input type="search" v-model="searchText" id="search-input"/>
       </div>
       <div class="add-group">
-        <div id="add-group-btn">拉群聊</div>
+        <i class="iconfont" @click="onCreateGroupClick" style="font-size: 30px">&#xea0b;</i>
+<!--        <div id="add-group-btn">拉群聊</div>-->
       </div>
     </div>
     <div class="list">
@@ -53,7 +76,7 @@ const onRemoveChatClick = (context, close) => {
            @contextmenu="onContextmenuClick($event, chat)"
            :class="['contact-item', {'active': chatsStore.currentChatIdGetter === chat.chatId && chatsStore.currentChatTypeGetter === chat.type}]"
            :key="chat.chatId + ':' + chat.type"
-           v-for="chat in chatsStore.chatsGetter">
+           v-for="chat in filterableChatStore">
         <div class="avatar-wrapper">
           <div class="unread-count" v-if="chat.unreadCount && chat.unreadCount > 0">{{ chat.unreadCount }}
           </div>
@@ -101,13 +124,11 @@ const onRemoveChatClick = (context, close) => {
       #search-input
         outline none
         height 40px
-        width 90%
         font-size 1.5em
 
     .add-group
-      width 15%
       display flex
-      justify-content right
+      justify-content center
       align-items center
 
       #add-group-btn

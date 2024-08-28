@@ -5,6 +5,7 @@ import {sendAudioMsgAPI, sendFileMsgAPI, sendPictureMsgAPI, sendVideoMsgAPI} fro
 import {uploadAPI} from "@/http/user.js";
 import SendArea from "@/views/chat/components/SendArea.vue";
 import MessageList from "@/views/chat/components/MessageList.vue";
+import {ossUploadAPI} from "@/http/oss.js";
 
 const chatStore = useChatsStore()
 
@@ -41,51 +42,51 @@ const sendFileConfirmDialogRef = ref()
 
 // 拖拽上传确认逻辑
 const onSendFileConfirm = async () => {
-  const uploadResult = await uploadAPI(uploadFile.value)
-  if (!uploadResult) {
-    console.error("上传失败")
-  }
+  const downloadUrl = await ossUploadAPI({
+    file: uploadFile.value,
+    businessType: 3,
+  })
 
   let chatId = chatStore.currentChatIdGetter
   let chatType = chatStore.currentChatTypeGetter
   let referMsgId = null
   let atUids = null
 
-  let fileType = uploadResult?.type
+  let fileType = uploadFile.value.type
   let msg = null
   let baseData = {msgType: 5, text: '', referMsgId, atUids, chatId, chatType};
   if (fileType.startsWith('image')) {
     baseData.msgType = 2
     msg = await sendPictureMsgAPI(baseData,
         {
-          size: uploadResult?.size,
-          url: uploadResult?.url,
-          name: uploadResult?.name,
-          type: uploadResult?.type,
+          size: uploadFile.value?.size,
+          url: downloadUrl,
+          name: uploadFile.value?.name,
+          type: uploadFile.value?.type,
         })
   } else if (fileType.startsWith('audio')) {
     baseData.msgType = 3
     msg = await sendAudioMsgAPI(baseData, {
-      size: uploadResult?.size,
+      size: uploadFile.value?.size,
       second: 0,
-      type: uploadResult?.type,
-      url: uploadResult?.url
+      type: uploadFile.value?.type,
+      url: downloadUrl
     })
   } else if (fileType.startsWith('video')) {
     baseData.msgType = 4
     msg = await sendVideoMsgAPI(baseData, {
-      size: uploadResult?.size,
+      size: uploadFile.value?.size,
       coverUrl: '',
-      url: uploadResult?.url,
-      type: uploadResult?.type
+      url: downloadUrl,
+      type: uploadFile.value?.type
     })
   } else {
     baseData.msgType = 5
     msg = await sendFileMsgAPI(baseData, {
-      size: uploadResult?.size,
-      filename: uploadResult?.name,
-      url: uploadResult?.url,
-      type: uploadResult?.type
+      size: uploadFile.value?.size,
+      filename: uploadFile.value?.name,
+      url: downloadUrl,
+      type: uploadFile.value?.type
     })
   }
 

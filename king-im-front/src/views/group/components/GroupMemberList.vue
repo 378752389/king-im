@@ -6,6 +6,7 @@ import KingDialog from "@/components/common/KingDialog.vue";
 import InviteMember from "@/views/group/components/InviteMember.vue";
 import {inviteFriendJoinGroupAPI} from "@/http/social.js";
 import {useGroupsStore} from "@/stores/groups.js";
+import {ShowMessageBox} from "@/components/common/func/messageBox.js";
 
 const props = defineProps({
   roomId: {
@@ -46,13 +47,18 @@ const onAddMemberClick = () => {
 const inviteMemberRef = ref()
 const onConfirmInviteMembers = async () => {
   const data = inviteMemberRef.value.selectedList
-  console.log(data, props.roomId)
-  await inviteFriendJoinGroupAPI({
-    roomId: props.roomId,
-    friendIds: data.map(item => item.peerId).join(',')
+  ShowMessageBox({
+    message: `请确认是否邀请 <span style='color: red;'>${data.map(friend => friend.peerNickname).join(', ')}</span> 进群?`,
+    confirm: async () => {
+      await inviteFriendJoinGroupAPI({
+        roomId: props.roomId,
+        friendIds: data.map(item => item.peerId).join(',')
+      })
+      await useGroupsStore().loadGroupList()
+      addMemberDialogRef.value.close()
+    }
   })
-  await useGroupsStore().loadGroupList()
-  addMemberDialogRef.value.close()
+
 }
 
 </script>

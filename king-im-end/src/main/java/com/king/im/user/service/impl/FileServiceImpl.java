@@ -18,7 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
-@Service
+//@Service
 @Slf4j
 public class FileServiceImpl implements FileService {
 

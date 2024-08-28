@@ -61,8 +61,7 @@ instance.interceptors.response.use(async response => {
             timeout: 3000,
             type: 'danger'
         })
-        // throw new Error(msg);
-        return msg;
+        throw new Error(msg);
     }
 
     ShowToast({

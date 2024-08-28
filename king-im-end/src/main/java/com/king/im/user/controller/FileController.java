@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 
 
-@RestController
+//@RestController
 @RequestMapping("file")
 @Slf4j
 @Api(tags = "文件管理")
