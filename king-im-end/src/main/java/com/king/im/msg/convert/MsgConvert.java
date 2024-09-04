@@ -1,5 +1,6 @@
 package com.king.im.msg.convert;
 import com.king.im.client.domain.type.ReceiverInfo;
+import com.king.im.common.enums.MessageStatusEnum;
 import com.king.im.server.domain.type.IMUserInfo;
 import com.google.common.collect.Lists;
 
@@ -39,6 +40,7 @@ public class MsgConvert {
                 .fromUid(userInfo.getUid())
                 .extra(extra)
                 .atUids(ats)
+                .status(MessageStatusEnum.WAITING_SEND.getType())
                 .referMsgId(req.getReferMsgId())
                 .sendTerminal(userInfo.getTerminal())
                 .toUid(req.getToUid())

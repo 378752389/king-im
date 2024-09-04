@@ -7,6 +7,8 @@ import AtSearch from "@/views/chat/components/AtSearch.vue";
 import ChatHistory from "@/views/chat/components/ChatHistory.vue";
 import {useGroupsStore} from "@/stores/groups.js";
 import {ShowToast} from "@/components/common/func/toast.js";
+import EmojiList from "@/components/EmojiList.vue";
+import KingPopover from "@/components/common/KingPopover.vue";
 
 const chatStore = useChatsStore()
 const editAreaData = reactive({
@@ -67,11 +69,9 @@ const onSendBtnClick = async () => {
   emits('send-msg')
 }
 
-const onShowEmojiClick = () => {
-  ShowToast({
-    message: "该功能还在开发中...",
-    timeout: 3000,
-  })
+const onShowEmojiClick = (e) => {
+  const {x, y} = e.target.getBoundingClientRect()
+
 }
 
 const uploadRef = ref()
@@ -204,16 +204,31 @@ const onEscKeydown = () => {
     atSearchRef.value.close()
   }
 }
+const emojiListPopoverRef = ref()
+const onEmojiSelect = (emojiText, index) => {
+  //todo
+  console.log(emojiText, index)
+  emojiListPopoverRef.value.close()
+}
 </script>
 
 <template>
   <div class="send-area">
     <div class="tools">
-      <div class="tool-item pointer-select" @click="onShowEmojiClick"><i class="iconfont icon-smile"></i></div>
-      <div class="tool-item pointer-select" @click="onUploadFileClick"><i class="iconfont icon-folder"></i> <input type="file" @input="uploadConfirm"
-                                                                                  ref="uploadRef" v-show="false"/></div>
-      <div class="tool-item pointer-select" @click="onScreenShotClick"><i class="iconfont icon-association"></i> </div>
-      <div class="tool-item pointer-select" @click="onShowChatHistoryClick"><i class="iconfont icon-category"></i> </div>
+
+      <king-popover ref="emojiListPopoverRef" trigger="click" position="top">
+        <template #reference>
+          <div class="tool-item pointer-select">
+            <i class="iconfont icon-smile"></i>
+          </div>
+        </template>
+        <EmojiList @select="onEmojiSelect"/>
+      </king-popover>
+      <div class="tool-item pointer-select" @click="onUploadFileClick"><i class="iconfont icon-folder"></i> <input
+          type="file" @input="uploadConfirm"
+          ref="uploadRef" v-show="false"/></div>
+      <div class="tool-item pointer-select" @click="onScreenShotClick"><i class="iconfont icon-association"></i></div>
+      <div class="tool-item pointer-select" @click="onShowChatHistoryClick"><i class="iconfont icon-category"></i></div>
     </div>
     <div ref="editAreaRef" class="text-area" contenteditable="true"
          @compositionstart="onCompositionstart"
@@ -229,7 +244,8 @@ const onEscKeydown = () => {
       <button @click="onSendBtnClick" id="send-btn">发送</button>
     </div>
     <AtSearch @confirm="searchItemConfirm" :text="editAreaData.atSearchText" :list="searchList" ref="atSearchRef"/>
-    <ChatHistory ref="chatHistoryRef" :chat-id="chatStore.currentChatIdGetter" :chat-type="chatStore.currentChatTypeGetter"/>
+    <ChatHistory ref="chatHistoryRef" :chat-id="chatStore.currentChatIdGetter"
+                 :chat-type="chatStore.currentChatTypeGetter"/>
   </div>
 </template>
 
@@ -243,8 +259,10 @@ const onEscKeydown = () => {
 
     .tool-item
       padding 5px 10px
+
       i
         font-size 28px
+
       &:hover
         background-color rgba(0, 0, 0, 0.2)
 

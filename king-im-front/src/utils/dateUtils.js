@@ -1,3 +1,5 @@
+import {ShowToast} from "@/components/common/func/toast.js";
+
 export function getSendTimeNormalize(sendTimeStamp) {
     let compareTime = new Date(sendTimeStamp)
     let compareHour = compareTime.getHours()
@@ -39,11 +41,13 @@ export function getDateDiff(dateTimeStamp) {
     let result;
 
     if (diffValue < 0) {
-        // 误差不超过三秒
+        // 误差不超过三秒允许接受
         if (Math.ceil(diffValue / 3000) === 0) {
             return '刚刚';
+        } else {
+            console.warn("请同步一下系统时间为UTC-8, 否则部分功能将无法正常显示")
+            return '-';
         }
-        throw new Error("不能选未来的时间")
     }
     let yearC = diffValue / year;
     let monthC = diffValue / month;

@@ -23,6 +23,8 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Resource
     private ObjectMapper objectMapper;
 
+    private static final String[] whiteList = {"/msg/test"};
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //如果不是映射到方法直接通过
@@ -38,6 +40,12 @@ public class AuthInterceptor implements HandlerInterceptor {
          */
         if (request.getRequestURI().startsWith("/v3/api-docs")) {
             return true;
+        }
+
+        for (String url : whiteList) {
+            if (url.equals(request.getRequestURI())) {
+                return true;
+            }
         }
 
         //从 http 请求头中取出 token

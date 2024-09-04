@@ -82,7 +82,7 @@ const onCreateGroupClick = () => {
           </div>
           <img class="avatar error" :src="chat.chatAvatar" alt="头像"/>
         </div>
-        <div class="body">
+        <div class="body-wrapper">
           <div class="upper">
             <div class="title">{{ chat.chatName }}</div>
             <div class="last-time">{{ getDateDiff(chat.lastSendTime) }}</div>
@@ -175,7 +175,7 @@ const onCreateGroupClick = () => {
           color white
           text-align center
 
-      .body
+      .body-wrapper
         flex 1
         padding 20px 10px
         height 100%
