@@ -3,6 +3,7 @@ import {useUserStore} from "@/stores/user.js";
 import {useGroupsStore} from "@/stores/groups.js";
 import {computed} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
+import emojiUtils from "@/utils/emojiUtils.js";
 
 const userStore = useUserStore()
 const groupStore = useGroupsStore()
@@ -116,7 +117,7 @@ const onFileMsgClick = async () => {
       <div class="nickname" v-if="!isSelfMsg">{{ chatName }}</div>
       <div class="msg-wrapper" @contextmenu="onMsgClick">
         <div class="msg text-msg" v-if="msg.contentType === 1">
-          <span v-if="msg.content">{{ msg.content }}</span>
+          <span v-if="msg.content" v-html="emojiUtils.transform(msg.content)"></span>
         </div>
         <div class="msg picture-msg" v-else-if="msg.contentType === 2">
           <img v-if="msg.extra?.pictureExtra?.url" :src="msg.extra?.pictureExtra?.url"

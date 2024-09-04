@@ -6,6 +6,7 @@ import KingContextMenu from "@/components/common/KingContextMenu.vue";
 import KingContextMenuItem from "@/components/common/KingContextMenuItem.vue";
 import {ShowToast} from "@/components/common/func/toast.js";
 import {ShowMessageBox} from "@/components/common/func/messageBox.js";
+import emojiUtils from "@/utils/emojiUtils.js";
 
 const chatsStore = useChatsStore()
 const searchText = ref('')
@@ -87,8 +88,7 @@ const onCreateGroupClick = () => {
             <div class="title">{{ chat.chatName }}</div>
             <div class="last-time">{{ getDateDiff(chat.lastSendTime) }}</div>
           </div>
-          <div class="lower">
-            {{ chat.lastContent }}
+          <div class="lower" v-html="emojiUtils.transform(chat.lastContent)">
           </div>
         </div>
       </div>

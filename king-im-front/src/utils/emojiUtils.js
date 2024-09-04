@@ -11,8 +11,19 @@ const transform = (content) => {
 }
 
 let modules = import.meta.glob("@/assets/emoji/*.gif", {eager: true})
-let emojiList = Object.values(modules)
+let emojiList = Object.values(modules).map(module => module.default).sort((a, b) => {
+    const regex = /(\d+).gif$/;
+    const matchA = a.match(regex)
+    const matchB = b.match(regex)
 
+    if (matchA && matchB) {
+        const numberA = parseInt(matchA[1], 10);
+        const numberB = parseInt(matchB[1], 10);
+
+        return numberA - numberB;
+    }
+    return a.localeCompare(b);
+})
 // 将匹配结果替换表情图片
 const textToImg = (emoText) => {
     let word = emoText.replace(/\#|\;/gi, '');
@@ -20,7 +31,7 @@ const textToImg = (emoText) => {
     if (idx == -1) {
         return emoText;
     }
-    let url = emojiList[idx].default;
+    let url = emojiList[idx];
     return `<img src="${url}" style="width:35px;height:35px;vertical-align:bottom;"/>`
 }
 
@@ -30,7 +41,7 @@ const textToUrl = (emoText) => {
     if (idx == -1) {
         return "";
     }
-    let url = require(`@/assets/emoji/${idx}.gif`);
+    let url = emojiList[idx];
     return url;
 }
 

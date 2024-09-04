@@ -1,14 +1,14 @@
 <script setup>
 
 import {sendAPI} from "@/http/message.js";
-import {computed, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
 import AtSearch from "@/views/chat/components/AtSearch.vue";
 import ChatHistory from "@/views/chat/components/ChatHistory.vue";
 import {useGroupsStore} from "@/stores/groups.js";
-import {ShowToast} from "@/components/common/func/toast.js";
 import EmojiList from "@/components/EmojiList.vue";
 import KingPopover from "@/components/common/KingPopover.vue";
+import emojiUtils from "@/utils/emojiUtils.js";
 
 const chatStore = useChatsStore()
 const editAreaData = reactive({
@@ -22,6 +22,10 @@ const editAreaData = reactive({
 const editAreaRef = ref()
 const emits = defineEmits(['send-msg', 'upload-file'])
 
+onMounted(() => {
+  editAreaData.focusNode = editAreaRef.value
+})
+
 const createSendContent = () => {
   const atUids = []
   editAreaRef.value.childNodes.forEach(node => {
@@ -30,6 +34,9 @@ const createSendContent = () => {
         let atUid = node.dataset.atUid
         atUid && atUids.push(atUid)
         editAreaData.sendContent += html2Escape(node.textContent)
+      } else if (node.nodeName === 'IMG') {
+        let emojiText = node.dataset.emojiText
+        editAreaData.sendContent += '#' + emojiText + ';'
       }
     } else if (node.nodeType === Node.TEXT_NODE) {
       editAreaData.sendContent += node.textContent
@@ -69,10 +76,6 @@ const onSendBtnClick = async () => {
   emits('send-msg')
 }
 
-const onShowEmojiClick = (e) => {
-  const {x, y} = e.target.getBoundingClientRect()
-
-}
 
 const uploadRef = ref()
 const onUploadFileClick = () => {
@@ -208,7 +211,35 @@ const emojiListPopoverRef = ref()
 const onEmojiSelect = (emojiText, index) => {
   //todo
   console.log(emojiText, index)
+  let sel = document.getSelection()
+  let range = sel.getRangeAt(0)
+  range.setEnd(editAreaData.focusNode, editAreaData.focusOffset)
+  range.collapse()
+  // 插入 span标签，表示引用用户
+  let img = document.createElement("img")
+  img.dataset.emojiText = emojiText
+  img.classList.add('emoji')
+  img.width='24'
+  img.height='24'
+  img.style.verticalAlign='bottom'
+  img.alt = ''
+  img.src = emojiUtils.textToUrl(emojiText)
+  img.contentEditable = 'true'
+  range.insertNode(img)
+  range.collapse()
+  // 不需要选择at对象，打开下面代码
+  // range.insertNode(document.createTextNode("\u00A0"))
+  // range.collapse()
+  editAreaRef.value.focus()
+  atSearchRef.value.close()
+
+  // 手动关闭emoji弹窗
   emojiListPopoverRef.value.close()
+}
+
+const onEmojiClick = () => {
+  // editAreaData.focusNode = document.getSelection().focusNode
+  // editAreaData.focusOffset = document.getSelection().focusOffset
 }
 </script>
 
@@ -218,7 +249,7 @@ const onEmojiSelect = (emojiText, index) => {
 
       <king-popover ref="emojiListPopoverRef" trigger="click" position="top">
         <template #reference>
-          <div class="tool-item pointer-select">
+          <div @click="onEmojiClick" class="tool-item pointer-select">
             <i class="iconfont icon-smile"></i>
           </div>
         </template>
