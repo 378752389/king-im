@@ -15,11 +15,12 @@ const groupsStore = useGroupsStore()
 const {selectedGroupGetter} = storeToRefs(groupsStore)
 
 const onSaveClick = async () => {
+  console.log(selectedGroupGetter.value)
   await modifyGroupAPI({
     roomId: selectedGroupGetter.value.id,
     notice: selectedGroupGetter.value.notice,
     name: selectedGroupGetter.value.name,
-    avatar: selectedGroupGetter.value.avatar?.startsWith('data') ? null : selectedGroupGetter.avatar,
+    avatar: selectedGroupGetter.value.avatar?.startsWith('data') ? null : selectedGroupGetter.value.avatar,
     myName: selectedGroupGetter.value.myName,
     markName: selectedGroupGetter.value.markName,
   })

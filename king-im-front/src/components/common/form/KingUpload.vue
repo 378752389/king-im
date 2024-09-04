@@ -7,7 +7,7 @@ const props = defineProps({
     type: String,
   }
 })
-const emits = defineEmits(['update:showUrl', 'upload'])
+const emits = defineEmits(['upload'])
 
 const uploadRef = ref()
 const onUploadClick = () => {

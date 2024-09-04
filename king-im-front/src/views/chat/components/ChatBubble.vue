@@ -4,6 +4,7 @@ import {useGroupsStore} from "@/stores/groups.js";
 import {computed} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
 import emojiUtils from "@/utils/emojiUtils.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const userStore = useUserStore()
 const groupStore = useGroupsStore()
@@ -23,35 +24,6 @@ const props = defineProps({
     }
   }
 })
-
-// const msg = reactive({
-//   avatar: 'https://picsum.photos/512/512?id=1',
-//   nickname: 'zabbix',
-//   isSelf: false,
-//   content: 'hello, world!',
-//   contentType: 2,
-//   pictureExtra: {
-//     // url: 'https://picsum.photos/32/32?id=4',
-//     url: 'https://picsum.photos/1920/1080?id=4',
-//     // url: 'https://picsum.photos/512/512?id=4',
-//   },
-//   audioExtra: {
-//     url: 'http://192.168.1.6/audios/one.wav',
-//     // url: 'http://192.168.1.6/audios/one.mp3',
-//   },
-//   videoExtra: {
-//     url: 'http://192.168.1.6/videos/three.mp4',
-//     // url: 'http://localhost/videos/three.mp4',
-//     // url: 'http://localhost/videos/two.mp4',
-//     // url: 'http://localhost/videos/three.mp4',
-//   },
-//   fileExtra: {
-//     url: 'http://192.168.1.6/videos/three.mp4',
-//     // name: '我的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的备份.tar.gz',
-//     // name: '我的的的的备份.tar.gz',
-//     name: '我的的的的备份.tar.gz',
-//   }
-// })
 
 const emits = defineEmits(['avatar', 'msg'])
 
@@ -106,6 +78,12 @@ const onFileMsgClick = async () => {
   a.click()
 }
 
+const onPictureClick = () => {
+  ShowToast({
+    message: "点击图片, 放大功能暂时未实现...",
+  })
+}
+
 </script>
 
 <template>
@@ -119,7 +97,7 @@ const onFileMsgClick = async () => {
         <div class="msg text-msg" v-if="msg.contentType === 1">
           <span v-if="msg.content" v-html="emojiUtils.transform(msg.content)"></span>
         </div>
-        <div class="msg picture-msg" v-else-if="msg.contentType === 2">
+        <div @click="onPictureClick" class="msg picture-msg" v-else-if="msg.contentType === 2">
           <img v-if="msg.extra?.pictureExtra?.url" :src="msg.extra?.pictureExtra?.url"
                onerror="this.onerror=null; this.src='/default.png'; this.width=100;" alt="图片无法显示"/>
           <img v-else width='100' src="/default.png" alt=""/>
@@ -135,7 +113,7 @@ const onFileMsgClick = async () => {
         </div>
         <div class="msg file-msg" v-else-if="msg.contentType === 5">
           <div class="unknown-file pointer-select" @click="onFileMsgClick">
-            <div>{{ msg.extra?.fileExtra?.name }}</div>
+            <div>{{ msg.extra?.fileExtra?.filename }}</div>
             <i class="iconfont icon-folder"></i>
           </div>
         </div>

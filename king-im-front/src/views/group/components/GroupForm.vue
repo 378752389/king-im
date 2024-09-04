@@ -2,6 +2,8 @@
 
 import {useUserStore} from "@/stores/user.js";
 import {useVModel} from "@vueuse/core";
+import KingUpload from "@/components/common/form/KingUpload.vue";
+import {ossUploadAPI} from "@/http/oss.js";
 
 const userStore = useUserStore()
 
@@ -26,12 +28,24 @@ const onDeleteClick = () => {
 const onSendClick = () => {
   emits('send', formData.value)
 }
+
+const onUploadGroupAvatar = async (e) => {
+  let file = e.target.files[0]
+  const downloadUrl = await ossUploadAPI({
+    file,
+    businessType: 2,
+  })
+  if (downloadUrl != null) {
+    formData.value.avatar = downloadUrl;
+  }
+}
 </script>
 
 <template>
   <div class="group-form">
     <div class="profile">
-      <img alt="" :src="formData.avatar"/>
+<!--      <img alt="" :src="formData.avatar"/>-->
+      <king-upload @upload="onUploadGroupAvatar" :url="formData.avatar" />
       <form class="group-detail-form">
         <div class="form-item">
           <label for="name">群名称</label>
@@ -76,7 +90,7 @@ const onSendClick = () => {
   display flex
   justify-content space-around
 
-  img
+  .king-upload
     width 160px
     height 160px
     margin 10px 80px 0 0

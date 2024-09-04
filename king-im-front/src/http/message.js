@@ -134,10 +134,9 @@ export const sendFileMsgAPI = ({
                                    chatType
                                }, {size, filename, type, url}) => {
     let extra = {}
-    extra.audioExtra = {
+    extra.fileExtra = {
         size,
         filename,
-        type,
         url
     }
     return sendAPI({msgType, text, referMsgId, atUids, chatId, chatType, extra})

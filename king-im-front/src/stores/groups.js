@@ -27,7 +27,12 @@ export const useGroupsStore = defineStore('groups', () => {
     const loadGroupList = async () => {
         const groupListData = await getGroupListAPI()
         if (groupListData != null) {
-            groupListData.map(group => group.avatar = genPicture(group.name))
+            groupListData.map(group => {
+                if (group.avatar == null) {
+                    group.avatar = genPicture(group.name)
+                }
+                return group;
+            })
         }
         groupList.value = groupListData
     }
