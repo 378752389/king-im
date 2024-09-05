@@ -11,6 +11,7 @@ import com.king.im.common.interceptor.RequestInfoHolder;
 import com.king.im.common.interceptor.UserInfo;
 import com.king.im.listener.event.RoomEvent;
 import com.king.im.social.domain.RoomDo;
+import com.king.im.social.domain.RoomMemberDo;
 import com.king.im.social.domain.entity.Room;
 import com.king.im.social.domain.entity.UserFriendRelation;
 import com.king.im.social.domain.entity.UserRoomRelation;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -195,6 +197,8 @@ public class RoomServiceImpl implements RoomService {
 
         roomMapper.insert(room);
 
+        List<UserRoomRelation> urrList = new ArrayList<>();
+
         UserRoomRelation urr = new UserRoomRelation();
         urr.setId(0L);
         urr.setUserId(userInfo.getUid());
@@ -202,7 +206,23 @@ public class RoomServiceImpl implements RoomService {
         urr.setMarkName(room.getName());
         urr.setMyName(userInfo.getNickname());
 
-        userRoomMapper.insert(urr);
+        urrList.add(urr);
+
+        List<RoomMemberDo> roomMemberList = roomDo.getRoomMemberList();
+        for (RoomMemberDo roomMemberDo : roomMemberList) {
+            UserRoomRelation add = new UserRoomRelation();
+            add.setId(0L);
+            add.setUserId(roomMemberDo.getId());
+            add.setRoomId(room.getId());
+            add.setMarkName(null);
+            add.setMyName(null);
+
+            urrList.add(add);
+        }
+
+        for (UserRoomRelation relation : urrList) {
+            userRoomMapper.insert(relation);
+        }
 
         return room.getId();
     }

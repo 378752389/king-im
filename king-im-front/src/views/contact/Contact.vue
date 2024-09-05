@@ -4,6 +4,8 @@ import {useContactsStore} from "@/stores/contacts.js";
 import ContactCard from "@/components/ContactCard.vue";
 import KingContextMenuItem from "@/components/common/KingContextMenuItem.vue";
 import {removeContactAPI} from "@/http/social.js";
+import {ShowMessageBox} from "@/components/common/func/messageBox.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const contactStore = useContactsStore()
 const onContactChange = (contact) => {
@@ -20,13 +22,25 @@ const onContactSearchClick = () => {
 
 const onMarkClick = (contextmenu, close) => {
   console.log(contextmenu)
+  ShowToast({
+    message: "标记好友功能暂未现实，敬请期待"
+  })
   close()
 }
 const onDeleteContactClick = async (contextmenu, close) => {
-  const resp = await removeContactAPI({friendId: contextmenu.peerId})
-  await contactStore.loadContactList()
-  console.log(resp)
-  close()
+  ShowMessageBox({
+    message: `请确认是否要删除好友 <span style='color: red;'>${contextmenu.peerMarkname || contextmenu.peerNickname}</span> ?`,
+    confirm: async () => {
+      const resp = await removeContactAPI({friendId: contextmenu.peerId})
+      await contactStore.loadContactList()
+      console.log(resp)
+      close()
+    },
+    cancel: () => {
+      close()
+    }
+  })
+
 }
 </script>
 

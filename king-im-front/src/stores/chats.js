@@ -181,7 +181,8 @@ export const useChatsStore = defineStore('chats', () => {
     const removeChat = (chatId, type) => {
         let idx = chats.value.findIndex(chat => chat.chatId === chatId && chat.type === type)
         if (idx === -1) {
-            throw new Error('chat not found')
+            console.log("会话未找到")
+            return
         }
         chats.value.splice(idx, 1)
     }

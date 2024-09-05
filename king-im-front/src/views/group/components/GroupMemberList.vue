@@ -50,11 +50,7 @@ const onConfirmInviteMembers = async () => {
   ShowMessageBox({
     message: `请确认是否邀请 <span style='color: red;'>${data.map(friend => friend.peerNickname).join(', ')}</span> 进群?`,
     confirm: async () => {
-      await inviteFriendJoinGroupAPI({
-        roomId: props.roomId,
-        friendIds: data.map(item => item.peerId).join(',')
-      })
-      await useGroupsStore().loadGroupList()
+      await useGroupsStore().inviteFriendJoinGroup(data)
       addMemberDialogRef.value.close()
     }
   })

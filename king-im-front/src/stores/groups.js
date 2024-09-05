@@ -1,11 +1,17 @@
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
-import {addGroupAPI, getGroupListAPI} from "@/http/social.js";
+import {
+    addGroupAPI,
+    deleteGroupAPI,
+    getGroupListAPI,
+    inviteFriendJoinGroupAPI,
+    modifyGroupAPI,
+    quitGroupAPI
+} from "@/http/social.js";
 import {genPicture} from "@/utils/picUtils.js";
 import {useChatsStore} from "@/stores/chats.js";
 import {buildNoticeMessage} from "@/utils/msgUtils.js";
 import {useUserStore} from "@/stores/user.js";
-import {useContactsStore} from "@/stores/contacts.js";
 
 export const useGroupsStore = defineStore('groups', () => {
     const groupList = ref([])
@@ -30,7 +36,7 @@ export const useGroupsStore = defineStore('groups', () => {
     const createGroup = async (members) => {
         const roomMemberList = members.map(member => {
             return {
-                id: member.id
+                id: member.peerId
             }
         })
         let groupLeaderName = useUserStore().info?.nickName
@@ -40,7 +46,11 @@ export const useGroupsStore = defineStore('groups', () => {
         if (memberNames.length > 16) {
             name = memberNames.substring(16) + "..." + "的群聊"
         } else {
-            name = memberNames + "的群聊"
+            if (memberNames.length > 0) {
+                name = groupLeaderName + ", " + memberNames + "的群聊"
+            } else {
+                name = groupLeaderName + "的群聊"
+            }
         }
 
         const groupId = await addGroupAPI({
@@ -71,6 +81,40 @@ export const useGroupsStore = defineStore('groups', () => {
         groupList.value = groupListData
     }
 
+    const deleteGroup = async (groupId) => {
+        await deleteGroupAPI({
+            roomId: groupId
+        })
+        useChatsStore().removeChat(groupId, 2)
+        await loadGroupList()
+    }
+
+    const inviteFriendJoinGroup = async (members) => {
+        await inviteFriendJoinGroupAPI({
+            roomId: props.roomId,
+            friendIds: members.map(item => item.peerId).join(',')
+        })
+        await useGroupsStore().loadGroupList()
+    }
+
+    const quitGroup = async (groupId) => {
+        await quitGroupAPI({
+            roomId: groupId
+        })
+        useChatsStore().removeChat(groupId, 2)
+        await loadGroupList()
+    }
+
+    const modifyGroup = async ({roomId, notice, name, avatar, myName, markName}) => {
+        await modifyGroupAPI({
+            roomId, notice, name, avatar, myName, markName
+        })
+        // 修改会话页信息
+        const chatStore = useChatsStore()
+        const chat = chatStore.getChat(roomId, 2)
+        chat.chatAvatar = avatar
+        chat.chatName = markName
+    }
     const mockInit = () => {
         groupList.value = [
             {
@@ -100,7 +144,7 @@ export const useGroupsStore = defineStore('groups', () => {
     return {
         // groupList,
         // selectedGroup,
-        groupListGetter, selectedGroupGetter, createGroup, setSelectedGroup, getGroup, loadGroupList
+        groupListGetter, selectedGroupGetter, createGroup, inviteFriendJoinGroup, deleteGroup, quitGroup, modifyGroup, setSelectedGroup, getGroup, loadGroupList
     }
 }, {
     persist: true

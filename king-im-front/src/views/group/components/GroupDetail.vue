@@ -15,8 +15,7 @@ const groupsStore = useGroupsStore()
 const {selectedGroupGetter} = storeToRefs(groupsStore)
 
 const onSaveClick = async () => {
-  console.log(selectedGroupGetter.value)
-  await modifyGroupAPI({
+  await useGroupsStore().modifyGroup({
     roomId: selectedGroupGetter.value.id,
     notice: selectedGroupGetter.value.notice,
     name: selectedGroupGetter.value.name,
@@ -24,6 +23,14 @@ const onSaveClick = async () => {
     myName: selectedGroupGetter.value.myName,
     markName: selectedGroupGetter.value.markName,
   })
+  // await modifyGroupAPI({
+  //   roomId: selectedGroupGetter.value.id,
+  //   notice: selectedGroupGetter.value.notice,
+  //   name: selectedGroupGetter.value.name,
+  //   avatar: selectedGroupGetter.value.avatar?.startsWith('data') ? null : selectedGroupGetter.value.avatar,
+  //   myName: selectedGroupGetter.value.myName,
+  //   markName: selectedGroupGetter.value.markName,
+  // })
   ShowToast({
     message: "群信息修改成功",
     type: 'success',
@@ -71,7 +78,7 @@ const onSendClick = (groupData) => {
   <div class="group-detail">
     <group-form @save="onSaveClick" @quit="onQuitClick" @send="onSendClick" @delete="onDeleteClick"
                 :group-form="selectedGroupGetter"/>
-    <group-member-list :room-id="selectedGroupGetter.id" :group-member-list="selectedGroupGetter.roomMemberList"/>
+    <group-member-list :room-id="selectedGroupGetter.roomId" :group-member-list="selectedGroupGetter.roomMemberList"/>
   </div>
 </template>
 
