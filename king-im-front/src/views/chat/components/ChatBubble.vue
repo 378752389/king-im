@@ -87,7 +87,12 @@ const onPictureClick = () => {
 </script>
 
 <template>
-  <div :class="['chat-bubble', isSelfMsg ? 'self': 'other']">
+  <template v-if="msg.contentType === 999">
+    <div class="notice-msg">
+      {{ msg.content}}
+    </div>
+  </template>
+  <div v-else :class="['chat-bubble', isSelfMsg ? 'self': 'other']">
     <div @click="onAvatarClick" class="avatar">
       <img width="40" height="40" :src="chatAvatar" alt=""/>
     </div>
@@ -126,6 +131,16 @@ const onPictureClick = () => {
 </template>
 
 <style scoped lang="stylus">
+
+.notice-msg
+  width 500px
+  display flex
+  //white-space pre-wrap
+  justify-content center
+  flex-wrap wrap
+  margin 50px auto
+  color rgba(128, 128, 128, 0.8)
+
 .chat-bubble
   margin 25px 0
   display flex

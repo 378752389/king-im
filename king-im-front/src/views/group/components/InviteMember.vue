@@ -30,8 +30,13 @@ const selectableContactList = computed(() => {
   return contactStore.contactListGetter.filter(contact => list.findIndex(userId => contact.peerId === userId) === -1)
 })
 
+const clearSelectedList = () => {
+  selectedList.value = []
+}
+
 defineExpose({
-  selectedList
+  selectedList,
+  clearSelectedList
 })
 </script>
 

@@ -1,8 +1,11 @@
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
-import {getGroupListAPI} from "@/http/social.js";
+import {addGroupAPI, getGroupListAPI} from "@/http/social.js";
 import {genPicture} from "@/utils/picUtils.js";
 import {useChatsStore} from "@/stores/chats.js";
+import {buildNoticeMessage} from "@/utils/msgUtils.js";
+import {useUserStore} from "@/stores/user.js";
+import {useContactsStore} from "@/stores/contacts.js";
 
 export const useGroupsStore = defineStore('groups', () => {
     const groupList = ref([])
@@ -22,6 +25,37 @@ export const useGroupsStore = defineStore('groups', () => {
 
     const setSelectedGroup = (group) => {
         selectedGroup.value = group
+    }
+
+    const createGroup = async (members) => {
+        const roomMemberList = members.map(member => {
+            return {
+                id: member.id
+            }
+        })
+        let groupLeaderName = useUserStore().info?.nickName
+        let memberNames = members.map(member => member.peerNickname).join(", ")
+
+        let name = "";
+        if (memberNames.length > 16) {
+            name = memberNames.substring(16) + "..." + "的群聊"
+        } else {
+            name = memberNames + "的群聊"
+        }
+
+        const groupId = await addGroupAPI({
+            name,
+            roomMemberList,
+        })
+
+        let msg = buildNoticeMessage({
+            type: 2,
+            roomId: groupId,
+            fromUid: useUserStore().info?.id,
+            content: `${groupLeaderName} 创建了群聊\n，并邀请了 ${memberNames}  加入群聊`
+        })
+        await loadGroupList()
+        useChatsStore().insertMessage(groupId, 2, msg)
     }
 
     const loadGroupList = async () => {
@@ -66,7 +100,7 @@ export const useGroupsStore = defineStore('groups', () => {
     return {
         // groupList,
         // selectedGroup,
-        groupListGetter, selectedGroupGetter, setSelectedGroup, getGroup, loadGroupList
+        groupListGetter, selectedGroupGetter, createGroup, setSelectedGroup, getGroup, loadGroupList
     }
 }, {
     persist: true

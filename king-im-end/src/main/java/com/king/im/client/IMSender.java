@@ -36,49 +36,5 @@ public class IMSender implements ISender {
         // todo
         ReceiveMessage receiveMessage = MsgConvert.buildReceiveMessage(sendMessage);
         messageQueue.put(ServerBootstrap.getServerId(), receiveMessage);
-
-//        messageSender.send(map -> {
-//            ReceiverInfo receiverInfo = sendMessage.getReceiverInfo();
-//            List<Long> receiverIds = Optional.ofNullable(receiverInfo.getReceiverIds()).orElse(new ArrayList<>());
-//            // 遍历接收方id
-//            receiverIds.forEach(receiverId -> {
-//                ConcurrentHashMap<Integer, Channel> terminalMap = map.get(receiverId);
-//                send(sendMessage, terminalMap);
-//            });
-//        });
     }
-
-//    private void send(SendMessage sendMessage, ConcurrentHashMap<Integer, Channel> terminalMap) {
-//        if (terminalMap == null) {
-//            // todo 接收不到,  离线消息
-//            return;
-//        }
-//        CMD CMD = MsgConvert.buildIMCMD(sendMessage);
-//
-//        String imcmdStr = jsonUtils.stringify(CMD);
-//        List<Integer> terminalTypes = sendMessage.getReceiverInfo().getReceiveTerminalTypes();
-//
-//        int count = 0;
-//        // 遍历在线设备发送信息
-//        for (Integer terminalType : terminalTypes) {
-//            Channel channel = terminalMap.get(terminalType);
-//            if (channel == null) {
-//                continue;
-//            }
-//            try {
-//                channel.writeAndFlush(new TextWebSocketFrame(imcmdStr));
-//                count += 1;
-//                log.debug("发送消息: [terminalType: {}, {}]", terminalType, imcmdStr);
-//            } catch (Exception e) {
-//                log.error("消息发送异常", e);
-//            }
-//        }
-//
-//
-//        if (count > 0 && sendMessage.getSendType() == 1) {
-//            // todo
-//        }
-//    }
-
-
 }

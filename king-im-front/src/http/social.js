@@ -64,12 +64,12 @@ export const applyGroupAPI = ({roomId}) => {
     })
 }
 
-export const addGroupAPI = ({name, notice, avatar}) => {
+export const addGroupAPI = ({name, notice, avatar, roomMemberList}) => {
     return request({
         url: "/room",
         method: "post",
         data: {
-            name, notice, avatar
+            name, notice, avatar, roomMemberList
         }
     })
 }

@@ -189,14 +189,20 @@ export const useChatsStore = defineStore('chats', () => {
     // 执行插入消息操作
     const doInsertMessage = (chat, message) => {
         let insertPos = chat.messages.length
-        for (let idx in chat.messages) {
-            // 重复消息，直接跳过，不做处理
-            if (chat.messages[idx].id === message.id) {
-                return
-            }
-            if (chat.messages[idx].sendTime > message.sendTime) {
-                insertPos = idx
-                break
+
+        if (message.contentType === 999) {
+            // todo
+        } else {
+            // 消息复原，找到消息对应索引位置
+            for (let idx in chat.messages) {
+                // 重复消息，直接跳过，不做处理
+                if (chat.messages[idx].id === message.id) {
+                    return
+                }
+                if (chat.messages[idx].sendTime > message.sendTime) {
+                    insertPos = idx
+                    break
+                }
             }
         }
         // 非当前会话消息处理
@@ -222,6 +228,8 @@ export const useChatsStore = defineStore('chats', () => {
                 chat.lastContent = '[视频]'
             } else if (message.contentType === 5) {
                 chat.lastContent = '[文件]'
+            } else {
+                chat.lastContent = message.content
             }
         }
 

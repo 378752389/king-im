@@ -4,7 +4,7 @@ import {useChatsStore} from "@/stores/chats.js";
 import KingDialog from "@/components/common/KingDialog.vue";
 import {onMounted, ref} from "vue";
 import RelationList from "@/components/RelationList.vue";
-
+import {buildNoticeMessage} from '@/utils/msgUtils.js';
 const userStore = useUserStore()
 const onFileClick = () => {
   useChatsStore().removeChat(22, 2)
@@ -12,7 +12,9 @@ const onFileClick = () => {
 }
 
 const onLiftClick = () => {
-  // useChatsStore().insertMessage(22, 2, {
+  let msg = buildNoticeMessage({type: 2, fromUid: 1, roomId: 1, content: "king创建了群聊"})
+  useChatsStore().insertMessage(1, 2, msg)
+  // useChatsStore().insertMessage(5, 2, {
   //   id: 5521,
   //   roomId: 20,
   //   fromUid: 5,
@@ -25,20 +27,6 @@ const onLiftClick = () => {
   //   status: 2,
   //   avatar: 'https://picsum.photos/512/512?id=5',
   // },)
-
-  useChatsStore().revokeMessage(2, 1, {
-    id: 5522,
-    roomId: 20,
-    fromUid: 5,
-    toUid: undefined,
-    type: 2,
-    content: '你好',
-    name: 'Allen',
-    atUids: undefined,
-    sendTime: new Date().getTime(),
-    status: 2,
-    avatar: 'https://picsum.photos/512/512?id=5',
-  })
 }
 
 const dialogRef = ref()
@@ -92,6 +80,7 @@ onMounted(() => {
       </div>
       <div class="item">
         <i class="iconfont icon-add" @click="addContactOrJoinGroup"></i>
+<!--        <i class="iconfont icon-add" @click="onLiftClick"></i>-->
       </div>
       <div class="item">
         <router-link to="/profile"><i class="iconfont icon-edit"></i></router-link>

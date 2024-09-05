@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @MapperScan("com.king.im.**.mapper")
 @EnableCaching
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy(exposeProxy = true)
 @EnableAsync
 public class KingIMApplication {
 

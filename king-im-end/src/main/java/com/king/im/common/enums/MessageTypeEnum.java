@@ -11,7 +11,9 @@ public enum MessageTypeEnum {
     PICTURE(2, "图片消息"),
     Audio(3, "音频消息"),
     Video(4, "视频消息"),
-    File(5, "文件消息");
+    File(5, "文件消息"),
+
+    NOTICE(999, "系统通知消息");
 //    VOICE_CALL(6, "语音通过",VideoMessage.class),
 //    VIDEO_CALL(7, "视频通过", VideoMessage.class);
 

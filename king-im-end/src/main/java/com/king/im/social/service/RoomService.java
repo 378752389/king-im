@@ -21,7 +21,7 @@ public interface RoomService {
 
     int inviteFriend(Long roomId, List<Long> friendIds);
 
-    int createRoom(RoomDo roomDo);
+    long createRoom(RoomDo roomDo);
 
     int quitRoom(Long roomId);
 

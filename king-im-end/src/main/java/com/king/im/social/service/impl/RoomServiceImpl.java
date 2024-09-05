@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.king.im.client.IMSender;
 import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.RequestInfoHolder;
 import com.king.im.common.interceptor.UserInfo;
+import com.king.im.listener.event.RoomEvent;
 import com.king.im.social.domain.RoomDo;
 import com.king.im.social.domain.entity.Room;
 import com.king.im.social.domain.entity.UserFriendRelation;
@@ -18,7 +20,12 @@ import com.king.im.social.mapper.UserRoomMapper;
 import com.king.im.social.service.RoomService;
 import com.king.im.user.domain.entity.User;
 import com.king.im.user.mapper.UserMapper;
+import org.springframework.aop.framework.AopContext;
+import org.springframework.aop.framework.AopProxy;
+import org.springframework.aop.framework.AopProxyUtils;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +47,8 @@ public class RoomServiceImpl implements RoomService {
     private UserFriendMapper userFriendMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Cacheable(cacheNames = "members", key = "#roomId")
@@ -159,8 +168,20 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public long createRoom(RoomDo roomDo) {
+        UserInfo userInfo = RequestInfoHolder.getUserInfo();
+        RoomServiceImpl roomServiceImpl = (RoomServiceImpl) AopContext.currentProxy();
+
+        long roomId = roomServiceImpl.createRoomBusiness(roomDo);
+        List<User> userList = roomMapper.getUserList(roomId);
+        String members = userList.stream().filter(user -> !user.getId().equals(userInfo.getUid())).map(User::getNickName).collect(Collectors.joining(", "));
+        String notice = userInfo.getNickname() + " 创建了群聊；\n" + "邀请了 " + members + " 加入群聊；";
+        applicationEventPublisher.publishEvent(new RoomEvent(this, roomId, userInfo.getTerminal(), notice));
+        return roomId;
+    }
+
     @Transactional
-    public int createRoom(RoomDo roomDo) {
+    public long createRoomBusiness(RoomDo roomDo) {
         UserInfo userInfo = RequestInfoHolder.getUserInfo();
         Room room = new Room();
 
@@ -172,8 +193,7 @@ public class RoomServiceImpl implements RoomService {
         room.setCreateTime(new Date());
         room.setAvatar(roomDo.getAvatar());
 
-        int result = 0;
-        result += roomMapper.insert(room);
+        roomMapper.insert(room);
 
         UserRoomRelation urr = new UserRoomRelation();
         urr.setId(0L);
@@ -182,8 +202,9 @@ public class RoomServiceImpl implements RoomService {
         urr.setMarkName(room.getName());
         urr.setMyName(userInfo.getNickname());
 
-        result += userRoomMapper.insert(urr);
-        return result;
+        userRoomMapper.insert(urr);
+
+        return room.getId();
     }
 
     @Override

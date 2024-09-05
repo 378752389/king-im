@@ -7,6 +7,9 @@ const emojiTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心
 ];
 
 const transform = (content) => {
+    if (content == null) {
+        return "";
+    }
     return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, textToImg);
 }
 

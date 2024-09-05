@@ -7,6 +7,11 @@ import KingContextMenuItem from "@/components/common/KingContextMenuItem.vue";
 import {ShowToast} from "@/components/common/func/toast.js";
 import {ShowMessageBox} from "@/components/common/func/messageBox.js";
 import emojiUtils from "@/utils/emojiUtils.js";
+import KingDialog from "@/components/common/KingDialog.vue";
+import InviteMember from "@/views/group/components/InviteMember.vue";
+import {addGroupAPI} from "@/http/social.js";
+import {useUserStore} from "@/stores/user.js";
+import {useGroupsStore} from "@/stores/groups.js";
 
 const chatsStore = useChatsStore()
 const searchText = ref('')
@@ -54,17 +59,37 @@ const onRemoveChatClick = (context, close) => {
 
 }
 
+
+const createGroupList = ref([])
+const createGroupDialogRef = ref()
+const inviteMemberRef = ref()
 const onCreateGroupClick = () => {
-  ShowToast({
-    message: "创建群聊功能还在开发中。。。"
-  })
+  createGroupDialogRef.value.open()
+  // ShowToast({
+  //   message: "创建群聊功能还在开发中。。。"
+  // })
+}
+
+const onCreateGroupConfirm = () => {
+  createGroupList.value = []
+  // todo
+  console.log(inviteMemberRef.value.selectedList)
+  let members =  inviteMemberRef.value.selectedList
+  useGroupsStore().createGroup(members)
+  inviteMemberRef.value.clearSelectedList()
+  createGroupDialogRef.value.close()
+}
+const onCreateGroupCancel = () => {
+  createGroupList.value = []
+  inviteMemberRef.value.clearSelectedList()
+  createGroupDialogRef.value.close()
 }
 </script>
 
 <template>
   <div class="contact">
     <div class="session-header">
-      <div class="search">
+      <div class="search-area">
         <input type="search" v-model="searchText" id="search-input"/>
       </div>
       <div class="add-group">
@@ -86,7 +111,7 @@ const onCreateGroupClick = () => {
         <div class="body-wrapper">
           <div class="upper">
             <div class="title">{{ chat.chatName }}</div>
-            <div class="last-time">{{ getDateDiff(chat.lastSendTime) }}</div>
+            <div class="last-time">{{ getDateDiff(chat.lastSendTime || chat.createTime) }}</div>
           </div>
           <div class="lower" v-html="emojiUtils.transform(chat.lastContent)">
           </div>
@@ -101,20 +126,24 @@ const onCreateGroupClick = () => {
         <KingContextMenuItem name="删除聊天" @itemClick="onRemoveChatClick(context, close)"/>
       </template>
     </KingContextMenu>
+
+    <king-dialog @confirm="onCreateGroupConfirm" @cancel="onCreateGroupCancel" ref="createGroupDialogRef">
+      <InviteMember ref="inviteMemberRef" :current-member-list="createGroupList" />
+    </king-dialog>
   </div>
 </template>
 
 <style lang="stylus" scoped>
 .contact
   flex 1
-  max-width 300px
+  max-width 330px
   font-size 14px
 
   .session-header
     height 60px
     display flex
 
-    .search
+    .search-area
       flex 1
 
       display flex
@@ -125,6 +154,7 @@ const onCreateGroupClick = () => {
         outline none
         height 40px
         font-size 1.5em
+        width 280px
 
     .add-group
       display flex
@@ -186,7 +216,14 @@ const onCreateGroupClick = () => {
           align-items end
 
           .title
+            max-width 300px
             font-size 1.4em
+            overflow hidden
+            white-space nowrap
+            text-overflow ellipsis
+
+          .last-time
+            font-size 0.9em
 
         .lower
           width 160px

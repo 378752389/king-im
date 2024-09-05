@@ -56,7 +56,7 @@ public class RoomController {
 
     @PostMapping
     @ApiOperation("创建房间")
-    public CommonResult<Integer> createRoom(@RequestBody RoomDo roomDo) {
+    public CommonResult<Long> createRoom(@RequestBody RoomDo roomDo) {
         return CommonResult.ok(roomService.createRoom(roomDo));
     }
 
