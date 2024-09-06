@@ -112,8 +112,10 @@ export const useGroupsStore = defineStore('groups', () => {
         // 修改会话页信息
         const chatStore = useChatsStore()
         const chat = chatStore.getChat(roomId, 2)
-        chat.chatAvatar = avatar
-        chat.chatName = markName
+        if (chat != null) {
+            chat.chatAvatar = avatar
+            chat.chatName = markName
+        }
     }
     const mockInit = () => {
         groupList.value = [

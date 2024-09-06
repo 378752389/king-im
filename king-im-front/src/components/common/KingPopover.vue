@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, onUnmounted, onUpdated, reactive, ref} from "vue";
+import {onMounted, onUnmounted, reactive, ref} from "vue";
 
 const props = defineProps({
   trigger: {
@@ -19,7 +19,7 @@ const popoverData = reactive({
   }
 })
 const kingPopoverRef = ref()
-const referenceRef= ref()
+const referenceRef = ref()
 const contentRef = ref()
 
 onMounted(() => {
@@ -61,7 +61,7 @@ const setReferencePosition = () => {
     console.log(contentBox)
     if (props.position === 'top') {
       popoverData.position.left = (referenceBox.width / 2 - contentBox.width / 2) + 'px'
-      popoverData.position.top = (-contentBox.height)  + 'px'
+      popoverData.position.top = (-contentBox.height) + 'px'
     } else if (props.position === 'left') {
       popoverData.position.left = (-contentBox.width) + 'px'
       popoverData.position.top = (-contentBox.height / 2 + referenceBox.height / 2) + 'px'
@@ -74,8 +74,19 @@ const setReferencePosition = () => {
       popoverData.position.left = (referenceBox.width) + 'px'
       popoverData.position.top = (-contentBox.height / 2 + referenceBox.height / 2) + 'px'
       console.log(popoverData.position.left, popoverData.position.top)
+    } else if (props.position === 'top left') {
+      popoverData.position.left = 0;
+      popoverData.position.top = (-contentBox.height) + 'px'
+    } else if (props.position === 'top right') {
+      popoverData.position.left = (referenceBox.width) + 'px'
+      popoverData.position.top = (-contentBox.height) + 'px'
+    } else if (props.position === 'bottom left') {
+      popoverData.position.left = 0;
+      popoverData.position.top = referenceBox.height + 'px'
+    } else if (props.position === 'bottom right') {
+      popoverData.position.left = (referenceBox.width) + 'px'
+      popoverData.position.top = referenceBox.height + 'px'
     }
-
     popoverData.showFlag = false
   })
 
@@ -116,6 +127,7 @@ defineExpose({
 <style scoped lang="stylus">
 .king-popover
   position relative
+
   .content
     position absolute
     z-index 999

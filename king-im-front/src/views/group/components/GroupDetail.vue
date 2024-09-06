@@ -1,7 +1,7 @@
 <script setup>
 import GroupMemberList from "@/views/group/components/GroupMemberList.vue";
 import GroupForm from "@/views/group/components/GroupForm.vue";
-import {deleteGroupAPI, modifyGroupAPI, quitGroupAPI} from "@/http/social.js";
+import {deleteGroupAPI, quitGroupAPI} from "@/http/social.js";
 import {useGroupsStore} from "@/stores/groups.js";
 import {useChatsStore} from "@/stores/chats.js";
 import {storeToRefs} from "pinia";
@@ -16,21 +16,13 @@ const {selectedGroupGetter} = storeToRefs(groupsStore)
 
 const onSaveClick = async () => {
   await useGroupsStore().modifyGroup({
-    roomId: selectedGroupGetter.value.id,
+    roomId: selectedGroupGetter.value.roomId,
     notice: selectedGroupGetter.value.notice,
     name: selectedGroupGetter.value.name,
     avatar: selectedGroupGetter.value.avatar?.startsWith('data') ? null : selectedGroupGetter.value.avatar,
     myName: selectedGroupGetter.value.myName,
     markName: selectedGroupGetter.value.markName,
   })
-  // await modifyGroupAPI({
-  //   roomId: selectedGroupGetter.value.id,
-  //   notice: selectedGroupGetter.value.notice,
-  //   name: selectedGroupGetter.value.name,
-  //   avatar: selectedGroupGetter.value.avatar?.startsWith('data') ? null : selectedGroupGetter.value.avatar,
-  //   myName: selectedGroupGetter.value.myName,
-  //   markName: selectedGroupGetter.value.markName,
-  // })
   ShowToast({
     message: "群信息修改成功",
     type: 'success',
@@ -50,7 +42,7 @@ const onDeleteClick = async () => {
     message: `请确认是否删除 <span style="color: red;">${selectedGroupGetter.value.name}</span> 群聊 ？`,
     confirm: async () => {
       await deleteGroupAPI({
-        roomId: selectedGroupGetter.value.id
+        roomId: selectedGroupGetter.value.roomId
       })
       // todo 弹窗提示
       ShowToast({

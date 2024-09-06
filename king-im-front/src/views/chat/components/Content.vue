@@ -167,7 +167,7 @@ const onSendAreaUploadFile = async (file) => {
       display flex
 
       .tool-item
-        margin 0 10px
+        margin 10px
 
     .text-area
       margin 10px 0

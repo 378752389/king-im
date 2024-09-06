@@ -24,13 +24,16 @@ const onEmojiClick = (emojiText, index) => {
   flex-wrap wrap
   background-color rgba(128, 128, 128, 0.8)
   position relative
-  &:after
-    content ''
-    position absolute
-    bottom 0
-    left 50%
-    border-width 10px 10px 0
-    border-style solid
-    transform translate(-50%, 100%)
-    border-color rgba(128, 128, 128, 0.3) transparent transparent
+  //&:after
+  //  content ''
+  //  position absolute
+  //  bottom 0
+  //  left 0
+  //  border-width 10px 10px 0
+  //  border-style solid
+  //  transform translate(60%, 100%)
+  //  border-color rgba(128, 128, 128, 0.3) transparent transparent
+
+  .emoji
+    margin 5px
 </style>

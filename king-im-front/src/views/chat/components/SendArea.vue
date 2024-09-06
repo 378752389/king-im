@@ -247,7 +247,7 @@ const onEmojiClick = () => {
   <div class="send-area">
     <div class="tools">
 
-      <king-popover ref="emojiListPopoverRef" trigger="click" position="top">
+      <king-popover ref="emojiListPopoverRef" trigger="click" position="top left">
         <template #reference>
           <div @click="onEmojiClick" class="tool-item pointer-select">
             <i class="iconfont icon-smile"></i>
