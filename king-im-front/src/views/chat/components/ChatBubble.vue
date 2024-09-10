@@ -29,6 +29,9 @@ const emits = defineEmits(['avatar', 'msg'])
 
 const chatAvatar = computed(() => {
   if (props.msg.type === 1) {
+    if (props.msg.fromUid === userStore.info?.id) {
+      return userStore.info?.avatar
+    }
     return chatStore.currentChatGetter.chatAvatar;
   } else if (props.msg.type === 2) {
     if (props.msg.fromUid === userStore.info?.id) {

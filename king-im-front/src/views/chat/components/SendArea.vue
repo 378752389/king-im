@@ -9,6 +9,8 @@ import {useGroupsStore} from "@/stores/groups.js";
 import EmojiList from "@/components/EmojiList.vue";
 import KingPopover from "@/components/common/KingPopover.vue";
 import emojiUtils from "@/utils/emojiUtils.js";
+import {useUserStore} from "@/stores/user.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const chatStore = useChatsStore()
 const editAreaData = reactive({
@@ -94,6 +96,12 @@ const onScreenShotClick = () => {
 
 // 聊天历史
 const onShowChatHistoryClick = async () => {
+  if (chatStore.currentChatId === useUserStore().info?.id) {
+    ShowToast({
+      message: "无法查看自身聊天记录",
+    })
+    return
+  }
   chatHistoryRef.value.open()
 }
 

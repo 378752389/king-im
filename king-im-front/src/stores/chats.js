@@ -6,10 +6,8 @@ import {useGroupsStore} from "@/stores/groups.js";
 import {useUserStore} from "@/stores/user.js";
 
 const messageStatus = {
-    NORMAL: 1,
-    REVOKE: 2,
-    DELETE: 3,
-    ERROR: 9
+    NORMAL: 2,
+    REVOKE: 4,
 }
 
 export const useChatsStore = defineStore('chats', () => {
@@ -80,12 +78,14 @@ export const useChatsStore = defineStore('chats', () => {
     }
 
     const setChat = (chatId, type) => {
-        currentChatId.value = chatId
-        currentChatType.value = type
         let currentChat = getChat(chatId, type);
-        currentChat.unreadCount = 0;
+        if (currentChat) {
+            currentChatId.value = chatId
+            currentChatType.value = type
+            currentChat.unreadCount = 0;
+        }
     }
-    const insertMessage = (chatId, type, message) => {
+    const insertMessage = (chatId, type, message, idx) => {
         let session = null;
         if (chatId == null || type == null) {
             throw new Error("回话信息不能为空")
@@ -128,7 +128,7 @@ export const useChatsStore = defineStore('chats', () => {
         //     return
         // }
 
-        doInsertMessage(chat, message)
+        doInsertMessage(chat, message, idx)
     }
 
     const revokeMessage = (chatId, type, msg) => {
@@ -171,6 +171,26 @@ export const useChatsStore = defineStore('chats', () => {
         doInsertMessage(chat, revokeMessage)
     }
 
+    /**
+     * 删除消息成功返回删除索引位置
+     * @param chatId
+     * @param type
+     * @param msgId
+     * @returns number
+     */
+    const deleteMessage = (chatId, type, msgId) => {
+        let chat = getChat(chatId, type)
+        if (chat == null) {
+            return -1;
+        }
+        let delIdx = chat.messages?.findIndex(msg => msg.id === msgId)
+        if (delIdx >= 0) {
+            chat.messages.splice(delIdx, 1)
+        }
+
+        return delIdx;
+    }
+
     const clearChat = () => {
         chats.value = []
         currentChatId.value = null
@@ -188,24 +208,31 @@ export const useChatsStore = defineStore('chats', () => {
     }
 
     // 执行插入消息操作
-    const doInsertMessage = (chat, message) => {
+    const doInsertMessage = (chat, message, idx) => {
         let insertPos = chat.messages.length
 
-        if (message.contentType === 999) {
-            // todo
+        // 设置索引位置
+        // 优先指定索引位置；没有指定则依照id大小顺序插入
+        if (idx != null) {
+            insertPos = idx
         } else {
-            // 消息复原，找到消息对应索引位置
-            for (let idx in chat.messages) {
-                // 重复消息，直接跳过，不做处理
-                if (chat.messages[idx].id === message.id) {
-                    return
-                }
-                if (chat.messages[idx].sendTime > message.sendTime) {
-                    insertPos = idx
-                    break
+            if (message.contentType === 999) {
+                // todo
+            } else {
+                // 消息复原，找到消息对应索引位置
+                for (let idx in chat.messages) {
+                    // 重复消息，直接跳过，不做处理
+                    if (chat.messages[idx].id === message.id) {
+                        return
+                    }
+                    if (chat.messages[idx].sendTime > message.sendTime) {
+                        insertPos = idx
+                        break
+                    }
                 }
             }
         }
+
         // 非当前会话消息处理
         // 对于computed 需要 通过value 才能拿到原始值
 
@@ -253,12 +280,16 @@ export const useChatsStore = defineStore('chats', () => {
         await pullMsgAPI((minMsgId.value == null || minMsgId.value === 0) ? 0 : minMsgId.value)
     }
 
-    const getChatMessage = (chatId, type) => {
+    const getChatMessage = (chatId, type, msgId) => {
         const chat = getChat(chatId, type)
         if (!chat) {
-            return []
+            return;
         }
-        return chat.message.filter(x => x.status === messageStatus.NORMAL)
+        for (let message in chat.messages) {
+            if (message.status === messageStatus.NORMAL && message.id === msgId) {
+                return message;
+            }
+        }
     }
 
     return {
@@ -278,6 +309,7 @@ export const useChatsStore = defineStore('chats', () => {
         pullMsg,
         getChatMessage,
         revokeMessage,
+        deleteMessage,
 
         moveChatTop,
         openChat,

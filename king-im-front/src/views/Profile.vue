@@ -5,6 +5,7 @@ import KingUpload from "@/components/common/form/KingUpload.vue";
 import {useUserStore} from "@/stores/user.js";
 import {modifyUserInfoAPI} from "@/http/user.js";
 import {ShowToast} from "@/components/common/func/toast.js";
+import {ossUploadAPI} from "@/http/oss.js";
 
 const profileData = reactive({
   username: '',
@@ -47,11 +48,14 @@ const cancel = () => {
   router.back()
 }
 
-const onUpload = (e) => {
+const onUpload = async (e) => {
   let file = e.target.files[0]
-  // todo 处理文件上传
   if (file.type.startsWith("image")) {
-    profileData.avatar = URL.createObjectURL(file)
+    let downloadUrl = await ossUploadAPI({
+      file,
+      businessType: 1,
+    })
+    profileData.avatar = downloadUrl
   }
 }
 </script>

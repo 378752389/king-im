@@ -89,9 +89,9 @@ export const useGroupsStore = defineStore('groups', () => {
         await loadGroupList()
     }
 
-    const inviteFriendJoinGroup = async (members) => {
+    const inviteFriendJoinGroup = async (roomId, members) => {
         await inviteFriendJoinGroupAPI({
-            roomId: props.roomId,
+            roomId: roomId,
             friendIds: members.map(item => item.peerId).join(',')
         })
         await useGroupsStore().loadGroupList()

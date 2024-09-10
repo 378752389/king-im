@@ -7,6 +7,7 @@ import InviteMember from "@/views/group/components/InviteMember.vue";
 import {inviteFriendJoinGroupAPI} from "@/http/social.js";
 import {useGroupsStore} from "@/stores/groups.js";
 import {ShowMessageBox} from "@/components/common/func/messageBox.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const props = defineProps({
   roomId: {
@@ -35,6 +36,7 @@ const onGroupMemberClick = (e, groupMember) => {
     }
   }
   contactInfo.value = contact
+  // todo
   console.log(contactInfo.value)
 }
 
@@ -46,12 +48,18 @@ const onAddMemberClick = () => {
 
 const inviteMemberRef = ref()
 const onConfirmInviteMembers = async () => {
+  const roomId = props.roomId
   const data = inviteMemberRef.value.selectedList
+  const memberNames = data.map(friend => friend.peerNickname).join(', ')
   ShowMessageBox({
-    message: `请确认是否邀请 <span style='color: red;'>${data.map(friend => friend.peerNickname).join(', ')}</span> 进群?`,
+    message: `请确认是否邀请 <span style='color: red;'>${memberNames}</span> 进群?`,
     confirm: async () => {
-      await useGroupsStore().inviteFriendJoinGroup(data)
+      await useGroupsStore().inviteFriendJoinGroup(roomId, data)
       addMemberDialogRef.value.close()
+      ShowToast({
+        message: `邀请好友 ${memberNames} 进群成功！`,
+        type: 'success'
+      })
     }
   })
 

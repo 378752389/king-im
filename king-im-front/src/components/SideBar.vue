@@ -55,17 +55,17 @@ onMounted(() => {
   <div class="sidebar">
     <div class="avatar" ref="avatarRef">
       <img height="80" width="80" :src="userStore.info?.avatar" alt="avatar" onerror="this.classList.add('error')"/>
-    </div>
 
-    <div class="detail" ref="detailRef">
-      <ul>
-        <li>id: {{userStore.info?.id}}</li>
-        <li>nickname: {{userStore.info?.nickName}}</li>
-        <li>city: {{userStore.info?.city}}</li>
-        <li>ip: {{userStore.info?.ip}}</li>
-<!--        <li>loginTime: {{userStore.info?.loginTime}}</li>-->
-        <li>status: {{userStore.info?.isOnline ? '在线': '离线'}}</li>
-      </ul>
+      <div class="detail" ref="detailRef">
+        <ul>
+          <li>id: {{userStore.info?.id}}</li>
+          <li>nickname: {{userStore.info?.nickName}}</li>
+          <li>city: {{userStore.info?.city}}</li>
+          <li>ip: {{userStore.info?.ip}}</li>
+          <!--        <li>loginTime: {{userStore.info?.loginTime}}</li>-->
+          <li>status: {{userStore.info?.isOnline ? '在线': '离线'}}</li>
+        </ul>
+      </div>
     </div>
 
     <div class="list">
@@ -112,21 +112,22 @@ onMounted(() => {
   border-right 1px solid black
   background-color #3a3838
 
-  .detail
-    padding 10px
-    display none
-    width 200px
-    position fixed
-    z-index 999
-    left 80px
-    top 20px
-    background-color white
-    li
-      margin 3px
-      list-style none
-
   .avatar
-    margin 20px 5px
+    margin 0 20px
+    border 1px solid rgba(128, 128, 128, 0.3)
+    position relative
+    .detail
+      padding 10px
+      display none
+      width 200px
+      position absolute
+      z-index 999
+      top 0
+      left 100%
+      background-color white
+      li
+        margin 3px
+        list-style none
 
   .list
     flex 1
@@ -145,7 +146,7 @@ onMounted(() => {
         color: #55a532;
 
       i
-        font-size 40px
+        font-size 3rem
         color rgba(255, 255, 255, .6)
 
     .last

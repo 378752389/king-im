@@ -9,8 +9,6 @@ import {ShowMessageBox} from "@/components/common/func/messageBox.js";
 import emojiUtils from "@/utils/emojiUtils.js";
 import KingDialog from "@/components/common/KingDialog.vue";
 import InviteMember from "@/views/group/components/InviteMember.vue";
-import {addGroupAPI} from "@/http/social.js";
-import {useUserStore} from "@/stores/user.js";
 import {useGroupsStore} from "@/stores/groups.js";
 
 const chatsStore = useChatsStore()
@@ -39,7 +37,9 @@ const onMoveTopChatClick = (context, close) => {
 }
 
 const onSharkClick = (context, close) => {
-  alert("提醒用户," + context.chatName)
+  ShowToast({
+    message: "抖动通知功能暂未实现，敬请期待"
+  })
   close()
 }
 

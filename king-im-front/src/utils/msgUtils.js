@@ -1,11 +1,11 @@
-export const buildNoticeMessage = ({type, toUid, roomId, fromUid, content}) => {
+export const buildNoticeMessage = ({type, toUid, roomId, fromUid, content, sendTime}) => {
     return {
         toUid,
         roomId,
         fromUid,
         content,
         type,
-        sendTime: new Date().getTime(),
+        sendTime: sendTime || new Date().getTime(),
         contentType: 999,
     }
 }

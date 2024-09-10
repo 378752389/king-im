@@ -5,13 +5,17 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.RequestInfoHolder;
 import com.king.im.common.interceptor.UserInfo;
+import com.king.im.listener.event.FriendEvent;
 import com.king.im.social.domain.entity.UserFriendRelation;
 import com.king.im.social.mapper.UserFriendMapper;
 import com.king.im.social.service.FriendService;
 import com.king.im.user.domain.FriendDO;
 import com.king.im.user.domain.entity.User;
 import com.king.im.user.mapper.UserMapper;
+import javafx.application.Application;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -24,6 +28,8 @@ public class FriendServiceImpl implements FriendService {
     private UserMapper userMapper;
     @Resource
     private UserFriendMapper userFriendMapper;
+    @Resource
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public List<FriendDO> getFriendList(Long uid) {
@@ -35,6 +41,7 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
+    @Transactional
     public int addFriend(Long id) {
         User user = userMapper.selectById(id);
         if (user == null){
@@ -64,6 +71,8 @@ public class FriendServiceImpl implements FriendService {
 
             result += userFriendMapper.insert(ufr2);
         }
+
+        applicationEventPublisher.publishEvent(new FriendEvent(this, userInfo.getUid(), id, userInfo.getTerminal(), "你们已经是好友了，可以进行聊天了"));
         return result;
     }
 
