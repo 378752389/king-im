@@ -154,3 +154,13 @@ export const getHistoryCursorPage = ({chatId, chatType, cursor, size}) => {
         }
     })
 }
+
+export const revokeMsgAPI = (msgId) => {
+    return request({
+        url: '/msg/revoke',
+        method: 'post',
+        params: {
+            msgId
+        }
+    })
+}

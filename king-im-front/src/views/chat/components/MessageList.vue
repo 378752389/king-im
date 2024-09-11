@@ -76,9 +76,10 @@ const onRevokeBtnClick = () => {
       message: "消息已超过3分钟，无法撤回"
     })
   } else {
-    ShowToast({
-      message: "撤销消息功能暂时还未实现"
-    })
+    chatStore.revokeMessage(selectedMessage.value?.id)
+    // ShowToast({
+    //   message: "撤销消息功能暂时还未实现"
+    // })
   }
 }
 

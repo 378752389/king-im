@@ -13,6 +13,8 @@ public interface MessageService {
 
     Long readedMsg(Long chatId, Integer type);
 
+    void revokeMsg(Long msgId);
+
     CursorResult<ChatData> getHistoryMessageCursorPage(Long chatId, Integer chatType, Long cursor, Long size);
 
     void pullMessage(Long minMsgId, Long userId);

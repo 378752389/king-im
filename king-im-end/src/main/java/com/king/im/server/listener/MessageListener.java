@@ -84,7 +84,7 @@ public class MessageListener implements InitializingBean, DisposableBean {
                     return;
                 }
 
-                CMD CMD = MsgConvert.buildIMCMD(receiveMessage);
+                CMD CMD = MsgConvert.buildIMChatCMD(receiveMessage);
                 String imcmdStr = jsonUtils.stringify(CMD);
 
                 Integer terminalType = receiverInfo.getTerminalType();
@@ -108,6 +108,7 @@ public class MessageListener implements InitializingBean, DisposableBean {
                 if (ChatTypeEnum.SINGLE.getType().equals(receiveMessage.getChatType())) {
                     messageService.updateMsgToSendStatus(receiveMessage.getMsgId());
                     log.info("单聊消息发送成功： msgId: {}, content: {}", receiveMessage.getMsgId(), receiveMessage.getContent());
+                    // todo 通知发送方消息发送成功
                 } else if (ChatTypeEnum.GROUP.getType().equals(receiveMessage.getChatType())) {
                     // todo
                 }

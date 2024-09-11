@@ -1,9 +1,12 @@
 package com.king.im.msg.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import com.king.im.common.cursor.CursorResult;
 import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.RequestInfoHolder;
+import com.king.im.common.interceptor.UserInfo;
 import com.king.im.common.redisson.DistributedLock;
 import com.king.im.listener.event.MsgEvent;
 import com.king.im.msg.convert.MsgConvert;
@@ -30,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,7 +79,7 @@ public class MessageServiceImpl implements MessageService {
             // 查询所有的单聊
             List<Msg> unreadMsg = msgMapper.getUnreadMsg(chatId, uid, type);
             unreadMsg.forEach(msg -> {
-                msg.setStatus(2);
+                msg.setStatus(MessageStatusEnum.SEND.getType());
                 msgMapper.updateById(msg);
             });
             readedCount = unreadMsg.size();
@@ -84,6 +88,34 @@ public class MessageServiceImpl implements MessageService {
         }
         //
         return readedCount;
+    }
+
+    @Override
+    public void revokeMsg(Long msgId) {
+        Long uid = RequestInfoHolder.getUid();
+        Msg msg = msgMapper.selectById(msgId);
+        if (msg == null) {
+            throw new GlobalException("消息不存在");
+        }
+
+        if (!uid.equals(msg.getFromUid())) {
+           throw new GlobalException("不能撤销非自身发送消息");
+        }
+
+        Date createTime = msg.getCreateTime();
+        if (DateUtil.between(createTime, new Date(), DateUnit.MINUTE) > 3) {
+            throw new GlobalException("消息发送超过3分钟，不能撤回");
+        }
+
+        if (msg.getStatus().equals(MessageStatusEnum.REVOKE.getType())) {
+            throw new GlobalException("消息已经撤回");
+        }
+
+        msg.setStatus(MessageStatusEnum.REVOKE.getType());
+        msgMapper.updateById(msg);
+
+        log.info("撤回消息, {}", msg);
+        publisher.publishEvent(new MsgEvent(this, msg));
     }
 
     @Override
@@ -184,7 +216,7 @@ public class MessageServiceImpl implements MessageService {
         for (Msg msg : offlineSingleMsgList) {
             Msg update = new Msg();
             update.setId(msg.getId());
-            update.setStatus(2);
+            update.setStatus(MessageStatusEnum.SEND.getType());
             msgMapper.updateById(update);
         }
 

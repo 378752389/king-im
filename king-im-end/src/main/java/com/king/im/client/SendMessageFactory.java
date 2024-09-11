@@ -45,4 +45,39 @@ public class SendMessageFactory {
 
         return sendMessage;
     }
+
+    /**
+     * 撤回消息
+     * @param chatId
+     * @param chatType
+     * @param msgId
+     * @param senderInfo
+     * @param receiverInfo
+     * @return
+     */
+    public static SendMessage buildRevokeChatMessage(Long chatId, Integer chatType, Long msgId, SenderInfo senderInfo, ReceiverInfo receiverInfo) {
+        SendMessage sendMessage = new SendMessage();
+
+        sendMessage.setMsgId(msgId);
+        sendMessage.setSendType(chatType);
+        sendMessage.setSenderInfo(senderInfo);
+        sendMessage.setReceiverInfo(receiverInfo);
+        sendMessage.setSendToSelf(true);
+        sendMessage.setStatus(MessageStatusEnum.REVOKE.getType());
+
+        BaseMessage baseMessage = new BaseMessage();
+        baseMessage.setId(msgId);
+        baseMessage.setSendTime(new Date());
+        baseMessage.setSenderId(senderInfo.getUid());
+        baseMessage.setChatId(chatId);
+        baseMessage.setReferMsgId(null);
+        baseMessage.setAtUids(null);
+        baseMessage.setText(null);
+        baseMessage.setExtra(null);
+
+        sendMessage.setMessage(baseMessage);
+        sendMessage.setMessageType(MessageTypeEnum.TEXT);
+
+        return sendMessage;
+    }
 }

@@ -130,6 +130,8 @@ const onPictureClick = () => {
         </div>
       </div>
     </div>
+<!--    todo 等待发送方发送结果通知-->
+<!--    <div class="msg-loading" v-if="msg.status === 1"><i class="iconfont icon-loading" /></div>-->
   </div>
 </template>
 
@@ -201,6 +203,9 @@ const onPictureClick = () => {
       color red
       margin-top 10px
 
+  .msg-loading
+    margin 0 5px
+    align-self center
 .self
   flex-direction row-reverse
 

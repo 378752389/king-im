@@ -42,6 +42,13 @@ public class MessageController {
         return CommonResult.ok(l);
     }
 
+    @PostMapping("revoke")
+    @ApiOperation("撤回消息")
+    public CommonResult<Void> revokeMsg(Long msgId) {
+        messageService.revokeMsg(msgId);
+        return CommonResult.ok(null);
+    }
+
     @GetMapping("/recent")
     @ApiOperation("获取近期聊天消息")
     public CommonResult recentMsg(MsgReq req) {

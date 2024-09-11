@@ -1,11 +1,13 @@
 import {ref, computed} from 'vue'
 import {defineStore} from 'pinia'
-import {pullMsgAPI, pullOfflineMsgAPI} from "@/http/message.js";
+import {pullMsgAPI, pullOfflineMsgAPI, revokeMsgAPI} from "@/http/message.js";
 import {useContactsStore} from "@/stores/contacts.js";
 import {useGroupsStore} from "@/stores/groups.js";
 import {useUserStore} from "@/stores/user.js";
+import {buildNoticeMessage} from "@/utils/msgUtils.js";
 
 const messageStatus = {
+    SENDING: 1,
     NORMAL: 2,
     REVOKE: 4,
 }
@@ -38,7 +40,13 @@ export const useChatsStore = defineStore('chats', () => {
 
     // chatId 可能为私聊，也可能为群聊，配合type可以唯一确定一个session
     const getChat = (chatId, type) => {
-        return chats.value.find(chat => chat.chatId === chatId && chat.type === type)
+        for (let chat of chats.value) {
+            if (chat.chatId === chatId && chat.type === type) {
+                return chat
+            }
+        }
+        console.log("会话不存在")
+        // return chats.value.find(chat => chat.chatId === chatId && chat.type === type)
     }
 
     const moveChatTop = (chatId, type) => {
@@ -131,44 +139,54 @@ export const useChatsStore = defineStore('chats', () => {
         doInsertMessage(chat, message, idx)
     }
 
-    const revokeMessage = (chatId, type, msg) => {
-        // 非撤回消息不进行处理
-        if (msg.status !== messageStatus.REVOKE) {
-            return
-        }
-        let chat = getChat(chatId, type)
-        if (!chat) {
-            throw new Error('chat not found')
-        }
-        let msgIdx = chat.messages.findIndex(x => x.id === msg.id)
-        if (msgIdx === -1) {
-            throw new Error('message not found')
-        }
-        if (chat.messages[msgIdx].status === messageStatus.REVOKE) {
-            console.log("message already revoked")
+    const revokeMessage = async (msgId) => {
+        await revokeMsgAPI(msgId)
+        let msg = getChatMessage(currentChatId.value, currentChatType.value, msgId)
+        if (msg == null) {
+            console.log("待撤回消息不存在");
             return;
         }
+        msg.status = messageStatus.REVOKE
+        insertMessage(currentChatId.value, currentChatId.value, msg)
+        // let position = deleteMessage(currentChatIdGetter, currentChatTypeGetter, msgId)
 
-        // 删除旧聊天消息
-        chat.messages.splice(msgIdx, 1)
-
-        // 创建撤回消息
-        const senderName = msg.type === 1 ? '对方' : msg.name
-        const revokeMessage = {
-            id: msg.id,
-            roomId: msg.roomId,
-            fromUid: msg.fromUid,
-            toUid: msg.toUid,
-            type: msg.type,
-            name: msg.name,
-            content: senderName + '  撤回一条消息',
-            atUids: msg.atUids,
-            sendTime: msg.sendTime,
-            status: messageStatus.REVOKE,
-        }
-        console.log("revokeMessage", revokeMessage)
-
-        doInsertMessage(chat, revokeMessage)
+        // // 非撤回消息不进行处理
+        // if (msg.status !== messageStatus.REVOKE) {
+        //     return
+        // }
+        // let chat = getChat(chatId, type)
+        // if (!chat) {
+        //     throw new Error('chat not found')
+        // }
+        // let msgIdx = chat.messages.findIndex(x => x.id === msg.id)
+        // if (msgIdx === -1) {
+        //     throw new Error('message not found')
+        // }
+        // if (chat.messages[msgIdx].status === messageStatus.REVOKE) {
+        //     console.log("message already revoked")
+        //     return;
+        // }
+        //
+        // // 删除旧聊天消息
+        // chat.messages.splice(msgIdx, 1)
+        //
+        // // 创建撤回消息
+        // const senderName = msg.type === 1 ? '对方' : msg.name
+        // const revokeMessage = {
+        //     id: msg.id,
+        //     roomId: msg.roomId,
+        //     fromUid: msg.fromUid,
+        //     toUid: msg.toUid,
+        //     type: msg.type,
+        //     name: msg.name,
+        //     content: senderName + '  撤回一条消息',
+        //     atUids: msg.atUids,
+        //     sendTime: msg.sendTime,
+        //     status: messageStatus.REVOKE,
+        // }
+        // console.log("revokeMessage", revokeMessage)
+        //
+        // doInsertMessage(chat, revokeMessage)
     }
 
     /**
@@ -221,8 +239,25 @@ export const useChatsStore = defineStore('chats', () => {
             } else {
                 // 消息复原，找到消息对应索引位置
                 for (let idx in chat.messages) {
-                    // 重复消息，直接跳过，不做处理
+                    // 重复消息
                     if (chat.messages[idx].id === message.id) {
+                        // 新消息为撤回消息
+                        if (message.status === 4) {
+                            // 本地存在消息，需要移除该条消息  撤回消息处理
+                            deleteMessage(chat.chatId, chat.type, message.id)
+                            let noticeMsg = buildNoticeMessage({
+                                type: chat.type,
+                                toUid: message.toUid,
+                                fromUid: message.fromUid,
+                                content: message.fromUid === useUserStore().info?.id ? '你已撤回一条消息': '对方撤回一条消息',
+                                roomId: message.roomId,
+                                sendTime: message.sendTime,
+                            });
+                            doInsertMessage(chat, noticeMsg, idx)
+                        } else if (message.status === 2) {
+                            // 修改消息状态为已发送，消息状态回调
+                            chat.messages[idx].status = 2
+                        }
                         return
                     }
                     if (chat.messages[idx].sendTime > message.sendTime) {
@@ -285,8 +320,8 @@ export const useChatsStore = defineStore('chats', () => {
         if (!chat) {
             return;
         }
-        for (let message in chat.messages) {
-            if (message.status === messageStatus.NORMAL && message.id === msgId) {
+        for (let message of chat.messages) {
+            if (message.id === msgId) {
                 return message;
             }
         }
