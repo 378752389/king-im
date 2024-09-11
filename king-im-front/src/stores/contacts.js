@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {ref, computed} from "vue";
-import {getContactListAPI} from "@/http/social.js";
+import {addContactAPI, getContactListAPI} from "@/http/social.js";
 
 export const useContactsStore = defineStore('contacts', () => {
     const contactList = ref([])
@@ -22,6 +22,13 @@ export const useContactsStore = defineStore('contacts', () => {
 
     const setSelectedContact = (contact) => {
         selectedContact.value = contact
+    }
+
+    const addContact = async (contactId) => {
+        await addContactAPI({
+            friendId: contactId
+        })
+        await loadContactList()
     }
 
     const loadContactList = async () => {
@@ -59,5 +66,5 @@ export const useContactsStore = defineStore('contacts', () => {
         }]
     }
 
-    return {contactListGetter, selectedContactGetter, getContact, setSelectedContact, loadContactList, isFriend}
+    return {contactListGetter, selectedContactGetter, getContact, addContact, setSelectedContact, loadContactList, isFriend}
 })

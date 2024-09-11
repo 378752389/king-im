@@ -5,6 +5,7 @@ import defaultIcon from '@/assets/logo.svg'
 import {useContactsStore} from "@/stores/contacts.js";
 import {useGroupsStore} from "@/stores/groups.js";
 import {ShowToast} from "@/components/common/func/toast.js";
+import {ShowMessageBox} from "@/components/common/func/messageBox.js";
 
 const searchForm = reactive({
   type: 1,    // 搜索方式
@@ -72,15 +73,16 @@ watchEffect(async () => {
 })
 
 const onAddFriendClick = async (searchItem) => {
-  const resp = await addContactAPI({
-    friendId: searchItem.id
+  ShowMessageBox({
+    message: `请确认添加好友昵称： ${searchItem.name}`,
+    confirm: async () => {
+      await useContactsStore().addContact(searchItem.id)
+      ShowToast({
+        message: "添加好友成功",
+        type: "success",
+      })
+    }
   })
-  ShowToast({
-    message: "添加好友成功",
-    type: "success",
-  })
-
-  await useContactsStore().loadContactList()
 }
 
 const onApplyGroupClick = async (searchItem) => {

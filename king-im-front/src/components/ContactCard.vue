@@ -57,11 +57,15 @@ const onSendMessageClick = () => {
 }
 
 const onSendVoiceCallClick = () => {
-
+  ShowToast({
+    message: "语音功能暂时还未实现，敬请期待"
+  })
 }
 
 const onSendVideoCallClick = () => {
-
+  ShowToast({
+    message: "视频功能暂时还未实现，敬请期待"
+  })
 }
 
 
