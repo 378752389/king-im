@@ -72,6 +72,7 @@ export const useChatsStore = defineStore('chats', () => {
                 type: type,
                 unreadCount: 0,
                 messages: [],
+                atMe: false,
                 lastNickname: undefined,
                 lastContent: undefined,
                 lastSendTime: null,
@@ -91,6 +92,7 @@ export const useChatsStore = defineStore('chats', () => {
             currentChatId.value = chatId
             currentChatType.value = type
             currentChat.unreadCount = 0;
+            currentChat.atMe = false
         }
     }
     const insertMessage = (chatId, type, message, idx) => {
@@ -147,7 +149,7 @@ export const useChatsStore = defineStore('chats', () => {
             return;
         }
         msg.status = messageStatus.REVOKE
-        insertMessage(currentChatId.value, currentChatId.value, msg)
+        insertMessage(currentChatId.value, currentChatType.value, msg)
         // let position = deleteMessage(currentChatIdGetter, currentChatTypeGetter, msgId)
 
         // // 非撤回消息不进行处理
@@ -254,6 +256,7 @@ export const useChatsStore = defineStore('chats', () => {
                                 sendTime: message.sendTime,
                             });
                             doInsertMessage(chat, noticeMsg, idx)
+                            chat.lastContent = noticeMsg.content
                         } else if (message.status === 2) {
                             // 修改消息状态为已发送，消息状态回调
                             chat.messages[idx].status = 2
@@ -275,6 +278,10 @@ export const useChatsStore = defineStore('chats', () => {
         if ((!currentChatIdGetter.value && !currentChatTypeGetter.value) || currentChatIdGetter.value !== chat.chatId || currentChatTypeGetter.value !== chat.type) {
             if (message.status === 1) {
                 chat.unreadCount += 1
+            }
+            // at我，红字内容提示
+            if (message.atUids && message.atUids.indexOf(useUserStore().info?.id) >= 0) {
+                chat.atMe = true
             }
         }
 

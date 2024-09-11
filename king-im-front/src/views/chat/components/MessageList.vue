@@ -1,6 +1,6 @@
 <script setup>
 import ChatBubble from "@/views/chat/components/ChatBubble.vue";
-import {onMounted, ref, watchEffect} from "vue";
+import {onMounted, ref, watch, watchEffect} from "vue";
 import {useUserStore} from "@/stores/user.js";
 import {useChatsStore} from "@/stores/chats.js";
 import {getSendTimeNormalize} from "@/utils/dateUtils.js";
@@ -30,6 +30,15 @@ onMounted(() => {
   // 监控chat 滚动到底部
   watchEffect(() => {
     chatStore.currentChatIdGetter || chatStore.currentChatTypeGetter
+    scrollToBottom()
+  })
+
+  // 当前会话修改，滚动到底部
+
+  watch(() => {
+    return chatStore.currentChatGetter.messages.length;
+  }, () => {
+    console.log("有新消息")
     scrollToBottom()
   })
 })

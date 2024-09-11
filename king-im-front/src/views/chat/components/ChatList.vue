@@ -113,7 +113,9 @@ const onCreateGroupCancel = () => {
             <div class="title">{{ chat.chatName }}</div>
             <div class="last-time">{{ getDateDiff(chat.lastSendTime || chat.createTime) }}</div>
           </div>
-          <div class="lower" v-html="emojiUtils.transform(chat.lastContent)">
+          <div class="lower">
+            <span v-if="chat.atMe" style="color: red;">有人@我&nbsp;</span>
+            <span v-html="emojiUtils.transform(chat.lastContent)"></span>
           </div>
         </div>
       </div>

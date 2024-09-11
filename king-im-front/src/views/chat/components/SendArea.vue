@@ -17,6 +17,7 @@ const editAreaData = reactive({
   canEdit: true,
   inCompositionEdit: false,
   sendContent: '',
+  atUids: [],
   focusNode: null,
   focusOffset: 0,
   atSearchText: '',
@@ -30,6 +31,7 @@ onMounted(() => {
 
 const createSendContent = () => {
   const atUids = []
+  editAreaData.sendContent = ''
   editAreaRef.value.childNodes.forEach(node => {
     if (node.nodeType === Node.ELEMENT_NODE) {
       if (node.nodeName === 'SPAN') {
@@ -46,6 +48,7 @@ const createSendContent = () => {
       console.log("解析出其他的节点类型", node, editAreaRef.value.textContent)
     }
   })
+  editAreaData.atUids = atUids
 }
 
 const html2Escape = (strHtml) => {
@@ -68,6 +71,7 @@ const onSendBtnClick = async () => {
   }
   const msg = await sendAPI({
     msgType: 1,
+    atUids: editAreaData.atUids,
     text: editAreaData.sendContent,
     chatId: chatStore.currentChatIdGetter,
     chatType: chatStore.currentChatTypeGetter

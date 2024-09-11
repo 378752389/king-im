@@ -1,4 +1,5 @@
 package com.king.im.msg.convert;
+
 import com.king.im.client.domain.type.ReceiverInfo;
 import com.king.im.common.enums.MessageStatusEnum;
 import com.king.im.server.domain.type.IMUserInfo;
@@ -22,12 +23,14 @@ import com.king.im.server.protocol.data.ChatData;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MsgConvert {
 
     /**
      * 消息请求转换为 消息实体
+     *
      * @param req
      * @return
      */
@@ -54,6 +57,7 @@ public class MsgConvert {
 
     /**
      * 构建 client 发送消息领域模型
+     *
      * @param msg
      * @return
      */
@@ -80,7 +84,13 @@ public class MsgConvert {
         baseMessage.setSenderId(msg.getFromUid());
         baseMessage.setChatId(msg.getRoomId() == null ? msg.getToUid() : msg.getRoomId());
         baseMessage.setReferMsgId(msg.getReferMsgId());
-        baseMessage.setAtUids(StrUtil.split(msg.getAtUids(), ",").stream().map(Long::valueOf).collect(Collectors.toList()));
+
+        if (StrUtil.isEmpty(msg.getAtUids())) {
+            baseMessage.setAtUids(new ArrayList<>());
+        } else {
+            List<Long> atUids = StrUtil.split(msg.getAtUids(), ",").stream().map(Long::parseLong).collect(Collectors.toList());
+            baseMessage.setAtUids(atUids);
+        }
         baseMessage.setText(msg.getContent());
         baseMessage.setExtra(msg.getExtra());
 
@@ -92,6 +102,7 @@ public class MsgConvert {
 
     /**
      * 通过消息实体 构建 消息数据
+     *
      * @param msg
      * @return
      */
@@ -103,8 +114,13 @@ public class MsgConvert {
         chatData.setFromUid(msg.getFromUid());
         chatData.setToUid(msg.getToUid());
         chatData.setReferMsgId(msg.getReferMsgId());
-        List<Long> atUids = StrUtil.split(msg.getAtUids(), ",").stream().map(Long::valueOf).collect(Collectors.toList());
-        chatData.setAtUids(atUids);
+
+        if (StrUtil.isEmpty(msg.getAtUids())) {
+            chatData.setAtUids(new ArrayList<>());
+        } else {
+            List<Long> atUids = StrUtil.split(msg.getAtUids(), ",").stream().map(Long::parseLong).collect(Collectors.toList());
+            chatData.setAtUids(atUids);
+        }
         chatData.setExtra(msg.getExtra());
         chatData.setContent(msg.getContent());
         chatData.setContentType(msg.getType());
@@ -117,6 +133,7 @@ public class MsgConvert {
 
     /**
      * 构建 server 接受消息领域模型
+     *
      * @param sendMessage
      * @return
      */
@@ -159,6 +176,7 @@ public class MsgConvert {
 
     /**
      * server 消息发送模型 构建服务端协议命令
+     *
      * @param receiveMessage
      * @return
      */

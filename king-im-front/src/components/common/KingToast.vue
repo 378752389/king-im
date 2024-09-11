@@ -22,12 +22,15 @@ defineProps({
 
 .info
   background-color grey
+  color white
 
 .danger
   background-color crimson
+  color white
 
 .success
   background-color #55a532
+  color white
 
 .fade-enter-active,
 .fade-leave-active {

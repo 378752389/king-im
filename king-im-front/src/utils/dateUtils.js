@@ -5,7 +5,7 @@ export function getSendTimeNormalize(sendTimeStamp) {
     let compareHour = compareTime.getHours()
     let compareMinute = compareTime.getMinutes()
 
-    let timeStr = `${compareTime.getHours()}:${compareTime.getMinutes()}`
+    let timeStr = `${zeroize(compareTime.getHours())}:${zeroize(compareTime.getMinutes())}`
 
     if (isYesterday(compareTime)) {
         return `昨天 ${zeroize(compareHour)}:${zeroize(compareMinute)}`

@@ -108,7 +108,8 @@ public class MessageServiceImpl implements MessageService {
         }
 
         if (msg.getStatus().equals(MessageStatusEnum.REVOKE.getType())) {
-            throw new GlobalException("消息已经撤回");
+            log.info("消息已撤回");
+            return;
         }
 
         msg.setStatus(MessageStatusEnum.REVOKE.getType());

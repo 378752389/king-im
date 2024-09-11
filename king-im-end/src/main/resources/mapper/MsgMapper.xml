@@ -9,7 +9,7 @@
                 typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
     <sql id="BaseField">
-        select id, room_id, from_uid, status, to_uid, type, content, extra, create_time from t_msg
+        select id, room_id, from_uid, status, to_uid, type, content, extra, at_uids, create_time from t_msg
     </sql>
 
     <select id="getRoomMsgCursorPage" resultMap="BaseResultMap">
@@ -82,6 +82,7 @@
         type,
         content,
         extra,
+        at_uids,
         create_time
         from t_msg
         where id > #{minMsgId}
