@@ -115,6 +115,9 @@ const sendMessageClick = (context) =>{
 }
 
 const modifyInfoClick = (context) => {
+  router.push({
+    name: 'profile'
+  })
   memberContextMenuRef.value.close()
 }
 </script>

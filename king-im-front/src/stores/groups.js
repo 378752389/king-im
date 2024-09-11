@@ -102,6 +102,7 @@ export const useGroupsStore = defineStore('groups', () => {
             roomId: groupId
         })
         useChatsStore().removeChat(groupId, 2)
+        selectedGroup.value = {}
         await loadGroupList()
     }
 

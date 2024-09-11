@@ -30,11 +30,20 @@ const onSaveClick = async () => {
 }
 
 const onQuitClick = async () => {
-  await quitGroupAPI({
-    roomId: selectedGroupGetter.id
-  })
+  console.log(selectedGroupGetter.value)
+  ShowMessageBox({
+    message: `请确认是否退出 <span style="color: red;">${selectedGroupGetter.value.name}</span> 群聊 ？`,
+    confirm: async () => {
+      await groupsStore.quitGroup(selectedGroupGetter.value.roomId)
 
-  alert('退出成功')
+      ShowToast({
+        message: "退出群聊成功",
+        timeout: 3000,
+        type: "success"
+      })
+      await groupsStore.loadGroupList()
+    }
+  })
 }
 
 const onDeleteClick = async () => {
