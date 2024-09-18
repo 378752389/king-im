@@ -1,6 +1,8 @@
-package com.king.im.server.listener;
+package com.king.im.server.subscriber;
 
 import cn.hutool.core.collection.CollUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.king.im.common.enums.ChatTypeEnum;
 import com.king.im.common.utils.JSONUtils;
 import com.king.im.msg.convert.MsgConvert;
@@ -8,66 +10,40 @@ import com.king.im.msg.service.MessageService;
 import com.king.im.server.domain.ReceiveMessage;
 import com.king.im.server.domain.type.IMUserInfo;
 import com.king.im.server.protocol.CMD;
-import com.king.im.server.queue.MessageQueue;
 import com.king.im.server.session.MessageSender;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @Slf4j
-public class MessageListener implements InitializingBean, DisposableBean {
-
-    @Resource
-    private MessageQueue messageQueue;
+public class MessageSubscriber {
     @Resource
     private MessageSender messageSender;
     @Resource
     private JSONUtils jsonUtils;
     @Resource
     private MessageService messageService;
+    @Resource
+    private ObjectMapper objectMapper;
 
-    private static final ExecutorService es = Executors.newSingleThreadExecutor();
-
-
-    @Override
-    public void afterPropertiesSet() {
-        es.submit(new Runnable() {
-            @Override
-            @SneakyThrows
-            public void run() {
-                try {
-                    ReceiveMessage receiveMessage = messageQueue.take();
-                    while (Objects.nonNull(receiveMessage)) {
-                        // todo 可以进行改造，做多线程推送
-                        process(receiveMessage);
-                        receiveMessage = messageQueue.take();
-                    }
-                } catch (Exception e) {
-                    log.error("消息监听未知异常", e);
-                }
-
-                // behavior
-                if (!es.isShutdown()) {
-                    Thread.sleep(200);
-                    es.execute(this);
-                }
-            }
+    @SneakyThrows
+    public void handlerMessage(String message) {
+        log.debug("接收到 redis channel 订阅消息: {}", message);
+        Map map = objectMapper.readValue(message, Map.class);
+        ReceiveMessage receiveMessage = objectMapper.convertValue(map, new TypeReference<ReceiveMessage>() {
         });
+        process(receiveMessage);
     }
 
     public void process(ReceiveMessage receiveMessage) {
@@ -75,7 +51,7 @@ public class MessageListener implements InitializingBean, DisposableBean {
             List<IMUserInfo> receiveInfoList = Optional.ofNullable(receiveMessage.getReceivers()).orElse(new ArrayList<>());
             AtomicInteger count = new AtomicInteger();
             // 遍历接收方id
-            receiveInfoList.forEach(receiverInfo -> {
+            for (IMUserInfo receiverInfo : receiveInfoList) {
                 ConcurrentHashMap<Integer, Channel> terminalMap = map.get(receiverInfo.getId());
 
                 // 用户已离线
@@ -100,18 +76,11 @@ public class MessageListener implements InitializingBean, DisposableBean {
                 } catch (Exception e) {
                     log.error("消息发送失败: ", e);
                 }
+            }
 
-            });
-
-            // 单聊消息修改消息发送状态
+            // 单聊消息修改消息发送状态 todo 改成异步
             if (count.get() > 0) {
-                if (ChatTypeEnum.SINGLE.getType().equals(receiveMessage.getChatType())) {
-                    messageService.updateMsgToSendStatus(receiveMessage.getMsgId());
-                    log.info("单聊消息发送成功： msgId: {}, content: {}", receiveMessage.getMsgId(), receiveMessage.getContent());
-                    // todo 通知发送方消息发送成功
-                } else if (ChatTypeEnum.GROUP.getType().equals(receiveMessage.getChatType())) {
-                    // todo
-                }
+                updateMessageStatus(receiveMessage);
             }
 
         });
@@ -119,9 +88,13 @@ public class MessageListener implements InitializingBean, DisposableBean {
 
     }
 
-    @Override
-    public void destroy() throws Exception {
-        es.shutdown();
-        log.info("消息监听器停止接受新消息");
+    private void updateMessageStatus(ReceiveMessage receiveMessage) {
+        if (ChatTypeEnum.SINGLE.getType().equals(receiveMessage.getChatType())) {
+            messageService.updateMsgToSendStatus(receiveMessage.getMsgId());
+            log.info("单聊消息发送成功： msgId: {}, content: {}", receiveMessage.getMsgId(), receiveMessage.getContent());
+            // todo 通知发送方消息发送成功
+        } else if (ChatTypeEnum.GROUP.getType().equals(receiveMessage.getChatType())) {
+            // todo
+        }
     }
 }

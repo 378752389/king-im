@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -28,11 +29,12 @@ public class JSONUtils {
 
 
     // 反序列化
-    public <T> T parse(String s, T type) {
+    public <T> T parse(String s, Class<T> type) {
         try {
-           return objectMapper.readValue(s, new TypeReference<T>() {
+            Map map = objectMapper.readValue(s, Map.class);
+            return objectMapper.convertValue(map, new TypeReference<T>() {
             });
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("反序列化异常: {}, 数据: {}， 序列化目标对象：{}", e.getMessage(), s, type);
             throw new RuntimeException(e);
         }
