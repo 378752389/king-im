@@ -30,8 +30,11 @@ import {useUserStore} from "@/stores/user.js";
 import SideBar from "@/components/SideBar.vue";
 import {useGroupsStore} from "@/stores/groups.js";
 import {useContactsStore} from "@/stores/contacts.js";
+import {ShowMessageBox} from "@/components/common/func/messageBox.js";
+import {useRouter} from "vue-router";
 
 
+const router = useRouter()
 onMounted(async () => {
   // 连接之前请求数据
   // 拉取离线消息
@@ -54,6 +57,21 @@ onMounted(async () => {
         // console.log("收到消息", chatData)
         useChatsStore().insertMessage(chatData.type === 1 ? (chatData.toUid === useUserStore().info?.id ? chatData.fromUid : chatData.toUid) : chatData.roomId, chatData.type, chatData)
         break
+      case CMD.KICKOFF:
+        let kickoutData = resp.data
+        ShowMessageBox({
+          message: kickoutData.reason,
+          confirm: () => {
+            router.push({
+              name: 'login'
+            })
+          },
+          cancel: () => {
+            router.push({
+              name: 'login'
+            })
+          }
+        })
       default:
         console.log("默认处理", resp)
         break

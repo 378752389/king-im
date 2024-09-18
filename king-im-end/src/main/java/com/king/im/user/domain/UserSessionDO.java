@@ -9,4 +9,6 @@ import lombok.Data;
 public class UserSessionDO {
 
     private Long uid;
+
+    private String username;
 }

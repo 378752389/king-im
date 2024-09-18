@@ -6,6 +6,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.king.im.common.interceptor.UserInfo;
+import lombok.SneakyThrows;
 
 import java.util.Date;
 
@@ -61,6 +65,14 @@ public class JwtUtils {
         } catch (JWTDecodeException e) {
             return null;
         }
+    }
+
+    @SneakyThrows
+    public static UserInfo getUserInfoModel(String token) {
+        String userInfo = getUserInfo(token);
+        ObjectMapper om = new ObjectMapper();
+        return om.readValue(userInfo, new TypeReference<UserInfo>() {
+        });
     }
 
 

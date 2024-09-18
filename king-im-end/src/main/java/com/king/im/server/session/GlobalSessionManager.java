@@ -39,4 +39,9 @@ public interface GlobalSessionManager {
      * @param terminal
      */
     void unregister(Long uid, Integer terminal);
+
+    /**
+     * 获取服务id
+     */
+    Long getServerId(Long uid, Integer terminal);
 }

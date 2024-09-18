@@ -53,7 +53,7 @@ public class WSServerStarter implements ServerStarter {
                                     .addLast(new WebSocketServerProtocolHandler("/"))
                                     .addLast(new IMWebSocketEncoder())
                                     .addLast(new IMWebSocketDecoder())
-                                    .addLast(IMServerHandler);
+                                    .addLast("imServerHandler", IMServerHandler);
                         }
                     })
                     .bind(8849)

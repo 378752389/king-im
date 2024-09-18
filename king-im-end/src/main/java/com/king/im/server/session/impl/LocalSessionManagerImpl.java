@@ -1,10 +1,9 @@
 package com.king.im.server.session.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import com.king.im.server.ChannelInfoHolder;
 import com.king.im.server.session.LocalSessionManager;
 import com.king.im.user.domain.UserSessionDO;
-import com.king.im.server.session.MessageSender;
+import com.king.im.server.session.MessageCallback;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,7 @@ import java.util.function.Consumer;
  */
 @Service
 @Slf4j
-public class LocalSessionManagerImpl implements LocalSessionManager, MessageSender {
+public class LocalSessionManagerImpl implements LocalSessionManager, MessageCallback {
 
     /**
      * 所有连接都放入到该map中
@@ -33,7 +32,7 @@ public class LocalSessionManagerImpl implements LocalSessionManager, MessageSend
     private static final Map<Long, ConcurrentHashMap<Integer, Channel>> ONLINE_UID_MAP = new ConcurrentHashMap<>();
 
     @Override
-    public void send(Consumer<Map<Long, ConcurrentHashMap<Integer, Channel>>> consumer) {
+    public void handler(Consumer<Map<Long, ConcurrentHashMap<Integer, Channel>>> consumer) {
         consumer.accept(ONLINE_UID_MAP);
     }
 
@@ -65,10 +64,11 @@ public class LocalSessionManagerImpl implements LocalSessionManager, MessageSend
     }
 
     @Override
-    public void online(ChannelHandlerContext ctx, Long uid, Integer terminalType) {
+    public void online(ChannelHandlerContext ctx, Long uid, Integer terminalType, String username) {
         UserSessionDO userSessionDO = Optional.of(uid).map(x -> {
             UserSessionDO usd = new UserSessionDO();
             usd.setUid(x);
+            usd.setUsername(username);
             return usd;
         }).get();
 
@@ -80,13 +80,13 @@ public class LocalSessionManagerImpl implements LocalSessionManager, MessageSend
         map.compute(terminalType, (k, v) -> {
             // 用户重复上线不受影响
             if (v != null && v != ctx.channel()) {
-                log.error("uid: {}, terminal: {}; 旧设备被挤兑", ChannelInfoHolder.getUid(v), ChannelInfoHolder.getTerminal(v));
+                log.error("username: {}, uid: {}, terminal: {}; 旧设备被挤兑", username, ChannelInfoHolder.getUid(v), ChannelInfoHolder.getTerminal(v));
                 v.close();
             }
             return ctx.channel();
         });
 
-        log.info("uid: {}, channelId: {} 上线了", uid, ctx.channel().id());
+        log.debug("uid: {}, channelId: {} 上线了", uid, ctx.channel().id());
     }
 
     /**
@@ -99,14 +99,30 @@ public class LocalSessionManagerImpl implements LocalSessionManager, MessageSend
      */
     @Override
     public boolean offline(ChannelHandlerContext ctx, Long uid, Integer terminalType) {
-        ONLINE_SESSION_MAP.get(ctx.channel()).setUid(null);
+        return offline(ctx.channel(), uid, terminalType);
+    }
+
+    @Override
+    public boolean offline(Channel channel, Long uid, Integer terminalType) {
+        if (uid == null || terminalType == null) {
+            return true;
+        }
+
+        UserSessionDO userSessionDO = ONLINE_SESSION_MAP.get(channel);
+        if (userSessionDO != null) {
+            userSessionDO.setUid(null);
+            userSessionDO.setUsername(null);
+        }
 
         ONLINE_UID_MAP.compute(uid, (k, v) -> {
-            v.remove(terminalType);
-            return v;
+            if (v != null) {
+                v.remove(terminalType);
+                return v;
+            }
+            return null;
         });
 
-        log.info("uid: {}, channelId: {} 下线了", uid, ctx.channel().id());
+        log.info("uid: {}, channelId: {} 下线了", uid, channel.id());
 
         return ONLINE_UID_MAP.get(uid).isEmpty();
     }

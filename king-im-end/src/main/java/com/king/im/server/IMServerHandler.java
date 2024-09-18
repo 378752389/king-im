@@ -35,14 +35,14 @@ public class IMServerHandler extends SimpleChannelInboundHandler<CMD> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         localSessionManager.disconnect(ctx);
         ctx.close();
-        log.info("设备： {} 下线", ctx.channel().id());
+        log.debug("设备： {} 下线", ctx.channel().id());
         ctx.fireChannelInactive();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         localSessionManager.connect(ctx);
-        log.info("设备： {} 上线", ctx.channel().id());
+        log.debug("设备： {} 上线", ctx.channel().id());
         ctx.fireChannelActive();
     }
 

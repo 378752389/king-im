@@ -9,5 +9,7 @@ public class CMDType {
 
     public static final int LOADING = 6;
 
+    public static final int KICKOFF = 7;
+
     public static final int NON_AUTH = -1;
 }

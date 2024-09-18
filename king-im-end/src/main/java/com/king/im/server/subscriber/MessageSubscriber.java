@@ -10,11 +10,12 @@ import com.king.im.msg.service.MessageService;
 import com.king.im.server.domain.ReceiveMessage;
 import com.king.im.server.domain.type.IMUserInfo;
 import com.king.im.server.protocol.CMD;
-import com.king.im.server.session.MessageSender;
+import com.king.im.server.session.MessageCallback;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -27,18 +28,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @Slf4j
-public class MessageSubscriber {
+public class MessageSubscriber implements Subscriber {
     @Resource
-    private MessageSender messageSender;
+    private MessageCallback messageCallback;
     @Resource
     private JSONUtils jsonUtils;
     @Resource
     private MessageService messageService;
     @Resource
     private ObjectMapper objectMapper;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @SneakyThrows
-    public void handlerMessage(String message) {
+    @Override
+    public void handler(String message) {
         log.debug("接收到 redis channel 订阅消息: {}", message);
         Map map = objectMapper.readValue(message, Map.class);
         ReceiveMessage receiveMessage = objectMapper.convertValue(map, new TypeReference<ReceiveMessage>() {
@@ -47,7 +51,7 @@ public class MessageSubscriber {
     }
 
     public void process(ReceiveMessage receiveMessage) {
-        messageSender.send(map -> {
+        messageCallback.handler(map -> {
             List<IMUserInfo> receiveInfoList = Optional.ofNullable(receiveMessage.getReceivers()).orElse(new ArrayList<>());
             AtomicInteger count = new AtomicInteger();
             // 遍历接收方id
@@ -92,6 +96,11 @@ public class MessageSubscriber {
         if (ChatTypeEnum.SINGLE.getType().equals(receiveMessage.getChatType())) {
             messageService.updateMsgToSendStatus(receiveMessage.getMsgId());
             log.info("单聊消息发送成功： msgId: {}, content: {}", receiveMessage.getMsgId(), receiveMessage.getContent());
+
+//            MessageResult messageResult = new MessageResult();
+//            messageResult.setMsgId(receiveMessage.getMsgId());
+//            messageResult.setStatus(MessageStatusEnum.SEND.getType());
+//            redisTemplate.convertAndSend("messageResult:" + ServerBootstrap.getServerId(), messageResult);
             // todo 通知发送方消息发送成功
         } else if (ChatTypeEnum.GROUP.getType().equals(receiveMessage.getChatType())) {
             // todo

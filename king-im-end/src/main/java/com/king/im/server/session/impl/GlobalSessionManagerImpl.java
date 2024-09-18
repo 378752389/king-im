@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -31,8 +33,7 @@ public class GlobalSessionManagerImpl implements GlobalSessionManager {
     @Override
     public boolean isOnline(Long uid, Integer terminal) {
         String key = String.format(RedisConstant.USER_TERMINAL_STR, uid, terminal);
-        String serverId = (String) redisUtils.get(key);
-        return serverId != null;
+        return !Objects.isNull(redisUtils.get(key));
     }
 
     @Override
@@ -62,6 +63,17 @@ public class GlobalSessionManagerImpl implements GlobalSessionManager {
     public void unregister(Long uid, Integer terminal) {
         String key = String.format(RedisConstant.USER_TERMINAL_STR, uid, terminal);
         redisUtils.del(key);
+    }
+
+    @Override
+    public Long getServerId(Long uid, Integer terminal) {
+        String key = String.format(RedisConstant.USER_TERMINAL_STR, uid, terminal);
+        Object o = redisUtils.get(key);
+        if (o instanceof Integer) {
+            return ((Integer) o).longValue();
+        } else {
+            return (Long) o;
+        }
     }
 
 }

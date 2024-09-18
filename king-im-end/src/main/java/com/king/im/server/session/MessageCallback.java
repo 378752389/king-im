@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public interface MessageSender {
+public interface MessageCallback {
 
-    public void send(Consumer<Map<Long, ConcurrentHashMap<Integer, Channel>>> consumer);
+    void handler(Consumer<Map<Long, ConcurrentHashMap<Integer, Channel>>> consumer);
 }

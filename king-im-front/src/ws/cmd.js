@@ -6,6 +6,7 @@ export const CMD = {
     LOGIN: 3,
     LOGOUT: 4,
     CHAT: 5,
+    KICKOFF: 7,
 }
 
 export const getPing = () => {

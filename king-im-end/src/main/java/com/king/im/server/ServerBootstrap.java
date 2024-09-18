@@ -28,6 +28,8 @@ public class ServerBootstrap implements CommandLineRunner {
     private RedisConnectionFactory redisConnectionFactory;
     @Resource
     private MessageSubscriber messageSubscriber;
+//    @Resource
+//    private MessageResultSubscriber messageResultSubscriber;
 
     private static final String MAX_SERVER_ID = "max_server_id";
 
@@ -52,11 +54,17 @@ public class ServerBootstrap implements CommandLineRunner {
     private void subscribeMessageChannel() {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnectionFactory);
-        ChannelTopic channelTopic = new ChannelTopic("message:" + serverId);
 
-        MessageListenerAdapter adapter = new MessageListenerAdapter(messageSubscriber, "handlerMessage");
-        container.addMessageListener(adapter, channelTopic);
-        adapter.afterPropertiesSet();
+        ChannelTopic messageTopic = new ChannelTopic("message:" + serverId);
+        MessageListenerAdapter messageAdapter = new MessageListenerAdapter(messageSubscriber, "handler");
+        container.addMessageListener(messageAdapter, messageTopic);
+        messageAdapter.afterPropertiesSet();
+
+//        ChannelTopic messageResultTopic = new ChannelTopic("messageResult:" + serverId);
+//        MessageListenerAdapter messageResultAdapter = new MessageListenerAdapter(messageResultSubscriber, "handler");
+//        container.addMessageListener(messageResultAdapter, messageResultTopic);
+//        messageResultAdapter.afterPropertiesSet();
+
         container.afterPropertiesSet();
         container.start();
         log.info("redis监听容器启动成功！");

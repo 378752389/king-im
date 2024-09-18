@@ -31,7 +31,7 @@ public interface LocalSessionManager {
      * @param uid
      * @param terminalType
      */
-    void online(ChannelHandlerContext ctx, Long uid, Integer terminalType);
+    void online(ChannelHandlerContext ctx, Long uid, Integer terminalType, String username);
 
     /**
      * 下线
@@ -42,6 +42,7 @@ public interface LocalSessionManager {
      */
     boolean offline(ChannelHandlerContext ctx, Long uid, Integer terminalType);
 
+    boolean offline(Channel channel, Long uid, Integer terminalType);
 
     /**
      * 用户全局 session 进行续期
