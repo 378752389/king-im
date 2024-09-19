@@ -11,7 +11,6 @@ import com.king.im.msg.convert.MsgConvert;
 import com.king.im.msg.service.MessageService;
 import com.king.im.server.protocol.CMD;
 import com.king.im.server.session.MessageCallback;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,8 +24,6 @@ import java.util.Optional;
 public class MessageSubscriber implements Subscriber {
     @Resource
     private MessageCallback messageCallback;
-    @Resource
-    private JSONUtils jsonUtils;
     @Resource
     private ObjectMapper objectMapper;
     @Resource
@@ -49,11 +46,9 @@ public class MessageSubscriber implements Subscriber {
                     .map(m -> m.get(receiver.getId()))
                     .map(t -> t.get(receiver.getTerminalType()))
                     .ifPresent(channel -> {
-                        CMD CMD = MsgConvert.buildIMChatCMD(recMessage);
-                        String imcmdStr = jsonUtils.stringify(CMD);
-
+                        CMD cmd = MsgConvert.buildIMChatCMD(recMessage);
                         try {
-                            channel.writeAndFlush(new TextWebSocketFrame(imcmdStr));
+                            channel.writeAndFlush(cmd);
                             setResult(recMessage, MessageStatusEnum.SEND);
                         } catch (Exception e) {
                             log.error("消息发送失败", e);

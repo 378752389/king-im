@@ -9,7 +9,6 @@ import com.king.im.server.protocol.data.KickoffData;
 import com.king.im.server.session.LocalSessionManager;
 import com.king.im.server.session.MessageCallback;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -61,8 +60,7 @@ public class KickoffSubscriber implements Subscriber {
         cmd.setCmd(CMDType.KICKOFF);
         cmd.setData(kickoffData);
 
-        String cmdStr = objectMapper.writeValueAsString(cmd);
-        channel.writeAndFlush(new TextWebSocketFrame(cmdStr));
+        channel.writeAndFlush(cmd);
         // todo 下线命令
         localSessionManager.offline(channel, uid, terminal);
         log.info("uid: {}, terminal: {} 被强制下限", uid, terminal);

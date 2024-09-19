@@ -69,17 +69,24 @@ const onSendBtnClick = async () => {
     alert("发送内容不能为空")
     return
   }
-  const msg = await sendAPI({
-    msgType: 1,
-    atUids: editAreaData.atUids,
-    text: editAreaData.sendContent,
-    chatId: chatStore.currentChatIdGetter,
-    chatType: chatStore.currentChatTypeGetter
-  })
-  chatStore.insertMessage(chatStore.currentChatIdGetter, chatStore.currentChatTypeGetter, msg)
-  editAreaData.sendContent = ''
-  editAreaRef.value.innerHTML = ''
-  emits('send-msg')
+  try {
+    const msg = await sendAPI({
+      msgType: 1,
+      atUids: editAreaData.atUids,
+      text: editAreaData.sendContent,
+      chatId: chatStore.currentChatIdGetter,
+      chatType: chatStore.currentChatTypeGetter
+    })
+    chatStore.insertMessage(chatStore.currentChatIdGetter, chatStore.currentChatTypeGetter, msg)
+    editAreaData.sendContent = ''
+    editAreaRef.value.innerHTML = ''
+    emits('send-msg')
+  } catch (e) {
+    ShowToast({
+      message: "消息发送失败，请稍后重试!",
+      type: "danger"
+    })
+  }
 }
 
 

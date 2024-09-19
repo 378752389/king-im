@@ -150,45 +150,6 @@ export const useChatsStore = defineStore('chats', () => {
         }
         msg.status = messageStatus.REVOKE
         insertMessage(currentChatId.value, currentChatType.value, msg)
-        // let position = deleteMessage(currentChatIdGetter, currentChatTypeGetter, msgId)
-
-        // // 非撤回消息不进行处理
-        // if (msg.status !== messageStatus.REVOKE) {
-        //     return
-        // }
-        // let chat = getChat(chatId, type)
-        // if (!chat) {
-        //     throw new Error('chat not found')
-        // }
-        // let msgIdx = chat.messages.findIndex(x => x.id === msg.id)
-        // if (msgIdx === -1) {
-        //     throw new Error('message not found')
-        // }
-        // if (chat.messages[msgIdx].status === messageStatus.REVOKE) {
-        //     console.log("message already revoked")
-        //     return;
-        // }
-        //
-        // // 删除旧聊天消息
-        // chat.messages.splice(msgIdx, 1)
-        //
-        // // 创建撤回消息
-        // const senderName = msg.type === 1 ? '对方' : msg.name
-        // const revokeMessage = {
-        //     id: msg.id,
-        //     roomId: msg.roomId,
-        //     fromUid: msg.fromUid,
-        //     toUid: msg.toUid,
-        //     type: msg.type,
-        //     name: msg.name,
-        //     content: senderName + '  撤回一条消息',
-        //     atUids: msg.atUids,
-        //     sendTime: msg.sendTime,
-        //     status: messageStatus.REVOKE,
-        // }
-        // console.log("revokeMessage", revokeMessage)
-        //
-        // doInsertMessage(chat, revokeMessage)
     }
 
     /**
@@ -276,13 +237,16 @@ export const useChatsStore = defineStore('chats', () => {
 
         // 第一次拉去在线消息，消息状态为未发送
         if ((!currentChatIdGetter.value && !currentChatTypeGetter.value) || currentChatIdGetter.value !== chat.chatId || currentChatTypeGetter.value !== chat.type) {
-            if (message.status === 1) {
+            let myId = useUserStore().info?.id
+            if (message.status === 1 && message.fromUid !== myId) {
                 chat.unreadCount += 1
+
+                // at我，红字内容提示
+                if (message.atUids && message.atUids.indexOf(myId) >= 0) {
+                    chat.atMe = true
+                }
             }
-            // at我，红字内容提示
-            if (message.atUids && message.atUids.indexOf(useUserStore().info?.id) >= 0) {
-                chat.atMe = true
-            }
+
         }
 
         if (chat.lastSendTime < message.sendTime) {
