@@ -129,7 +129,7 @@ const onCreateGroupCancel = () => {
       </template>
     </KingContextMenu>
 
-    <king-dialog @confirm="onCreateGroupConfirm" @cancel="onCreateGroupCancel" ref="createGroupDialogRef">
+    <king-dialog title="拉群聊" @confirm="onCreateGroupConfirm" @cancel="onCreateGroupCancel" ref="createGroupDialogRef">
       <InviteMember ref="inviteMemberRef" :current-member-list="createGroupList" />
     </king-dialog>
   </div>

@@ -1,4 +1,4 @@
-package com.king.im.server.domain.type;
+package com.king.im.common.domain.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

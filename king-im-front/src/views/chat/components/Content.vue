@@ -6,6 +6,7 @@ import {uploadAPI} from "@/http/user.js";
 import SendArea from "@/views/chat/components/SendArea.vue";
 import MessageList from "@/views/chat/components/MessageList.vue";
 import {ossUploadAPI} from "@/http/oss.js";
+import {ShowToast} from "@/components/common/func/toast.js";
 
 const chatStore = useChatsStore()
 
@@ -110,6 +111,11 @@ const onSendAreaUploadFile = async (file) => {
   sendFileConfirmDialogRef.value.showModal()
 }
 
+const onMoreClick = () => {
+  ShowToast({
+    message: "更多功能还未实现，敬请期待"
+  })
+}
 </script>
 
 <template>
@@ -120,7 +126,7 @@ const onSendAreaUploadFile = async (file) => {
             chatStore.currentChatGetter.chatName
           }}
         </div>
-        <div class="other">...</div>
+        <div class="other pointer-select" @click="onMoreClick">...</div>
       </div>
       <message-list ref="msgListRef" :message-list="chatStore.currentChatGetter.messages" />
       <SendArea @send-msg="onSendMsg" @upload-file="onSendAreaUploadFile"/>

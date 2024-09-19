@@ -1,5 +1,7 @@
 package com.king.im.server.session;
 
+import java.util.List;
+
 public interface GlobalSessionManager {
 
     /**
@@ -44,4 +46,11 @@ public interface GlobalSessionManager {
      * 获取服务id
      */
     Long getServerId(Long uid, Integer terminal);
+
+    /**
+     * 获取服务id列表
+     * @param uid
+     * @return
+     */
+    List<Long> getServerList(Long uid);
 }

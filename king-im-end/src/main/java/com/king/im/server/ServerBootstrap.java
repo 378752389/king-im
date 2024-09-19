@@ -1,6 +1,8 @@
 package com.king.im.server;
 
 import com.king.im.common.utils.RedisUtils;
+import com.king.im.server.config.IMConfigProperties;
+import com.king.im.server.subscriber.KickoffSubscriber;
 import com.king.im.server.subscriber.MessageSubscriber;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,8 @@ public class ServerBootstrap implements CommandLineRunner {
     private RedisConnectionFactory redisConnectionFactory;
     @Resource
     private MessageSubscriber messageSubscriber;
+    @Resource
+    private KickoffSubscriber kickoffSubscriber;
 //    @Resource
 //    private MessageResultSubscriber messageResultSubscriber;
 
@@ -55,9 +59,14 @@ public class ServerBootstrap implements CommandLineRunner {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnectionFactory);
 
-        ChannelTopic messageTopic = new ChannelTopic("message:" + serverId);
+        ChannelTopic messageTopic = new ChannelTopic(IMConfigProperties.getMessageChannel());
         MessageListenerAdapter messageAdapter = new MessageListenerAdapter(messageSubscriber, "handler");
         container.addMessageListener(messageAdapter, messageTopic);
+        messageAdapter.afterPropertiesSet();
+
+        ChannelTopic kickoffTopic = new ChannelTopic(IMConfigProperties.getKickoffChannel());
+        MessageListenerAdapter kickoffAdapter = new MessageListenerAdapter(kickoffSubscriber, "handler");
+        container.addMessageListener(kickoffAdapter, kickoffTopic);
         messageAdapter.afterPropertiesSet();
 
 //        ChannelTopic messageResultTopic = new ChannelTopic("messageResult:" + serverId);

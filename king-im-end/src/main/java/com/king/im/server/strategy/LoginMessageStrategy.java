@@ -95,10 +95,11 @@ public class LoginMessageStrategy implements MessageStrategy<LoginCMD> {
         ChannelInfoHolder.setUid(ctx.channel(), uid);
         ChannelInfoHolder.setTerminal(ctx.channel(), terminal);
         // todo 设置ip
-        ChannelInfoHolder.setIp(ctx.channel(), ctx.channel().remoteAddress().toString());
+        String ip = ctx.channel().remoteAddress().toString();
+        ChannelInfoHolder.setIp(ctx.channel(), ip);
         ChannelInfoHolder.setHeartbeatTime(ctx.channel(), 0);
         ctx.writeAndFlush(new TextWebSocketFrame(jsonUtils.stringify(sendData)));
-        log.info("[uid: {}, username: {}， 上线了]", uid, userInfo.getUsername());
+        log.info("[uid: {}, username: {}，ip: {} 上线了]", uid, userInfo.getUsername(), ip);
     }
 
     @Override

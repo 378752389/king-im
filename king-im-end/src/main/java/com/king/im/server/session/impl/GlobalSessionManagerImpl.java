@@ -8,10 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -74,6 +73,18 @@ public class GlobalSessionManagerImpl implements GlobalSessionManager {
         } else {
             return (Long) o;
         }
+    }
+
+    @Override
+    public List<Long> getServerList(Long uid) {
+        String key = String.format(RedisConstant.USER_TERMINAL_STR, uid, "*");
+        Set<String> keys = redisUtils.keys(key);
+        if (keys != null && keys.size() > 0) {
+            return keys.stream()
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 
 }

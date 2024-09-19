@@ -1,29 +1,32 @@
-package com.king.im.server.domain;
+package com.king.im.common.domain;
 
-import com.king.im.msg.domain.extra.Extra;
 import com.king.im.common.domain.type.IMUserInfo;
+import com.king.im.msg.domain.extra.Extra;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 接收消息领域模型
+ */
 @Data
-public class ReceiveMessage {
+public class RecMessage {
 
     /**
-     * 消息发送者信息
+     * 发送方设备信息（带有终端标识）
      */
-    private IMUserInfo sender;
+    IMUserInfo sender;
 
     /**
-     * 消息接受者信息
+     * 接收方设备信息（带有终端标识）
      */
-    private List<IMUserInfo> receivers;
+    IMUserInfo receiver;
 
     /**
-     * chatType = 1 单聊， 消息接受者id； chatType = 2 群聊， 房间id；
+     * 目标id; chatType = 1 => 接收方用户id； chatType = 2 => 群标识；
      */
-    private Long targetId;
+    private Long chatId;
 
     /**
      * 消息类型 1-单聊； 2-群聊

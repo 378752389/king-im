@@ -3,6 +3,7 @@ package com.king.im;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.king.im.common.log.mapper.LogMapper;
 import com.king.im.common.utils.JwtUtils;
 import com.king.im.common.utils.RedisUtils;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -32,35 +34,18 @@ public class NettyTest {
     @Autowired
     private RedisUtils redisUtils;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     @Resource
     private LogMapper logMapper;
 
     @Test
     public void test2() {
-        Msg msg = msgMapper.selectById(61L);
-        System.out.println(msg);
-//        Msg msg = new Msg();
-//        msg.setToUid(4L);
-//        msg.setType(2);
-//        msg.setContent("");
-//        Extra extra = new Extra();
-//        PictureExtra pictureExtra = new PictureExtra();
-//
-//        pictureExtra.setSize(10234L);
-//        pictureExtra.setName("note.png");
-//        pictureExtra.setType("image/png");
-//        pictureExtra.setUrl("http://www.baidu.com");
-//
-//        extra.setPictureExtra(pictureExtra);
-//        msg.setExtra(extra);
-//        msgMapper.insert(msg);
-
-
-
-//        List<RoomDo> roomList = roomService.getRoomList(1L);
-//        System.out.println(roomList);
+        List<String> keys = Lists.newArrayList("chat:test:1:1", "chat:test:2:2", "chat:test:3:3", "chat:test:4:1");
+        List<String> objects = stringRedisTemplate.opsForValue().multiGet(keys);
+        for (Object object : objects) {
+            System.out.println(object);
+        }
     }
 
     @Data
