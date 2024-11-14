@@ -7,6 +7,8 @@ import {getSendTimeNormalize} from "@/utils/dateUtils.js";
 import {ShowToast} from "@/components/common/func/toast.js";
 import {ShowMessageBox} from "@/components/common/func/messageBox.js";
 import {buildNoticeMessage} from "@/utils/msgUtils.js";
+import KingContextMenu from "@/components/common/KingContextMenu.vue";
+import KingContextMenuItem from "@/components/common/KingContextMenuItem.vue";
 
 const props = defineProps({
   messageList: {
@@ -17,13 +19,7 @@ const props = defineProps({
 
 const userStore = useUserStore()
 const chatStore = useChatsStore()
-const showMsgBubbleContextMenuFlag = ref(false)
 const msgBubbleContextmenuRef = ref()
-const selectedMessage = ref()
-const pos = ref({
-  x: 0,
-  y: 0,
-})
 const messageListRef = ref()
 
 onMounted(() => {
@@ -45,21 +41,11 @@ onMounted(() => {
 
 
 onMounted(() => {
-  document.addEventListener('click', (e) => {
-    if (e.target !== msgBubbleContextmenuRef.value) {
-      showMsgBubbleContextMenuFlag.value = false
-    }
-  })
 })
 const onMessageClick = (e, msg) => {
   console.log("selected msg", msg)
   e.preventDefault()
-  pos.value = {
-    x: e.x,
-    y: e.y,
-  }
-  showMsgBubbleContextMenuFlag.value = true
-  selectedMessage.value = msg
+  msgBubbleContextmenuRef.value.open(e, msg)
 }
 
 const onAvatarClick = (id) => {
@@ -67,44 +53,42 @@ const onAvatarClick = (id) => {
 }
 
 // 消息 contextmenu 事件
-const onCopyBtnClick = async () => {
-  let msg = selectedMessage.value
+const onCopyBtnClick = async (msg) => {
   await navigator.clipboard.writeText(msg.content)
   ShowToast({
     message: "内容复制成功",
     timeout: 1000,
     type: "success",
   })
+  msgBubbleContextmenuRef.value.close()
 }
 
 
-const onRevokeBtnClick = () => {
+const onRevokeBtnClick = (msg) => {
   let current = new Date().getTime()
-  if (current - selectedMessage.value?.sendTime > 1000 * 60 * 3) {
+  if (current - msg?.sendTime > 1000 * 60 * 3) {
     ShowToast({
       message: "消息已超过3分钟，无法撤回"
     })
   } else {
-    chatStore.revokeMessage(selectedMessage.value?.id)
-    // ShowToast({
-    //   message: "撤销消息功能暂时还未实现"
-    // })
+    chatStore.revokeMessage(msg?.id)
   }
+  msgBubbleContextmenuRef.value.close()
 }
 
-const onReferBtnClick = () => {
-  ShowToast({
-    message: "引用消息功能暂时还未实现"
-  })
+const onReferBtnClick = (msg) => {
+  chatStore.setReferMessage(chatStore.currentChatIdGetter, chatStore.currentChatTypeGetter, msg)
+  console.log(chatStore.referMsgDataGetter)
+  msgBubbleContextmenuRef.value.close()
 }
 
-const onDeleteBtnClick = () => {
+const onDeleteBtnClick = (msg) => {
   let chatId = chatStore.currentChatIdGetter
   let chatType = chatStore.currentChatTypeGetter
-  let msgId = selectedMessage.value?.id
-  let fromUid = selectedMessage.value?.fromUid
-  let toUid = selectedMessage.value?.toUid
-  let sendTime = selectedMessage.value?.sendTime
+  let msgId = msg?.id
+  let fromUid = msg?.fromUid
+  let toUid = msg?.toUid
+  let sendTime = msg?.sendTime
 
   ShowMessageBox({
     message: "请确认是否要删除该条聊天消息？",
@@ -129,6 +113,7 @@ const onDeleteBtnClick = () => {
         chatStore.insertMessage(chatId, chatType, msg, idx)
       }
 
+      msgBubbleContextmenuRef.value.close()
     },
   })
 
@@ -172,22 +157,15 @@ defineExpose({
       <ChatBubble @avatar="onAvatarClick" @msg="onMessageClick" :msg="message"/>
     </template>
 
+    <king-context-menu ref="msgBubbleContextmenuRef">
+      <template #default="{context}">
+        <king-context-menu-item name="复制" @click="onCopyBtnClick(context)" />
+        <king-context-menu-item name="引用" @click="onReferBtnClick(context)" v-if="context?.fromUid !== userStore.info.id" />
+        <king-context-menu-item name="撤回" @click="onRevokeBtnClick(context)" v-if="context?.fromUid === userStore.info.id && context?.sendTime" />
+        <king-context-menu-item name="删除" @click="onDeleteBtnClick(context)" />
+      </template>
+    </king-context-menu>
 
-    <div ref="msgBubbleContextmenuRef" class="menu" v-if="showMsgBubbleContextMenuFlag"
-         :style="{left: pos.x + 'px', top: pos.y + 'px'}">
-      <div class="menu-item pointer-select"
-           @click="onCopyBtnClick"
-      >复制
-      </div>
-      <div class="menu-item pointer-select"
-           @click="onReferBtnClick" v-if="selectedMessage.fromUid !== userStore.info.id">引用
-      </div>
-      <div class="menu-item pointer-select"
-           @click="onRevokeBtnClick" v-if="selectedMessage.fromUid === userStore.info.id && selectedMessage.sendTime">撤回
-      </div>
-      <div class="menu-item pointer-select" @click="onDeleteBtnClick">删除
-      </div>
-    </div>
   </div>
 </template>
 
@@ -202,14 +180,4 @@ defineExpose({
     text-align center
     margin 50px 0
     color rgba(128, 128, 128, 0.8)
-
-.menu
-  width 100px
-  background-color #f6f6f6
-  position fixed
-  z-index 999
-  .menu-item
-    padding 10px 3px
-    text-align center
-    border-bottom 1px solid rgba(0, 0, 0, 0.1)
 </style>

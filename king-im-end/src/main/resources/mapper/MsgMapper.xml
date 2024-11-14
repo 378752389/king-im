@@ -8,8 +8,54 @@
         <result column="extra" property="extra"
                 typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
+
+    <resultMap id="chatDataResultMap" type="com.king.im.server.protocol.data.ChatData">
+        <id column="id" property="id" />
+        <result column="room_id" property="roomId" />
+        <result column="from_uid" property="fromUid" />
+        <result column="to_uid" property="toUid" />
+        <result column="refer_msg_id" property="referMsgId" />
+        <result column="send_terminal" property="sendTerminal" />
+        <result column="at_uids" property="atUids" typeHandler="com.king.im.common.mybatis.CommaSeparatedList2LongTypeHandler" />
+        <result column="content" property="content" />
+        <result column="type" property="contentType" />
+        <result column="create_time" property="sendTime" typeHandler="com.king.im.common.mybatis.Date2TimestampTypeHandler" />
+        <result column="status" property="status" />
+        <result column="extra" property="extra"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <association columnPrefix="ref_" property="referMsg" javaType="com.king.im.common.domain.type.ReferMsg">
+            <id column="refer_msg_id" property="referMsgId" />
+            <result column="nickname" property="nickname" />
+            <result column="content_type" property="contentType" />
+            <result column="extra" property="extra" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+            <result column="content" property="content" />
+        </association>
+    </resultMap>
     <sql id="BaseField">
         select id, room_id, from_uid, status, to_uid, type, content, extra, at_uids, create_time from t_msg
+    </sql>
+    <sql id="chatDataField">
+        select
+        m1.id,
+        m1.room_id,
+        m1.from_uid,
+        m1.status,
+        m1.refer_msg_id,
+        m1.to_uid,
+        m1.type,
+        m1.content,
+        m1.extra,
+        m1.at_uids,
+        m1.send_terminal,
+        m1.create_time,
+        m2.id ref_refer_msg_id,
+        m2.content ref_content,
+        m2.extra  ref_extra,
+        m2.type   ref_content_type,
+        u.nick_name ref_nickname
+        from t_msg m1
+        left join t_msg m2 on m1.refer_msg_id = m2.id
+        left join t_user u on u.id = m2.from_uid
     </sql>
 
     <select id="getRoomMsgCursorPage" resultMap="BaseResultMap">
@@ -51,60 +97,70 @@
         </choose>
     </select>
 
+    <select id="getChatMsg" resultMap="chatDataResultMap">
+        <include refid="chatDataField" />
+        <where>
+            m1.id = #{msgId}
+        </where>
+    </select>
+
     <select id="getUnreadMsg" resultMap="BaseResultMap">
         <include refid="BaseField"/>
         where status = 1 and and fromUid = #{chatId} toUid = #{userId} and type = #{type}
     </select>
 
-    <select id="getSingleMsgList" resultMap="BaseResultMap">
-        select id,
-        room_id,
-        from_uid,
-        status,
-        to_uid,
-        type,
-        content,
-        extra,
-        create_time
-        from t_msg
-        where id > #{minMsgId}
-        and status = 2
-        and ((to_uid = #{userId} and from_uid is not null) or (from_uid = #{userId} and to_uid is not null))
-        order by create_time desc limit 1000
+    <select id="getSingleMsgList" resultMap="chatDataResultMap">
+<!--        select id,-->
+<!--        room_id,-->
+<!--        from_uid,-->
+<!--        status,-->
+<!--        to_uid,-->
+<!--        type,-->
+<!--        content,-->
+<!--        extra,-->
+<!--        create_time-->
+<!--        from t_msg-->
+        <include refid="chatDataField" />
+        where m1.id > #{minMsgId}
+        and m1.status = 2
+        and ((m1.to_uid = #{userId} and m1.from_uid is not null) or (m1.from_uid = #{userId} and m1.to_uid is not null))
+        order by m1.create_time desc limit 1000
     </select>
 
-    <select id="getRoomMsgList" resultMap="BaseResultMap">
-        select id,
-        room_id,
-        from_uid,
-        status,
-        to_uid,
-        type,
-        content,
-        extra,
-        at_uids,
-        create_time
-        from t_msg
-        where id > #{minMsgId}
-        and room_id = #{roomId}
-        order by create_time desc
+    <select id="getRoomMsgList" resultMap="chatDataResultMap">
+<!--        select id,-->
+<!--        room_id,-->
+<!--        from_uid,-->
+<!--        status,-->
+<!--        to_uid,-->
+<!--        type,-->
+<!--        content,-->
+<!--        extra,-->
+<!--        at_uids,-->
+<!--        create_time-->
+<!--        from t_msg-->
+        <include refid="chatDataField" />
+        where m1.id > #{minMsgId}
+        and m1.room_id = #{roomId}
+        order by m1.create_time desc
         limit 100
     </select>
 
-    <select id="getOfflineSingleMsgList" resultMap="BaseResultMap">
-        select id,
-        room_id,
-        from_uid,
-        status,
-        to_uid,
-        type,
-        content,
-        extra,
-        create_time
-        from t_msg
-        where status = 1
-        and ((to_uid = #{userId} and from_uid is not null) or (from_uid = #{userId} and to_uid is not null))
-        order by create_time desc
+    <select id="getOfflineSingleMsgList" resultMap="chatDataResultMap">
+<!--        select id,-->
+<!--        room_id,-->
+<!--        from_uid,-->
+<!--        status,-->
+<!--        to_uid,-->
+<!--        type,-->
+<!--        content,-->
+<!--        extra,-->
+<!--        create_time-->
+<!--        from t_msg-->
+        <include refid="chatDataField" />
+        where m1.status = 1
+        and ((m1.to_uid = #{userId} and m1.from_uid is not null) or (m1.from_uid = #{userId} and m1.to_uid is not null))
+        order by m1.create_time desc
     </select>
 
 

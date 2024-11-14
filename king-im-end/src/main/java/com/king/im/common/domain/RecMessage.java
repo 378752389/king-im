@@ -1,6 +1,7 @@
 package com.king.im.common.domain;
 
 import com.king.im.common.domain.type.IMUserInfo;
+import com.king.im.common.domain.type.ReferMsg;
 import com.king.im.msg.domain.extra.Extra;
 import lombok.Data;
 
@@ -48,9 +49,14 @@ public class RecMessage {
     private Date sendTime;
 
     /**
-     * 回执id
+     * 引用消息id
      */
     private Long referMsgId;
+
+    /**
+     * 引用消息
+     */
+    private ReferMsg referMsg;
 
     /**
      * 群聊 at 用户列表

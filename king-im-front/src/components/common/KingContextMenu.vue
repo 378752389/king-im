@@ -72,6 +72,7 @@ defineExpose({
 
 <style scoped lang="stylus">
 .king-context-menu
+  z-index 999
   position fixed
   min-width 100px
   left v-bind('contextMenuConfig.left+"px"')

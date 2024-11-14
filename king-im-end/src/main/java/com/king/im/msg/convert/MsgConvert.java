@@ -1,5 +1,6 @@
 package com.king.im.msg.convert;
 
+import cn.hutool.core.collection.CollUtil;
 import com.king.im.client.domain.type.ReceiverInfo;
 import com.king.im.common.domain.RecMessage;
 import com.king.im.common.enums.MessageStatusEnum;
@@ -101,6 +102,51 @@ public class MsgConvert {
     }
 
     /**
+     * 构建 client 发送消息领域模型
+     *
+     * @param chatData
+     * @return
+     */
+    public static SendMessage buildSendMessage(ChatData chatData) {
+        MessageTypeEnum messageTypeEnum = MessageTypeEnum.valueOf(chatData.getContentType());
+        SendMessage sendMessage = new SendMessage();
+
+
+        sendMessage.setMsgId(chatData.getId());
+
+        // todo 使用时需要自行构建消息接收者信息
+        if (chatData.getRoomId() == null) {
+            sendMessage.setSendType(ChatTypeEnum.SINGLE.getType());
+        } else {
+            sendMessage.setSendType(ChatTypeEnum.GROUP.getType());
+        }
+        sendMessage.setSenderInfo(new SenderInfo(chatData.getFromUid(), chatData.getSendTerminal()));
+        sendMessage.setSendToSelf(true);
+        sendMessage.setStatus(chatData.getStatus());
+
+        BaseMessage baseMessage = new BaseMessage();
+        baseMessage.setId(chatData.getId());
+        baseMessage.setSendTime(new Date(chatData.getSendTime()));
+        baseMessage.setSenderId(chatData.getFromUid());
+        baseMessage.setChatId(chatData.getRoomId() == null ? chatData.getToUid() : chatData.getRoomId());
+        baseMessage.setReferMsgId(chatData.getReferMsgId());
+        baseMessage.setReferMsg(chatData.getReferMsg());
+
+        if (CollUtil.isEmpty(chatData.getAtUids())) {
+            baseMessage.setAtUids(new ArrayList<>());
+        } else {
+            baseMessage.setAtUids(chatData.getAtUids());
+        }
+        baseMessage.setText((String) chatData.getContent());
+        baseMessage.setExtra(chatData.getExtra());
+
+        sendMessage.setMessage(baseMessage);
+        sendMessage.setMessageType(messageTypeEnum);
+
+        return sendMessage;
+    }
+
+    /**
      * 通过消息实体 构建 消息数据
      *
      * @param msg
@@ -132,88 +178,6 @@ public class MsgConvert {
     }
 
     /**
-     * 构建 server 接受消息领域模型
-     *
-     * @param sendMessage
-     * @return
-     */
-    public static ReceiveMessage buildReceiveMessage(SendMessage sendMessage) {
-        ReceiveMessage receiveMessage = new ReceiveMessage();
-
-        SenderInfo senderInfo = sendMessage.getSenderInfo();
-        IMUserInfo sender = new IMUserInfo(senderInfo.getUid(), senderInfo.getTerminal());
-        receiveMessage.setSender(sender);
-
-        ReceiverInfo receiverInfo = sendMessage.getReceiverInfo();
-        List<Long> receiverIds = receiverInfo.getReceiverIds();
-        List<Integer> receiveTerminalTypes = receiverInfo.getReceiveTerminalTypes();
-
-        List<IMUserInfo> receivers = new ArrayList<>();
-
-        for (Long receiverId : receiverIds) {
-            for (Integer receiveTerminalType : receiveTerminalTypes) {
-                IMUserInfo receiver = new IMUserInfo(receiverId, receiveTerminalType);
-                receivers.add(receiver);
-            }
-        }
-
-        receiveMessage.setReceivers(receivers);
-        BaseMessage baseMessage = sendMessage.getMessage();
-
-        receiveMessage.setTargetId(baseMessage.getChatId());
-        receiveMessage.setChatType(sendMessage.getSendType());
-        receiveMessage.setMsgId(sendMessage.getMsgId());
-        receiveMessage.setStatus(sendMessage.getStatus());
-        receiveMessage.setSendTime(baseMessage.getSendTime());
-        receiveMessage.setReferMsgId(baseMessage.getReferMsgId());
-        receiveMessage.setAtUids(baseMessage.getAtUids());
-        receiveMessage.setContent(baseMessage.getText());
-        receiveMessage.setExtra(baseMessage.getExtra());
-        receiveMessage.setType(sendMessage.getMessageType().getType());
-
-        return receiveMessage;
-    }
-
-    /**
-     * server 消息发送模型 构建服务端协议命令
-     *
-     * @param receiveMessage
-     * @return
-     */
-    public static CMD buildIMChatCMD(ReceiveMessage receiveMessage) {
-        CMD CMD = new CMD();
-        ChatData chatData = new ChatData();
-
-        chatData.setId(receiveMessage.getMsgId());
-        // 单聊：接收方uid； 群聊：房间号
-        chatData.setFromUid(receiveMessage.getSender().getId());
-        /**
-         * 文件消息为消息内容，其他媒体消息为媒体名称
-         */
-        chatData.setContent(receiveMessage.getContent());
-        chatData.setExtra(receiveMessage.getExtra());
-        chatData.setAtUids(receiveMessage.getAtUids());
-        chatData.setReferMsgId(receiveMessage.getReferMsgId());
-        chatData.setContentType(receiveMessage.getType());
-        chatData.setSendTime(receiveMessage.getSendTime().getTime());
-        chatData.setType(receiveMessage.getChatType());
-        chatData.setStatus(receiveMessage.getStatus());
-
-        // 消息接收方id
-        Long chatId = receiveMessage.getTargetId();
-        if (ChatTypeEnum.SINGLE.getType().equals(receiveMessage.getChatType())) {
-            chatData.setToUid(chatId);
-        } else if (ChatTypeEnum.GROUP.getType().equals(receiveMessage.getChatType())) {
-            chatData.setRoomId(chatId);
-        }
-        // 命令封装
-        CMD.setCmd(CMDType.CHAT);
-        CMD.setData(chatData);
-
-        return CMD;
-    }
-
-    /**
      * server 消息发送模型 构建服务端协议命令
      *
      * @param receiveMessage
@@ -233,6 +197,7 @@ public class MsgConvert {
         chatData.setExtra(receiveMessage.getExtra());
         chatData.setAtUids(receiveMessage.getAtUids());
         chatData.setReferMsgId(receiveMessage.getReferMsgId());
+        chatData.setReferMsg(receiveMessage.getReferMsg());
         chatData.setContentType(receiveMessage.getType());
         chatData.setSendTime(receiveMessage.getSendTime().getTime());
         chatData.setType(receiveMessage.getChatType());

@@ -17,6 +17,11 @@ export const useChatsStore = defineStore('chats', () => {
     const currentChatId = ref()
     const currentChatType = ref()
     const minMsgId = ref()
+    const referMsgData = ref({
+        msg: null,
+        chatId: null,
+        chatType: null
+    })
 
     const currentChatGetter = computed(() => {
         return getChat(currentChatId.value, currentChatType.value)
@@ -36,6 +41,10 @@ export const useChatsStore = defineStore('chats', () => {
 
     const minMsgIdGetter = computed(() => {
         return minMsgId.value
+    })
+
+    const referMsgDataGetter = computed(() =>  {
+        return referMsgData.value
     })
 
     // chatId 可能为私聊，也可能为群聊，配合type可以唯一确定一个session
@@ -282,6 +291,19 @@ export const useChatsStore = defineStore('chats', () => {
         await pullOfflineMsgAPI()
     }
 
+    const setReferMessage = (chatId, chatType, msg) => {
+        console.log(chatId, chatType, msg)
+        referMsgData.value = {
+            chatId,
+            chatType,
+            msg,
+        }
+    }
+
+    const clearReferMessage = () => {
+        referMsgData.value = {}
+    }
+
     const pullMsg = async () => {
         await pullMsgAPI((minMsgId.value == null || minMsgId.value === 0) ? 0 : minMsgId.value)
     }
@@ -316,6 +338,10 @@ export const useChatsStore = defineStore('chats', () => {
         getChatMessage,
         revokeMessage,
         deleteMessage,
+
+        referMsgDataGetter,
+        setReferMessage,
+        clearReferMessage,
 
         moveChatTop,
         openChat,

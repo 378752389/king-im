@@ -7,6 +7,8 @@ import com.king.im.client.IMSender;
 import com.king.im.client.domain.SendMessage;
 import com.king.im.common.enums.ChatTypeEnum;
 import com.king.im.client.domain.type.ReceiverInfo;
+import com.king.im.msg.mapper.MsgMapper;
+import com.king.im.server.protocol.data.ChatData;
 import com.king.im.social.mapper.RoomMapper;
 import com.king.im.user.domain.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 public class MsgEventListener {
     @Resource
     private RoomMapper roomMapper;
+    @Resource
+    private MsgMapper msgMapper;
 
 
     @Resource
@@ -35,7 +39,9 @@ public class MsgEventListener {
     @EventListener(classes = MsgEvent.class)
     public void sendTo(MsgEvent event) {
         Msg msg = event.getMsg();
-        SendMessage sendMessage = MsgConvert.buildSendMessage(msg);
+        Long id = msg.getId();
+        ChatData chatMsg = msgMapper.getChatMsg(id);
+        SendMessage sendMessage = MsgConvert.buildSendMessage(chatMsg);
         if (ChatTypeEnum.GROUP.getType().equals(sendMessage.getSendType())) {
             List<User> userList = roomMapper.getUserList(msg.getRoomId());
             List<Long> userIds = userList.stream().map(User::getId).filter(userId -> !userId.equals(msg.getFromUid())).collect(Collectors.toList());

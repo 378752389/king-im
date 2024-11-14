@@ -1,6 +1,7 @@
 package com.king.im.client.domain.message;
 
 import com.king.im.msg.domain.extra.Extra;
+import com.king.im.common.domain.type.ReferMsg;
 import lombok.Data;
 
 import java.util.Date;
@@ -24,6 +25,8 @@ public class BaseMessage {
     private Long chatId;
 
     private Long referMsgId;
+
+    private ReferMsg referMsg;
 
     private List<Long> atUids;
 

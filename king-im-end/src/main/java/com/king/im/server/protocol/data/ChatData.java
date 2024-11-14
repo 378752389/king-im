@@ -1,5 +1,6 @@
 package com.king.im.server.protocol.data;
 
+import com.king.im.common.domain.type.ReferMsg;
 import com.king.im.msg.domain.extra.Extra;
 import lombok.Data;
 
@@ -17,6 +18,10 @@ public class ChatData {
     private Long toUid;
 
     private Long referMsgId;
+
+    private ReferMsg referMsg;
+
+    private Integer sendTerminal;
 
     private List<Long> atUids;
 

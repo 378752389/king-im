@@ -9,6 +9,8 @@ import com.king.im.common.utils.JwtUtils;
 import com.king.im.common.utils.RedisUtils;
 import com.king.im.msg.domain.entity.Msg;
 import com.king.im.msg.mapper.MsgMapper;
+import com.king.im.msg.service.MessageService;
+import com.king.im.server.protocol.data.ChatData;
 import com.king.im.social.service.RoomService;
 import com.king.im.user.domain.entity.User;
 import lombok.Data;
@@ -35,17 +37,19 @@ public class NettyTest {
     private RedisUtils redisUtils;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private MessageService messageService;
 
     @Resource
     private LogMapper logMapper;
 
     @Test
     public void test2() {
-        List<String> keys = Lists.newArrayList("chat:test:1:1", "chat:test:2:2", "chat:test:3:3", "chat:test:4:1");
-        List<String> objects = stringRedisTemplate.opsForValue().multiGet(keys);
-        for (Object object : objects) {
-            System.out.println(object);
-        }
+        List<ChatData> singleMsgList = msgMapper.getSingleMsgList(0L, 1L);
+        System.out.println(singleMsgList);
+//        ChatData chatMsg = msgMapper.getChatMsg(293L);
+////        ChatData chatMsg = msgMapper.getChatMsg(372L);
+//        System.out.println(chatMsg);
     }
 
     @Data

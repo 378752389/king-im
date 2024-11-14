@@ -6,7 +6,6 @@ import cn.hutool.core.date.DateUtil;
 import com.king.im.common.cursor.CursorResult;
 import com.king.im.common.exceptions.GlobalException;
 import com.king.im.common.interceptor.RequestInfoHolder;
-import com.king.im.common.interceptor.UserInfo;
 import com.king.im.common.redisson.DistributedLock;
 import com.king.im.listener.event.MsgEvent;
 import com.king.im.msg.convert.MsgConvert;
@@ -65,8 +64,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public ChatData getMsg(Long id) {
-        Msg msg = msgMapper.selectById(id);
-        return MsgConvert.buildChatData(msg);
+        return msgMapper.getChatMsg(id);
     }
 
     @Override
@@ -163,10 +161,10 @@ public class MessageServiceImpl implements MessageService {
     @DistributedLock(lockKey = "'loadMessage:'+#userId", waitTime = 0)
     @Transactional
     public void pullMessage(Long minMsgId, Long userId) {
-        List<Msg> result = new ArrayList<>();
+        List<ChatData> result = new ArrayList<>();
 
         // 拉取1000条私聊消息
-        List<Msg> singleMsgList = msgMapper.getSingleMsgList(minMsgId, userId);
+        List<ChatData> singleMsgList = msgMapper.getSingleMsgList(minMsgId, userId);
         if (CollUtil.isNotEmpty(singleMsgList)) {
             result.addAll(singleMsgList);
         }
@@ -176,10 +174,10 @@ public class MessageServiceImpl implements MessageService {
         // 拉群各个群聊最近100条群聊消息
         List<RoomDo> roomList = roomMapper.getRoomList(userId);
         roomList.forEach(roomDo -> {
-            List<Msg> roomMsgList = msgMapper.getRoomMsgList(minMsgId, roomDo.getRoomId());
+            List<ChatData> roomMsgList = msgMapper.getRoomMsgList(minMsgId, roomDo.getRoomId());
 
             // 修改群聊消息为状态2 （群聊消息没有己发送状态）
-            for (Msg msg : roomMsgList) {
+            for (ChatData msg : roomMsgList) {
                 msg.setStatus(MessageStatusEnum.SEND.getType());
             }
 
@@ -192,8 +190,8 @@ public class MessageServiceImpl implements MessageService {
 
         log.info("拉取最近聊天消息；userId: {}, 消息偏移: {}, 私聊消息数量：{}, 群聊消息数量：{}", userId, minMsgId, singleSize, roomSize);
 
-        for (Msg msg : result) {
-            SendMessage sendMessage = MsgConvert.buildSendMessage(msg);
+        for (ChatData chatData : result) {
+            SendMessage sendMessage = MsgConvert.buildSendMessage(chatData);
             sendMessage.setReceiverInfo(new ReceiverInfo(userId));
             imSender.send(sendMessage);
         }
@@ -206,15 +204,15 @@ public class MessageServiceImpl implements MessageService {
     @DistributedLock(lockKey = "'loadOfflineMessage:'+#userId", waitTime = 0)
     public void loadOfflineMessage(Long userId) {
 
-        List<Msg> offlineMsg = new LinkedList<>();
-        List<Msg> offlineSingleMsgList = msgMapper.getOfflineSingleMsgList(userId);
+        List<ChatData> offlineMsg = new LinkedList<>();
+        List<ChatData> offlineSingleMsgList = msgMapper.getOfflineSingleMsgList(userId);
         if (CollUtil.isNotEmpty(offlineSingleMsgList)) {
             offlineMsg.addAll(offlineSingleMsgList);
         }
         int singleSize = offlineMsg.size();
 
         // 批量更新离线消息状态为已读
-        for (Msg msg : offlineSingleMsgList) {
+        for (ChatData msg : offlineSingleMsgList) {
             Msg update = new Msg();
             update.setId(msg.getId());
             update.setStatus(MessageStatusEnum.SEND.getType());
@@ -227,7 +225,7 @@ public class MessageServiceImpl implements MessageService {
             if (position == null) {
                 position = 0L;
             }
-            List<Msg> offlineRoomMsgList = msgMapper.getRoomMsgList(position, roomDo.getRoomId());
+            List<ChatData> offlineRoomMsgList = msgMapper.getRoomMsgList(position, roomDo.getRoomId());
             if (CollUtil.isNotEmpty(offlineRoomMsgList)) {
                 offlineMsg.addAll(offlineRoomMsgList);
 
@@ -239,7 +237,7 @@ public class MessageServiceImpl implements MessageService {
         int roomSize = offlineMsg.size() - singleSize;
         log.info("拉取总离线聊天消息；userId: {}, 私聊离线消息数量：{}, 群聊离线消息数量: {};", userId, singleSize, roomSize);
 
-        for (Msg msg : offlineMsg) {
+        for (ChatData msg : offlineMsg) {
             SendMessage sendMessage = MsgConvert.buildSendMessage(msg);
             sendMessage.setReceiverInfo(new ReceiverInfo(userId));
             imSender.send(sendMessage);

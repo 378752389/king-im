@@ -77,6 +77,7 @@ public class IMSender implements ISender {
         recMessage.setContent(message.getText());
         recMessage.setExtra(message.getExtra());
         recMessage.setType(sendMessage.getMessageType().getType());
+        recMessage.setReferMsg(message.getReferMsg());
 
         return recMessage;
     }

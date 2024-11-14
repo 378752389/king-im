@@ -60,7 +60,7 @@ public class MessageSubscriber implements Subscriber {
 
     public void setResult(RecMessage recMessage, MessageStatusEnum statusEnum) {
         if (ChatTypeEnum.SINGLE.getType().equals(recMessage.getChatType())) {
-            if (MessageStatusEnum.SEND.equals(statusEnum)) {
+            if (MessageStatusEnum.SEND.equals(statusEnum) && !MessageStatusEnum.SEND.getType().equals(recMessage.getStatus())) {
                 messageService.updateMsgToSendStatus(recMessage.getMsgId());
                 log.info("单聊消息发送成功： msgId: {}, content: {}", recMessage.getMsgId(), recMessage.getContent());
             }

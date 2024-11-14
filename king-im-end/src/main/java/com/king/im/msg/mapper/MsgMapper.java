@@ -2,6 +2,7 @@ package com.king.im.msg.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.king.im.msg.domain.entity.Msg;
+import com.king.im.server.protocol.data.ChatData;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -17,6 +18,12 @@ public interface MsgMapper extends BaseMapper<Msg> {
      * @return
      */
     List<Msg> getRoomMsgCursorPage(@Param("roomId") Long roomId, @Param("cursor") Long cursor, @Param("size") Long size);
+
+    /**
+     *
+     * @return
+     */
+    ChatData getChatMsg(@Param("msgId") Long msgId);
 
     /**
      * 分页获取单聊消息
@@ -36,7 +43,7 @@ public interface MsgMapper extends BaseMapper<Msg> {
      * @param userId
      * @return
      */
-    List<Msg> getOfflineSingleMsgList(@Param("userId") Long userId);
+    List<ChatData> getOfflineSingleMsgList(@Param("userId") Long userId);
 
     /**
      * 获取消息状态为已发送的消息，拉取至多1000条私聊消息
@@ -44,7 +51,7 @@ public interface MsgMapper extends BaseMapper<Msg> {
      * @param userId
      * @return
      */
-    List<Msg> getSingleMsgList(@Param("minMsgId") Long minMsgId, @Param("userId") Long userId);
+    List<ChatData> getSingleMsgList(@Param("minMsgId") Long minMsgId, @Param("userId") Long userId);
 
     /**
      * 拉群至多100条群聊消息
@@ -52,7 +59,7 @@ public interface MsgMapper extends BaseMapper<Msg> {
      * @param roomId
      * @return
      */
-    List<Msg> getRoomMsgList(@Param("minMsgId") Long minMsgId, @Param("roomId") Long roomId);
+    List<ChatData> getRoomMsgList(@Param("minMsgId") Long minMsgId, @Param("roomId") Long roomId);
 
 
     /**

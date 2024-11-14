@@ -5,6 +5,7 @@ import {computed} from "vue";
 import {useChatsStore} from "@/stores/chats.js";
 import emojiUtils from "@/utils/emojiUtils.js";
 import {ShowToast} from "@/components/common/func/toast.js";
+import ReferMessage from "@/views/chat/components/ReferMessage.vue";
 
 const userStore = useUserStore()
 const groupStore = useGroupsStore()
@@ -28,21 +29,20 @@ const props = defineProps({
 const emits = defineEmits(['avatar', 'msg'])
 
 const chatAvatar = computed(() => {
-  if (props.msg.type === 1) {
-    if (props.msg.fromUid === userStore.info?.id) {
-      return userStore.info?.avatar
+  if (props.msg.fromUid === userStore.info?.id) {
+    return userStore.info?.avatar
+  } else {
+    if (props.msg.type === 1) {
+      // 单聊会话头像
+      return chatStore.currentChatGetter.chatAvatar;
+    } else if (props.msg.type === 2) {
+      const group = groupStore.getGroup(props.msg.roomId)
+      if (group == null) {
+        console.log("未找到群: " + props.msg.roomId)
+        return null;
+      }
+      return group.roomMemberList.find(member => member.id === props.msg.fromUid)?.avatar;
     }
-    return chatStore.currentChatGetter.chatAvatar;
-  } else if (props.msg.type === 2) {
-    if (props.msg.fromUid === userStore.info?.id) {
-      return userStore.info?.avatar
-    }
-    const group = groupStore.getGroup(props.msg.roomId)
-    if (group == null) {
-      console.log("未找到群: " + props.msg.roomId)
-      return null;
-    }
-    return group.roomMemberList.find(member => member.id === props.msg.fromUid)?.avatar;
   }
   return '';
 })
@@ -99,7 +99,7 @@ const onPictureClick = () => {
     <div @click="onAvatarClick" class="avatar">
       <img width="40" height="40" :src="chatAvatar" alt=""/>
     </div>
-    <div>
+    <div style="position:relative;">
       <div class="nickname" v-if="!isSelfMsg">{{ chatName }}</div>
       <div class="msg-wrapper" @contextmenu="onMsgClick">
         <div class="msg text-msg" v-if="msg.contentType === 1">
@@ -129,7 +129,14 @@ const onPictureClick = () => {
           <i class="iconfont icon-error"></i>无法识别消息类型
         </div>
       </div>
+      <div :class="['refer-msg', isSelfMsg? 'right': 'left']" v-if="msg.referMsgId != null && msg.referMsg != null">
+        <div class="refer-sender">{{ msg.referMsg.nickname}}:</div>
+        <div class="refer-msg-text" v-if="msg.referMsg.contentType === 1">
+          {{msg.referMsg.content}}
+        </div>
+      </div>
     </div>
+
 <!--    todo 等待发送方发送结果通知-->
 <!--    <div class="msg-loading" v-if="msg.status === 1"><i class="iconfont icon-loading" /></div>-->
   </div>
@@ -206,6 +213,24 @@ const onPictureClick = () => {
   .msg-loading
     margin 0 5px
     align-self center
+  .refer-msg
+    position absolute
+    opacity 0.4
+    border 1px rgba(0, 0, 0, 0.9) solid
+    padding 5px
+    display flex
+    width 500px
+  .left
+    left 0
+  .right
+    right 0
+
+    .refer-sender
+      margin 0 5px
+    .refer-msg-text
+      flex 1
+
+
 .self
   flex-direction row-reverse
 

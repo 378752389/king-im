@@ -11,6 +11,7 @@ import KingPopover from "@/components/common/KingPopover.vue";
 import emojiUtils from "@/utils/emojiUtils.js";
 import {useUserStore} from "@/stores/user.js";
 import {ShowToast} from "@/components/common/func/toast.js";
+import ReferMessage from "@/views/chat/components/ReferMessage.vue";
 
 const chatStore = useChatsStore()
 const editAreaData = reactive({
@@ -21,6 +22,7 @@ const editAreaData = reactive({
   focusNode: null,
   focusOffset: 0,
   atSearchText: '',
+  referMsgId: '',
 })
 const editAreaRef = ref()
 const emits = defineEmits(['send-msg', 'upload-file'])
@@ -49,6 +51,7 @@ const createSendContent = () => {
     }
   })
   editAreaData.atUids = atUids
+  editAreaData.referMsgId = chatStore.referMsgDataGetter?.msg?.id
 }
 
 const html2Escape = (strHtml) => {
@@ -75,11 +78,14 @@ const onSendBtnClick = async () => {
       atUids: editAreaData.atUids,
       text: editAreaData.sendContent,
       chatId: chatStore.currentChatIdGetter,
-      chatType: chatStore.currentChatTypeGetter
+      chatType: chatStore.currentChatTypeGetter,
+      referMsgId: editAreaData.referMsgId,
     })
     chatStore.insertMessage(chatStore.currentChatIdGetter, chatStore.currentChatTypeGetter, msg)
     editAreaData.sendContent = ''
     editAreaRef.value.innerHTML = ''
+    editAreaData.referMsgId = null
+    chatStore.clearReferMessage()
     emits('send-msg')
   } catch (e) {
     ShowToast({
@@ -238,9 +244,9 @@ const onEmojiSelect = (emojiText, index) => {
   let img = document.createElement("img")
   img.dataset.emojiText = emojiText
   img.classList.add('emoji')
-  img.width='24'
-  img.height='24'
-  img.style.verticalAlign='bottom'
+  img.width = '24'
+  img.height = '24'
+  img.style.verticalAlign = 'bottom'
   img.alt = ''
   img.src = emojiUtils.textToUrl(emojiText)
   img.contentEditable = 'true'
@@ -255,11 +261,6 @@ const onEmojiSelect = (emojiText, index) => {
   // 手动关闭emoji弹窗
   emojiListPopoverRef.value.close()
 }
-
-const onEmojiClick = () => {
-  // editAreaData.focusNode = document.getSelection().focusNode
-  // editAreaData.focusOffset = document.getSelection().focusOffset
-}
 </script>
 
 <template>
@@ -268,7 +269,7 @@ const onEmojiClick = () => {
 
       <king-popover ref="emojiListPopoverRef" trigger="click" position="top left">
         <template #reference>
-          <div @click="onEmojiClick" class="tool-item pointer-select">
+          <div class="tool-item pointer-select">
             <i class="iconfont icon-smile"></i>
           </div>
         </template>
@@ -290,9 +291,13 @@ const onEmojiClick = () => {
          @input="onEditAreaInput"
          @blur="onEditAreaBlur"
     ></div>
-    <div class="send">
-      <button @click="onSendBtnClick" id="send-btn">发送</button>
-    </div>
+    <button @click="onSendBtnClick" id="send-btn">发送</button>
+    <ReferMessage v-if="chatStore.referMsgDataGetter?.msg
+    && chatStore.referMsgDataGetter?.chatId ===  chatStore.currentChatIdGetter
+    && chatStore.referMsgDataGetter?.chatType === chatStore.currentChatTypeGetter"
+                  @close="chatStore.clearReferMessage()"
+                  :refer-msg="chatStore.referMsgDataGetter.msg"/>
+
     <AtSearch @confirm="searchItemConfirm" :text="editAreaData.atSearchText" :list="searchList" ref="atSearchRef"/>
     <ChatHistory ref="chatHistoryRef" :chat-id="chatStore.currentChatIdGetter"
                  :chat-type="chatStore.currentChatTypeGetter"/>
@@ -332,7 +337,10 @@ const onEmojiClick = () => {
 
     &:focus-within
       outline 2px solid rgba(0, 0, 0, 0.2)
-
+  .refer-message
+    position absolute
+    width 80%
+    transform translateY(-100%)
   #send-btn
     position absolute
     bottom 20px

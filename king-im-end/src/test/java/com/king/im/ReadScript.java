@@ -1,12 +1,14 @@
 package com.king.im;
 
 import com.king.im.common.exceptions.GlobalException;
+import com.king.im.common.utils.JwtUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,41 +16,10 @@ public class ReadScript {
 
     // 遍历文件，输入流
     public static void main(String[] args) throws IOException {
-
-        String path = "E:\\Project\\java\\own\\mini-project\\mini-netty";
-        String newPath = "E:\\Project\\java\\own\\mini-project\\source";
-        Path p = Paths.get(path);
-        if (!Files.exists(p)) {
-            throw new GlobalException("路径不存在");
-        }
-        if (!Files.isDirectory(p)) {
-            throw new GlobalException("指定路径不是目录文件");
-        }
-        List<Path> files = Files.walk(p)
-                .filter(Files::isRegularFile)
-                .filter(file -> !file.startsWith("E:\\Project\\java\\own\\mini-project\\mini-netty\\target"))
-                .filter(file -> !file.toString().endsWith("jpg"))
-                .collect(Collectors.toList());
-
-        for (Path file : files) {
-            try {
-                File sourceFile = file.toFile();
-                String absolutePath = sourceFile.getAbsolutePath();
-                String newAbsPath = absolutePath.replace(path, newPath);
-                int idx = newAbsPath.lastIndexOf(".");
-                String target = newAbsPath.substring(0, idx) + ".txt";
-                List<String> strings = Files.readAllLines(file);
-                Path pa = Paths.get(target);
-                if (!Files.exists(pa.getParent())) {
-                    Files.createDirectories(pa.getParent());
-                }
-                Files.write(pa, strings);
-            } catch (Exception e) {
-                System.out.println("异常文件：" + file);
-            }
-        }
-
-
+        Date date = new Date(1725984000000L);
+        System.out.println(date);
+//        String userInfo = JwtUtils.getUserInfo("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyIiwiZXhwIjoyMTU4MDQ2NzY0LCJpbmZvIjoie1widWlkXCI6MixcIm5pY2tuYW1lXCI6XCJ3XCIsXCJ1c2VybmFtZVwiOlwid1wiLFwidGVybWluYWxcIjoxfSJ9.O0aI3zzP94YoDkqvL5FSKw3RNJK1jQuT9I86-kIbPz4");
+//        System.out.println(userInfo);
         // 读取文件
         // 写入目标文件
     }
